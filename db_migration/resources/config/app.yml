@@ -1,2 +1,2 @@
 db:
-  url: "postgres://app_dev:password@localhost/devdb?sslmode=disable"
+  url: "postgres://devapp:password@localhost/devdb?sslmode=disable"

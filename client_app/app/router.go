@@ -13,7 +13,6 @@ import (
 
 	"mmrath.com/gobase/pkg/auth"
 
-	"mmrath.com/gobase/pkg/log"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -25,7 +24,6 @@ import (
 func NewMux(cfg config.Config,
 	userHandler *account.Handler,
 	jwtService auth.JWTService) (*chi.Mux, error) {
-	logger := log.NewLogger()
 
 	r := chi.NewRouter()
 
@@ -34,7 +32,7 @@ func NewMux(cfg config.Config,
 	r.Use(middleware.RealIP)
 	r.Use(middleware.DefaultCompress)
 	r.Use(middleware.Timeout(10 * time.Second))
-	r.Use(log.NewStructuredLogger(logger))
+	//r.Use(log.NewStructuredLogger(logger))
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 
 	// use CORS middleware if client is not served by this api, e.g. from other domain or CDN

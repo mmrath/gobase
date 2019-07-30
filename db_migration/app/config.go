@@ -15,7 +15,7 @@ type dbConfig struct {
 }
 
 func LoadConfig(configPaths ...string) Config {
-	envPrefix := "ARA"
+	envPrefix := "GO_BASE"
 
 	v := viper.New()
 

@@ -3,6 +3,8 @@ package test
 import (
 	"bytes"
 	"log"
+	"mmrath.com/gobase/pkg/auth"
+	"mmrath.com/gobase/pkg/crypto"
 	"net/http"
 	"regexp"
 	"testing"
@@ -16,7 +18,7 @@ import (
 )
 
 type AccountTestSuite struct {
-	client_app.TestSuite
+	TestSuite
 }
 
 func TestAccountSuite(t *testing.T) {
@@ -39,14 +41,14 @@ func (s *AccountTestSuite) TestSignUpActivateAndLogin() {
 	he := httpexpect.New(s.T(), s.server.URL)
 	testEmail := "test@example.com"
 	testPassword := "Secret123"
-	signupRequest := map[string]interface{}{
+	registerRequest := map[string]interface{}{
 		"firstName": "Murali",
 		"lastName":  "Rath",
 		"email":     testEmail,
 		"password":  testPassword,
 	}
 	he.POST("/api/account/register").
-		WithJSON(signupRequest).
+		WithJSON(registerRequest).
 		Expect().
 		Status(http.StatusOK)
 
@@ -54,7 +56,7 @@ func (s *AccountTestSuite) TestSignUpActivateAndLogin() {
 	msg := s.mailer.PopLastMessage()
 	require.NotNil(s.T(), msg)
 	require.Equal(s.T(), "Activate your account", msg.Subject)
-	require.Equal(s.T(), signupRequest["email"], msg.To[0].Email)
+	require.Equal(s.T(), registerRequest["email"], msg.To[0].Email)
 
 	resp := he.POST("/api/account/login").
 		WithJSON(model.LoginRequest{Email: testEmail, Password: testPassword}).
@@ -75,14 +77,14 @@ func (s *AccountTestSuite) TestSignUpActivateAndLogin() {
 	resp.Status(http.StatusOK)
 	token := resp.Header("Authorization").Match("Bearer (.*)").Raw()[1]
 
-	jwtService := pkg.NewJWTService(s.cfg.JWT)
+	jwtService := auth.NewJWTService(s.cfg.JWT)
 	jwtToken, err := jwtService.Decode(token)
 	require.NoError(s.T(), err)
 	err = jwtToken.Claims.Valid()
 	require.NoError(s.T(), err)
 	claims := jwtToken.Claims.(jwt.MapClaims)
 	require.NotNil(s.T(), claims["jti"])
-	require.Equal(s.T(), testEmail, claims["email"])
+	require.Equal(s.T(), testEmail, claims["sub"])
 }
 
 func (s *AccountTestSuite) TestSignUpWithInvalidEmail() {
@@ -206,14 +208,14 @@ func (s *AccountTestSuite) TestResetPassword() {
 	resp.Status(http.StatusOK)
 	token := resp.Header("Authorization").Match("Bearer (.*)").Raw()[1]
 
-	jwtService := pkg.NewJWTService(s.cfg.JWT)
+	jwtService := auth.NewJWTService(s.cfg.JWT)
 	jwtToken, err := jwtService.Decode(token)
 	require.NoError(s.T(), err)
 	err = jwtToken.Claims.Valid()
 	require.NoError(s.T(), err)
 	claims := jwtToken.Claims.(jwt.MapClaims)
 	require.NotNil(s.T(), claims["jti"])
-	require.Equal(s.T(), testEmail, claims["email"])
+	require.Equal(s.T(), testEmail, claims["sub"])
 
 }
 
@@ -296,7 +298,7 @@ func (s *AccountTestSuite) createUser(email string, password string) {
 		log.Printf("Error executing statement %s", stmts[0])
 		panic(err)
 	}
-	passwordHash, err := pkg.HashPassword(pkg.SHA256([]byte(password)))
+	passwordHash, err := crypto.HashPassword(crypto.SHA256([]byte(password)))
 	if err != nil {
 		log.Printf("Error hasing password")
 		panic(err)

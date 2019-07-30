@@ -1,6 +1,0 @@
-server:
-  port: 3000
-  enableCors: false
-
-db:
-  url: "postgres://fina_test:password@localhost/fina_testdb?sslmode=disable"
