@@ -1,7 +1,7 @@
 package test
 
 import (
-	"mmrath.com/gobase/pkg/email"
+	"mmrath.com/gobase/common/email"
 )
 
 type MockMailer struct {

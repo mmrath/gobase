@@ -7,17 +7,14 @@ import (
 	"strings"
 	"time"
 
-	"mmrath.com/gobase/pkg/auth"
-
-	"mmrath.com/gobase/pkg/crypto"
-
-	"mmrath.com/gobase/pkg/model"
-
-	"mmrath.com/gobase/pkg/errors"
+	"mmrath.com/gobase/common/auth"
+	"mmrath.com/gobase/common/crypto"
+	"mmrath.com/gobase/common/errors"
+	"mmrath.com/gobase/common/log"
+	"mmrath.com/gobase/model"
 
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/google/uuid"
-	log "github.com/sirupsen/logrus"
 )
 
 type Service struct {

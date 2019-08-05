@@ -5,11 +5,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"mmrath.com/gobase/pkg/auth"
-	"mmrath.com/gobase/pkg/email"
-	"mmrath.com/gobase/pkg/model"
+	"mmrath.com/gobase/common/auth"
+	"mmrath.com/gobase/common/email"
+	"mmrath.com/gobase/common/log"
+	"mmrath.com/gobase/model"
 )
 
 type Config struct {
@@ -31,7 +31,7 @@ func LoadConfig(resourceRoot string, profiles ...string) Config {
 	if err != nil {
 		panic(err)
 	}
-	logrus.Info("Executable location:", path)
+	log.Info("Executable location:", path)
 
 	envPrefix := "ARA"
 
@@ -54,16 +54,16 @@ func LoadConfig(resourceRoot string, profiles ...string) Config {
 			pf, err := os.Open(profileConfig)
 
 			if err != nil {
-				logrus.Error("Failed to read profile config file", profileConfig)
+				log.Error("Failed to read profile config file", profileConfig)
 				panic(fmt.Sprintf("failed to config file: %s, error: %v", profileConfig, err))
 			}
 
 			if err := v.MergeConfig(pf); err != nil {
 				panic(fmt.Sprintf("Failed to read the configuration file: %s, error: %v", profileConfig, err))
 			}
-			logrus.Info("Loaded config from ", profileConfig)
+			log.Info("Loaded config from ", profileConfig)
 		} else {
-			logrus.Warn("Config does not exist ", profileConfig)
+			log.Warn("Config does not exist ", profileConfig)
 		}
 	}
 
@@ -71,7 +71,7 @@ func LoadConfig(resourceRoot string, profiles ...string) Config {
 	if err := v.Unmarshal(&config); err != nil {
 		panic(fmt.Sprintf("failed to unmarshall config file: %v", err))
 	}
-	logrus.WithField("config", config).Info("Successfully loaded configuration")
+	log.WithField("config", config).Info("Successfully loaded configuration")
 	return config
 }
 

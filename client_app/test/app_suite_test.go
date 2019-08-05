@@ -11,7 +11,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-	"mmrath.com/gobase/pkg/model"
+	"mmrath.com/gobase/model"
 )
 
 type TestSuite struct {

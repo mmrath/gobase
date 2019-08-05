@@ -3,8 +3,6 @@ package main
 import (
 	"strconv"
 
-	errors2 "mmrath.com/gobase/api/pkg/errors"
-
 	"gopkg.in/oauth2.v3"
 )
 

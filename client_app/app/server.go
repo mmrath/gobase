@@ -11,9 +11,9 @@ import (
 	"mmrath.com/gobase/client/config"
 
 	"github.com/go-chi/chi"
-	log "github.com/sirupsen/logrus"
-	"mmrath.com/gobase/pkg/email"
-	"mmrath.com/gobase/pkg/model"
+	"mmrath.com/gobase/common/email"
+	"mmrath.com/gobase/common/log"
+	"mmrath.com/gobase/model"
 )
 
 // Server provides an http.Server.

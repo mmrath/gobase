@@ -4,7 +4,6 @@ import (
 	"strconv"
 	"time"
 
-	errors2 "mmrath.com/gobase/api/pkg/errors"
 
 	log "github.com/sirupsen/logrus"
 	"mmrath.com/gobase/common/crypto"

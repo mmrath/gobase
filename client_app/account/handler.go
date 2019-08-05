@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"net/http"
 
-	"mmrath.com/gobase/pkg/auth"
-
-	errors2 "mmrath.com/gobase/pkg/errors"
+	"mmrath.com/gobase/common/auth"
+	"mmrath.com/gobase/common/errors"
+	"mmrath.com/gobase/common/log"
 
 	"github.com/go-chi/jwtauth"
 	"github.com/go-chi/render"
-	log "github.com/sirupsen/logrus"
-	"mmrath.com/gobase/pkg/model"
+	"mmrath.com/gobase/model"
 )
 
 var AuthTokenCookieName = "Token"
@@ -35,13 +34,13 @@ func (h *Handler) Login(service auth.JWTService) http.HandlerFunc {
 		user, err := h.Service.Login(data)
 
 		if err != nil {
-			errors2.RenderError(w, r, err)
+			errors.RenderError(w, r, err)
 			return
 		} else {
 			var token string
 			token, err = service.NewToken(user)
 			if err != nil {
-				errors2.RenderError(w, r, err)
+				errors.RenderError(w, r, err)
 				return
 			} else {
 				render.Status(r, http.StatusOK)
@@ -89,7 +88,7 @@ func (h *Handler) SignUp() http.HandlerFunc {
 
 		if err != nil {
 			log.WithField("error", err).Info("Error during sign up")
-			errors2.RenderError(w, r, err)
+			errors.RenderError(w, r, err)
 			return
 		} else {
 			render.Status(r, http.StatusOK)
@@ -105,7 +104,7 @@ func (h *Handler) Activate() http.HandlerFunc {
 		err := h.Service.Activate(key)
 
 		if err != nil {
-			errors2.RenderError(w, r, err)
+			errors.RenderError(w, r, err)
 			return
 		} else {
 			render.Status(r, http.StatusOK)
@@ -145,7 +144,7 @@ func (h *Handler) InitPasswordReset() http.HandlerFunc {
 
 		if err != nil {
 			log.WithField("error", err).Info("Error initiating password reset")
-			errors2.RenderError(w, r, err)
+			errors.RenderError(w, r, err)
 			return
 		} else {
 			render.Status(r, http.StatusOK)
@@ -168,7 +167,7 @@ func (h *Handler) ResetPassword() http.HandlerFunc {
 
 		if err != nil {
 			log.WithField("error", err).Info("Error initiating password reset")
-			errors2.RenderError(w, r, err)
+			errors.RenderError(w, r, err)
 			return
 		} else {
 			render.Status(r, http.StatusOK)
@@ -190,7 +189,7 @@ func (h *Handler) ChangePassword() http.HandlerFunc {
 
 		if err != nil {
 			log.WithField("error", err).Info("Error changing password")
-			errors2.RenderError(w, r, err)
+			errors.RenderError(w, r, err)
 			return
 		} else {
 			render.Status(r, http.StatusOK)

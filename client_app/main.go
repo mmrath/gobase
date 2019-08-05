@@ -2,7 +2,7 @@ package main
 
 import (
 	"mmrath.com/gobase/client/app"
-	"mmrath.com/gobase/pkg/email"
+	"mmrath.com/gobase/common/email"
 )
 
 func main() {

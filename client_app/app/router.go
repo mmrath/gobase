@@ -11,7 +11,7 @@ import (
 	"mmrath.com/gobase/client/account"
 	"mmrath.com/gobase/client/config"
 
-	"mmrath.com/gobase/pkg/auth"
+	"mmrath.com/gobase/common/auth"
 
 
 	"github.com/go-chi/chi"
