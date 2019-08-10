@@ -8,9 +8,7 @@ issuer: http://127.0.0.1:5556/dex
 #
 # See the storage document at Documentation/storage.md for further information.
 storage:
-  type: sqlite3
-  config:
-    file: examples/dex.db
+  type: memory
 
 # Configuration for the HTTP endpoints.
 web:
@@ -21,7 +19,7 @@ web:
   # tlsKey: /etc/dex/tls.key
 
 frontend:
-
+  dir: resources/web
 
 # Configuration for telemetry
 telemetry:

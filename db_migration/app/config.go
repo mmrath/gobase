@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -37,6 +38,6 @@ func LoadConfig(configPaths ...string) Config {
 	if err := v.Unmarshal(&config); err != nil {
 		panic(fmt.Sprintf("failed to unmarshall config file: %v", err))
 	}
-	logrus.WithField("config", config).Info("Successfully loaded configuration")
+	log.Info().Interface("config", config).Msg("successfully loaded configuration")
 	return config
 }

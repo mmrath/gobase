@@ -1,0 +1,15 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["config.go"],
+    importpath = "mmrath.com/gobase/client_app/config",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//common/auth:go_default_library",
+        "//common/email:go_default_library",
+        "//model:go_default_library",
+        "@com_github_rs_zerolog//log:go_default_library",
+        "@com_github_spf13_viper//:go_default_library",
+    ],
+)

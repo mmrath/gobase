@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/rs/zerolog/log"
 	"mmrath.com/gobase/common/auth"
 	"mmrath.com/gobase/common/crypto"
 	"mmrath.com/gobase/common/errors"
-	"mmrath.com/gobase/common/log"
 	"mmrath.com/gobase/model"
 
 	validation "github.com/go-ozzo/ozzo-validation"
@@ -122,7 +122,7 @@ func (s *Service) Login(login *model.LoginRequest) (*model.User, error) {
 		if uc.InvalidAttempts > 0 {
 			err := tx.UserCredentialDao().ResetInvalidAttempts(user.ID)
 			if err != nil {
-				log.Errorf("Error while resetting invalid attempts %+v", err)
+				log.Error().Err(err).Msg("failed resetting invalid attempts")
 			}
 		}
 		return nil
@@ -188,7 +188,7 @@ func (s *Service) InitiatePasswordReset(email string) error {
 	var err error
 	resetToken := uuid.New().String()
 	resetTokenSha := fmt.Sprintf("%x", sha256.Sum256([]byte(resetToken)))
-	expiresAt := time.Now().Add(time.Duration(20 * time.Minute))
+	expiresAt := time.Now().Add(20 * time.Minute)
 
 	err = s.db.RunTx(func(tx *model.Tx) error {
 		user, err = tx.UserDao().GetByEmail(email)
@@ -224,11 +224,11 @@ func (s *Service) InitiatePasswordReset(email string) error {
 	err = s.notifier.NotifyPasswordResetInit(user, resetToken)
 
 	if err != nil {
-		log.WithError(err).WithField("id", user.ID).Error("Error sending password reset email")
+		log.Error().Err(err).Int64("id", user.ID).Msg("failed to send password reset email")
 		return errors.NewInternal(err, "Failed to send password reset email")
 	}
 
-	log.WithField("id", user.ID).Info("Successfully sent password reset email")
+	log.Info().Int64("id", user.ID).Msg("successfully sent password reset email")
 	return nil
 }
 
@@ -263,7 +263,7 @@ func (s *Service) ResetPassword(passwordResetRequest *model.ResetPasswordRequest
 
 func (s *Service) SignUp(signUpRequest *model.SignUpRequest) (*model.User, error) {
 
-	log.Debug("Signing up user", signUpRequest)
+	log.Debug().Interface("email", signUpRequest.Email).Msg("signing up user")
 	err := signUpRequest.Validate()
 
 	if err != nil {
@@ -314,17 +314,17 @@ func (s *Service) SignUp(signUpRequest *model.SignUpRequest) (*model.User, error
 	})
 
 	if err != nil {
-		return nil, errors.ToError(err, "failed to complete signup transaction")
+		return nil, errors.ToError(err, "failed to complete sign-up transaction")
 	}
 
 	err = s.notifier.NotifyActivation(&newUser, activationToken)
 
 	if err != nil {
-		log.WithError(err).Error("Error sending activation email")
-		return nil, errors.NewInternal(err, "Failed to send account activation email")
+		log.Error().Err(err).Msg("failed to send account activation email")
+		return nil, errors.NewInternal(err, "failed to send account activation email")
 	}
 
-	log.Debug("Successfully signed up user", newUser)
+	log.Debug().Interface("user", newUser).Msg("successfully signed up user")
 	return &newUser, nil
 }
 
@@ -349,7 +349,7 @@ func (s *Service) checkForDuplicate(input string, by string, fn func(string) (bo
 	if err != nil {
 		return errors.NewInternal(err, "Error while checking for duplicate email")
 	} else if exists {
-		log.WithField(by, input).Info("Found user with same ", by)
+		log.Info().Str(by, input).Msgf("found user with same %s", by)
 		fieldErrors := []errors.FieldError{{Field: "email", Message: "user already exists"}}
 		return errors.WithFieldErrors(fieldErrors)
 	}

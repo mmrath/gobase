@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"log"
 
 	"github.com/go-pg/pg"
@@ -55,6 +56,7 @@ type DB struct {
 
 type Tx struct {
 	*pg.Tx
+	ctx context.Context
 }
 
 func IsNoDataFound(err error) bool {
@@ -73,7 +75,23 @@ func (db *DB) RunTx(fn func(tx *Tx) error) error {
 	if err != nil {
 		return err
 	}
-	tx := &Tx{pgTx}
+	tx := &Tx{pgTx, context.Background()}
+
+	defer tx.cleanUp()
+
+	if err := fn(tx); err != nil {
+		_ = tx.Commit()
+		return err
+	}
+	return tx.Commit()
+}
+
+func (db *DB) Tx(ctx context.Context, fn func(tx *Tx) error) error {
+	pgTx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	tx := &Tx{pgTx, ctx}
 
 	defer tx.cleanUp()
 

@@ -2,13 +2,13 @@ package errors
 
 import (
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"net/http"
 
 	"github.com/go-chi/render"
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 )
 
 type Error struct {
@@ -78,7 +78,7 @@ func WithFieldError(field string, message string) Error {
 }
 
 func RenderError(w http.ResponseWriter, r *http.Request, err error) {
-	log.WithField("error", err).Errorf("Encountered error %v", err)
+	log.Error().Err(err).Send()
 	var appErr Error
 	if ce, ok := err.(Error); ok {
 		appErr = ce

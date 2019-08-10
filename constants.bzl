@@ -1,0 +1,1 @@
+GO_PREFIX = "mmrath.com/gobase"

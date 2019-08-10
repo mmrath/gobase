@@ -1,0 +1,12 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["role_service.go"],
+    importpath = "mmrath.com/gobase/admin/server/pkg/account",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//common/errors:go_default_library",
+        "//model:go_default_library",
+    ],
+)

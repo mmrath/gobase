@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"mmrath.com/gobase/common/auth"
-	"mmrath.com/gobase/common/errors"
-	"mmrath.com/gobase/common/log"
-
 	"github.com/go-chi/jwtauth"
 	"github.com/go-chi/render"
+	"github.com/rs/zerolog/log"
+	"mmrath.com/gobase/common/auth"
+	"mmrath.com/gobase/common/errors"
 	"mmrath.com/gobase/model"
 )
 
@@ -87,7 +86,7 @@ func (h *Handler) SignUp() http.HandlerFunc {
 		user, err := h.Service.SignUp(data)
 
 		if err != nil {
-			log.WithField("error", err).Info("Error during sign up")
+			log.Error().Err(err).Msg("error during sign up")
 			errors.RenderError(w, r, err)
 			return
 		} else {
@@ -143,7 +142,7 @@ func (h *Handler) InitPasswordReset() http.HandlerFunc {
 		err := h.Service.InitiatePasswordReset(data.Email)
 
 		if err != nil {
-			log.WithField("error", err).Info("Error initiating password reset")
+			log.Error().Err(err).Msg("Error initiating password reset")
 			errors.RenderError(w, r, err)
 			return
 		} else {
@@ -166,7 +165,7 @@ func (h *Handler) ResetPassword() http.HandlerFunc {
 		err := h.Service.ResetPassword(data)
 
 		if err != nil {
-			log.WithField("error", err).Info("Error initiating password reset")
+			log.Error().Err(err).Msg("error initiating password reset")
 			errors.RenderError(w, r, err)
 			return
 		} else {
@@ -188,7 +187,7 @@ func (h *Handler) ChangePassword() http.HandlerFunc {
 		err := h.Service.ChangePassword(r.Context(), data)
 
 		if err != nil {
-			log.WithField("error", err).Info("Error changing password")
+			log.Error().Err(err).Msg("error changing password")
 			errors.RenderError(w, r, err)
 			return
 		} else {

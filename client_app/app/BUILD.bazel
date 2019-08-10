@@ -1,0 +1,22 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "router.go",
+        "server.go",
+        "wire_gen.go",
+    ],
+    importpath = "mmrath.com/gobase/client_app/app",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//common/auth:go_default_library",
+        "//common/email:go_default_library",
+        "//model:go_default_library",
+        "@com_github_go_chi_chi//:go_default_library",
+        "@com_github_go_chi_chi//middleware:go_default_library",
+        "@com_github_go_chi_cors//:go_default_library",
+        "@com_github_go_chi_render//:go_default_library",
+        "@com_github_rs_zerolog//log:go_default_library",
+    ],
+)

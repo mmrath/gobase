@@ -12,8 +12,8 @@ import (
 
 	"github.com/go-chi/chi"
 	"mmrath.com/gobase/common/email"
-	"mmrath.com/gobase/common/log"
 	"mmrath.com/gobase/model"
+	"github.com/rs/zerolog/log"
 )
 
 // Server provides an http.Server.
@@ -58,7 +58,7 @@ func NewServer(cfg config.Config, mux *chi.Mux) (*Server, error) {
 
 // Start runs ListenAndServe on the http.Server with graceful shutdown.
 func (srv *Server) Start() {
-	log.Println("starting server...")
+	log.Print("starting server...")
 	go func() {
 		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
 			panic(err)
@@ -69,10 +69,10 @@ func (srv *Server) Start() {
 	quit := make(chan os.Signal)
 	signal.Notify(quit, os.Interrupt)
 	sig := <-quit
-	log.Println("Shutting down server... Reason:", sig)
+	log.Print("shutting down server... reason:", sig)
 
 	if err := srv.Shutdown(context.Background()); err != nil {
 		panic(err)
 	}
-	log.Println("Server gracefully stopped")
+	log.Print("server gracefully stopped")
 }

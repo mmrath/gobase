@@ -1,0 +1,27 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["utils.go"],
+    importpath = "mmrath.com/gobase/client_app/test",
+    visibility = ["//visibility:public"],
+    deps = ["//common/email:go_default_library"],
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = [
+        "app_suite_test.go",
+        "user_handler_test.go",
+    ],
+    embed = [":go_default_library"],
+    deps = [
+        "//common/auth:go_default_library",
+        "//common/crypto:go_default_library",
+        "//model:go_default_library",
+        "@com_github_dgrijalva_jwt_go//:go_default_library",
+        "@com_github_gavv_httpexpect//:go_default_library",
+        "@com_github_stretchr_testify//require:go_default_library",
+        "@com_github_stretchr_testify//suite:go_default_library",
+    ],
+)
