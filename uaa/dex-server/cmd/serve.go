@@ -64,9 +64,7 @@ func serve(cmd *cobra.Command, args []string) error {
 	}
 
 	logger := log.Logger
-	if err != nil {
-		return fmt.Errorf("invalid config: %v", err)
-	}
+
 	if c.Logger.Level != "" {
 		logger.Infof("config using log level: %s", c.Logger.Level)
 	}

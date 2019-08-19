@@ -1,5 +1,5 @@
 PROJ=gobase
-ORG_PATH=github.com/dexidp
+ORG_PATH=mmrath.com
 REPO_PATH=$(ORG_PATH)/$(PROJ)
 export PATH := $(PWD)/bin:$(PATH)
 

@@ -1,8 +1,0 @@
-load("@bazel_gazelle//:def.bzl", "gazelle")
-load("//:constants.bzl", "GO_PREFIX")
-
-gazelle(
-    name = "gazelle",
-    external = "external",
-    prefix = GO_PREFIX,
-)

@@ -31,9 +31,9 @@ func (e *notifier) NotifyPasswordChange(user *model.User) error {
 	from := email.NewAddress("", "")
 	to := []email.Address{email.NewAddress(user.GetName(), user.GetEmail())}
 	subject := "Account password changed"
-	template := "auth/password_changed.html"
+	pcTmpl := "auth/password_changed.html"
 
-	msg, err := email.NewMessage(from, to, subject, template, &data)
+	msg, err := email.NewMessage(from, to, subject, pcTmpl, &data)
 
 	err = e.sender.Send(msg)
 	if err != nil {
@@ -56,9 +56,9 @@ func (e *notifier) NotifyActivation(user *model.User, token string) error {
 	from := email.NewAddress("", "")
 	to := []email.Address{email.NewAddress(user.GetName(), user.GetEmail())}
 	subject := "Activate your account"
-	template := "accountActivation"
+	acTmpl := "accountActivation"
 
-	msg, err := email.NewMessage(from, to, subject, template, &data)
+	msg, err := email.NewMessage(from, to, subject, acTmpl, &data)
 
 	if err != nil {
 		return err
@@ -84,9 +84,9 @@ func (e *notifier) NotifyPasswordResetInit(user *model.User, token string) error
 	from := email.NewAddress("", "")
 	to := []email.Address{email.NewAddress(user.GetName(), user.GetEmail())}
 	subject := "Reset password"
-	template := "initPasswordReset"
+	passwordResetTmpl := "initPasswordReset"
 
-	msg, err := email.NewMessage(from, to, subject, template, &data)
+	msg, err := email.NewMessage(from, to, subject, passwordResetTmpl, &data)
 
 	if err != nil {
 		return err

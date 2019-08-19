@@ -70,7 +70,7 @@ require (
 	mmrath.com/gobase/common/auth v0.0.0-00010101000000-000000000000
 	mmrath.com/gobase/common/crypto v0.0.0-00010101000000-000000000000
 	mmrath.com/gobase/common/email v0.0.0-00010101000000-000000000000
-	mmrath.com/gobase/common/errors v0.0.0-00010101000000-000000000000
+	mmrath.com/gobase/common/errors v0.0.0
 	mmrath.com/gobase/common/log v0.0.0-00010101000000-000000000000
 	mmrath.com/gobase/model v0.0.0-00010101000000-000000000000
 )

@@ -331,7 +331,7 @@ func (a *app) handleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	buff := new(bytes.Buffer)
-	if err := json.Indent(buff, []byte(claims), "", "  "); err != nil {
+	if err := json.Indent(buff, claims, "", "  "); err != nil {
 		http.Error(w, fmt.Sprintf("error indenting ID token claims: %v", err), http.StatusInternalServerError)
 		return
 	}

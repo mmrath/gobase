@@ -202,6 +202,7 @@ func (h *Handler) Account() http.HandlerFunc {
 		token, _, err := jwtauth.FromContext(r.Context())
 		if err != nil {
 			render.Status(r, http.StatusUnauthorized)
+			return
 		}
 
 		render.Status(r, http.StatusOK)
