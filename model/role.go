@@ -71,7 +71,7 @@ func (d *roleDao) Update(role *Role) error {
 	return createRolePermissions(d.tx, role)
 }
 
-func createRolePermissions(tx Tx, role *Role) error {
+func createRolePermissions(tx *Tx, role *Role) error {
 	if role.Permissions == nil || len(role.Permissions) == 0 {
 		return nil
 	}

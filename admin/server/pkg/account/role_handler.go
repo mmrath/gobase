@@ -1,7 +1,9 @@
 package account
 
 import (
+	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
+	"gopkg.in/go-playground/validator.v9"
 	"github.com/rs/zerolog/log"
 	"mmrath.com/gobase/common/errors"
 	"mmrath.com/gobase/model"
@@ -18,7 +20,8 @@ func NewRoleHandler(roleService RoleService) *RoleHandler {
 
 func (h *RoleHandler) FindRole() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		key := r.URL.Path().Get("key")
+		id := chi.URLParam(r, "id")
+		err := validator.New().Var(&id, "")
 		err := h.Service.Activate(key)
 
 		if err != nil {

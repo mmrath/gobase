@@ -25,6 +25,11 @@ func (s *roleService) Find(ctx context.Context, id int32) (role *model.Role, err
 	return role, err
 }
 
+func find(tx *model.Tx, id int32) (*model.Role, error) {
+	roleDao := model.NewRoleDao(tx)
+	return roleDao.Find(id)
+}
+
 func (s *roleService) Create(ctx context.Context, role *model.Role) (err error) {
 	err = s.db.RunTx(func(tx *model.Tx) error {
 		err = create(tx, role)
@@ -52,12 +57,6 @@ func (s *roleService) Update(ctx context.Context, role *model.Role) (err error) 
 		return roleDao.Update(role)
 	})
 	return err
-}
-
-
-func find(tx *model.Tx, id int32) (*model.Role, error) {
-	roleDao := model.NewRoleDao(tx)
-	return roleDao.Find(id)
 }
 
 func NewRoleService(db model.DB) RoleService {
