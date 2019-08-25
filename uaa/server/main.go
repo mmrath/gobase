@@ -2,6 +2,6 @@ package main
 
 import "mmrath.com/gobase/uaa/cmd"
 
-func main()  {
+func main() {
 	cmd.Main()
 }

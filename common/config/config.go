@@ -14,9 +14,9 @@ func LoadConfig(config interface{}, resourceRoot string, profiles ...string) err
 	if err != nil {
 		panic(err)
 	}
-	log.Info().Msgf("executable location: %s", path)
+	log.Info().Str("executable", path).Send()
 
-	envPrefix := "ARA"
+	envPrefix := "APP"
 
 	v := viper.New()
 

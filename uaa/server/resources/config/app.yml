@@ -1,0 +1,6 @@
+web:
+  port: 3000
+  enableCors: false
+
+db:
+  url: "postgres://int_test:password@localhost/int_testdb?sslmode=disable"
