@@ -3,7 +3,6 @@ package test
 import (
 	"log"
 	"mmrath.com/gobase/client/app"
-	"mmrath.com/gobase/client/config"
 	"net/http/httptest"
 	"path/filepath"
 	"runtime"
@@ -19,7 +18,7 @@ type TestSuite struct {
 	db     *model.DB
 	mailer *MockMailer
 	server *httptest.Server
-	cfg    config.Config
+	cfg    app.Config
 }
 
 // SetupSuite setup at the beginning of test
@@ -30,7 +29,7 @@ func (s *TestSuite) SetupSuite() {
 	root := filepath.Dir(filepath.Dir(file))
 	configRoot := filepath.Join(root, "resources")
 
-	cfg := config.LoadConfig(configRoot, "test")
+	cfg := app.LoadConfig(configRoot, "test")
 
 	mailer, err := NewMockMailer()
 	require.NoError(s.T(), err)

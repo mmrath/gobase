@@ -1,27 +1,37 @@
-// Package api configures an http server for administration and application resources.
 package app
 
 import (
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/cors"
+	"github.com/go-chi/render"
+	"mmrath.com/gobase/admin/pkg/account"
 	"net/http"
 	"os"
 	"path"
 	"strings"
 	"time"
-
-	"mmrath.com/gobase/client/account"
-	"mmrath.com/gobase/common/auth"
-
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
-	"github.com/go-chi/cors"
-	"github.com/go-chi/render"
 )
 
-// NewMux configures application resources and routes.
-func NewMux(cfg Config,
-	userHandler *account.Handler,
-	jwtService auth.JWTService) (*chi.Mux, error) {
+func NewHttpServer(cfg *Config, handler http.Handler) *http.Server {
+	var addr string
+	port := cfg.Web.Port
 
+	if strings.Contains(port, ":") {
+		addr = port
+	} else {
+		addr = ":" + port
+	}
+
+	srv := http.Server{
+		Addr:    addr,
+		Handler: handler,
+	}
+
+	return &srv
+}
+
+func HttpRouter(webConfig WebConfig, roleHandler *account.RoleHandler) (http.Handler, error) {
 	r := chi.NewRouter()
 
 	r.Use(middleware.Recoverer)
@@ -33,34 +43,19 @@ func NewMux(cfg Config,
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 
 	// use CORS middleware if client is not served by this api, e.g. from other domain or CDN
-	if cfg.Web.CorsEnabled {
+	if webConfig.CorsEnabled {
 		r.Use(corsConfig().Handler)
 	}
 
 	r.Route("/api", func(r chi.Router) {
 		// Protected routes
 		r.Group(func(r chi.Router) {
-			// Seek, verify and validate JWT tokens
-			r.Use(jwtService.Verifier())
 
-			// Handle valid / invalid tokens. In this example, we use
-			// the provided authenticator middleware, but you can write your
-			// own very easily, look at the Authenticator method in jwtauth.go
-			// and tweak it, its not scary.
-			r.Use(jwtService.Authenticator)
-
-			r.Post("/account/change-password", userHandler.ChangePassword())
-			r.Get("/account", userHandler.Account())
 		})
 
 		// Public routes
 		r.Group(func(r chi.Router) {
-			r.Post("/account/register", userHandler.SignUp())
-			r.Get("/account/activate", userHandler.Activate())
-			r.Post("/account/login", userHandler.Login(jwtService))
-			r.Post("/account/logout", userHandler.Logout())
-			r.Post("/account/reset-password/init", userHandler.InitPasswordReset())
-			r.Post("/account/reset-password/finish", userHandler.ResetPassword())
+
 		})
 	})
 

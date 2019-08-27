@@ -68,6 +68,7 @@ require (
 	google.golang.org/grpc v1.22.1 // indirect
 	honnef.co/go/tools v0.0.1-2019.2.2 // indirect
 	mmrath.com/gobase/common/auth v0.0.0-00010101000000-000000000000
+	mmrath.com/gobase/common/config v0.0.0-00010101000000-000000000000
 	mmrath.com/gobase/common/crypto v0.0.0-00010101000000-000000000000
 	mmrath.com/gobase/common/email v0.0.0-00010101000000-000000000000
 	mmrath.com/gobase/common/errors v0.0.0
@@ -76,6 +77,8 @@ require (
 )
 
 replace mmrath.com/gobase/common/auth => ../common/auth
+
+replace mmrath.com/gobase/common/config => ../common/config
 
 replace mmrath.com/gobase/common/crypto => ../common/crypto
 

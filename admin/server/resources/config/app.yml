@@ -1,5 +1,5 @@
-web:
-  port: 8020
+server:
+  port: 8010
   enableCors: false
 
 db:

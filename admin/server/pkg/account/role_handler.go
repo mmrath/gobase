@@ -3,8 +3,9 @@ package account
 import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
-	"gopkg.in/go-playground/validator.v9"
 	"github.com/rs/zerolog/log"
+	"github.com/spf13/cast"
+	"gopkg.in/go-playground/validator.v9"
 	"mmrath.com/gobase/common/errors"
 	"mmrath.com/gobase/model"
 	"net/http"
@@ -21,20 +22,25 @@ func NewRoleHandler(roleService RoleService) *RoleHandler {
 func (h *RoleHandler) FindRole() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
-		err := validator.New().Var(&id, "")
-		err := h.Service.Activate(key)
+		err := validator.New().Var(&id, "required")
+
+		if err != nil {
+			errors.RenderError(w, r, err)
+			return
+		}
+
+		role, err := h.roleService.Find(r.Context(), cast.ToInt32(id))
 
 		if err != nil {
 			errors.RenderError(w, r, err)
 			return
 		} else {
 			render.Status(r, http.StatusOK)
-			render.PlainText(w, r, http.StatusText(http.StatusOK))
+			render.JSON(w, r, role)
 			return
 		}
 	}
 }
-
 
 func (h *RoleHandler) CreateRole() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

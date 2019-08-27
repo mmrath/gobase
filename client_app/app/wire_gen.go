@@ -7,14 +7,13 @@ package app
 
 import (
 	"mmrath.com/gobase/client/account"
-	"mmrath.com/gobase/client/config"
 	"mmrath.com/gobase/common/auth"
 	"mmrath.com/gobase/common/email"
 )
 
 // Injectors from wire.go:
 
-func BuildServer(config2 config.Config, mailer email.Mailer) (*Server, error) {
+func BuildServer(config2 Config, mailer email.Mailer) (*Server, error) {
 	notifier := NewNotifier(config2, mailer)
 	db, err := NewDB(config2)
 	if err != nil {
@@ -37,10 +36,10 @@ func BuildServer(config2 config.Config, mailer email.Mailer) (*Server, error) {
 
 // wire.go:
 
-func ProvideJWTConfig(config2 config.Config) auth.JWTConfig {
+func ProvideJWTConfig(config2 Config) auth.JWTConfig {
 	return config2.JWT
 }
 
-func ProvideSMTPConfig(config2 config.Config) email.SMTPConfig {
+func ProvideSMTPConfig(config2 Config) email.SMTPConfig {
 	return config2.SMTP
 }

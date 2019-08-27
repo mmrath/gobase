@@ -14,7 +14,7 @@ type RoleService interface {
 }
 
 type roleService struct {
-	db model.DB
+	db *model.DB
 }
 
 func (s *roleService) Find(ctx context.Context, id int32) (role *model.Role, err error) {
@@ -59,7 +59,7 @@ func (s *roleService) Update(ctx context.Context, role *model.Role) (err error) 
 	return err
 }
 
-func NewRoleService(db model.DB) RoleService {
+func NewRoleService(db *model.DB) RoleService {
 	return &roleService{db}
 }
 

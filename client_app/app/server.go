@@ -7,13 +7,11 @@ import (
 	"os/signal"
 	"strings"
 
-	"mmrath.com/gobase/client/account"
-	"mmrath.com/gobase/client/config"
-
 	"github.com/go-chi/chi"
+	"github.com/rs/zerolog/log"
+	"mmrath.com/gobase/client/account"
 	"mmrath.com/gobase/common/email"
 	"mmrath.com/gobase/model"
-	"github.com/rs/zerolog/log"
 )
 
 // Server provides an http.Server.
@@ -21,26 +19,24 @@ type Server struct {
 	*http.Server
 }
 
-func LoadConfig() config.Config {
-	return config.LoadConfig("./resources")
-}
 
-func NewDB(cfg config.Config) (*model.DB, error) {
+
+func NewDB(cfg Config) (*model.DB, error) {
 	return model.DBConn(cfg.DB)
 }
 
-func NewMailer(cfg config.Config) (email.Mailer, error) {
+func NewMailer(cfg Config) (email.Mailer, error) {
 	return email.NewMailer(cfg.SMTP)
 }
 
-func NewNotifier(cfg config.Config, mailer email.Mailer) account.Notifier {
-	return account.NewNotifier(cfg.Server.URL, mailer)
+func NewNotifier(cfg Config, mailer email.Mailer) account.Notifier {
+	return account.NewNotifier(cfg.Web.URL, mailer)
 }
 
 // NewServer creates and configures an APIServer serving all application routes.
-func NewServer(cfg config.Config, mux *chi.Mux) (*Server, error) {
+func NewServer(cfg Config, mux *chi.Mux) (*Server, error) {
 	var addr string
-	port := cfg.Server.Port
+	port := cfg.Web.Port
 
 	if strings.Contains(port, ":") {
 		addr = port
