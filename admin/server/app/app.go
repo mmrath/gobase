@@ -43,21 +43,21 @@ func NewApp(profiles ...string) (*App, error) {
 
 // Start runs ListenAndServe on the http.Server with graceful shutdown.
 func (srv *App) Start() {
-	log.Info().Msg("starting server...")
+	log.Info().Msg("server starting")
 	go func() {
 		if err := srv.httpServer.ListenAndServe(); err != http.ErrServerClosed {
 			panic(err)
 		}
 	}()
-	log.Info().Msgf("Listening on %s\n", srv.httpServer.Addr)
+	log.Info().Interface("address", srv.httpServer.Addr).Msg("server started")
 
 	quit := make(chan os.Signal)
 	signal.Notify(quit, os.Interrupt)
 	sig := <-quit
-	log.Info().Msgf("shutting down server... reason: %v", sig)
+	log.Info().Interface("reason", sig).Msg("server shutting down")
 
 	if err := srv.httpServer.Shutdown(context.Background()); err != nil {
 		panic(err)
 	}
-	log.Info().Print("server gracefully stopped")
+	log.Info().Msg("server stopped gracefully")
 }

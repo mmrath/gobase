@@ -1,0 +1,8 @@
+syntax = "proto3";
+option java_package = "com.mmrath.gobase.admin.api";
+
+package api;
+
+message CreateRoleReq {
+
+}

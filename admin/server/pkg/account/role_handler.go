@@ -44,7 +44,7 @@ func (h *RoleHandler) FindRole() http.HandlerFunc {
 
 func (h *RoleHandler) CreateRole() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		role := new(model.Role)
+		role := new(model.RoleAndPermission)
 
 		if err := render.DecodeJSON(r.Body, role); err != nil {
 			render.JSON(w, r, err)
@@ -52,6 +52,29 @@ func (h *RoleHandler) CreateRole() http.HandlerFunc {
 		}
 
 		err := h.roleService.Create(r.Context(), role)
+
+		if err != nil {
+			log.Error().Err(err).Msg("error creating role")
+			errors.RenderError(w, r, err)
+			return
+		} else {
+			render.Status(r, http.StatusOK)
+			render.JSON(w, r, role)
+			return
+		}
+	}
+}
+
+func (h *RoleHandler) UpdateRole() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		role := new(model.RoleAndPermission)
+
+		if err := render.DecodeJSON(r.Body, role); err != nil {
+			render.JSON(w, r, err)
+			return
+		}
+
+		err := h.roleService.Update(r.Context(), role)
 
 		if err != nil {
 			log.Error().Err(err).Msg("error creating role")

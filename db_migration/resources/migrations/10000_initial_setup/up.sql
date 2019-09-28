@@ -27,6 +27,8 @@ BEGIN
     THEN
         NEW.updated_at := current_timestamp;
         NEW.version := OLD.version + 1;
+        NEW.created_at := OLD.created_at;
+        NEW.created_by := OLD.created_by;
     END IF;
     RETURN NEW;
 END;

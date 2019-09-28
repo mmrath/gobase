@@ -50,7 +50,9 @@ func HttpRouter(webConfig WebConfig, roleHandler *account.RoleHandler) (http.Han
 	r.Route("/api", func(r chi.Router) {
 		// Protected routes
 		r.Group(func(r chi.Router) {
-
+			r.Get("/role/:id", roleHandler.FindRole())
+			r.Post("/role", roleHandler.CreateRole())
+			r.Put("/role/:id", roleHandler.UpdateRole())
 		})
 
 		// Public routes

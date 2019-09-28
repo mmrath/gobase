@@ -16,7 +16,6 @@ type User struct {
 	Email       string `json:"email,omitempty"`
 	PhoneNumber string `json:"phoneNumber,omitempty"`
 	Active      bool   `json:"active,omitempty"`
-	Roles       []Role `json:"roles" sql:"-"`
 }
 
 func (User) TableName() string {
@@ -48,6 +47,15 @@ type ResetPasswordRequest struct {
 type LoginRequest struct {
 	Email    string `json:"email,omitempty"`
 	Password string `json:"password,omitempty"`
+}
+
+type CreateUserRequest struct {
+	FirstName   string  `json:"firstName,omitempty" validate:"required,aplha"`
+	LastName    string  `json:"lastName,omitempty" validate:"required,alpha"`
+	Email       string  `json:"email,omitempty" validate:"required,email"`
+	PhoneNumber string  `json:"phoneNumber,omitempty" validate:"required"`
+	Active      bool    `json:"active,omitempty"`
+	Roles       []int32 `json:"roles,omitempty"`
 }
 
 func (login *LoginRequest) Validate() error {
