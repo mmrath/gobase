@@ -2,83 +2,77 @@ package log
 
 import (
 	"fmt"
-	_ "github.com/rs/zerolog"
+	"os"
+
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
-var Logger = log.Logger
-
 // StandardLogger enforces specific log message formats
 type StandardLogger struct {
+	logger zerolog.Logger
 }
 
 // NewLogger initializes the standard Logger
-func newLogger() StandardLogger {
-	return StandardLogger{}
+func NewLogger() StandardLogger {
+	return StandardLogger{
+		logger: zerolog.New(os.Stderr).With().Timestamp().Logger(),
+	}
 }
 
-// InvalidArg is a standard error message
-func InvalidArg(argumentName string) {
-	Logger.Error().Str("argName", argumentName).Msg("invalid argument")
-}
-
-// InvalidArgValue is a standard error message
-func InvalidArgValue(argumentName string, argumentValue string) {
-	Logger.Error().Str("argName", argumentName).Interface("argValue", argumentValue).Msg("invalid argument value")
-}
-
-// MissingArg is a standard error message
-func MissingArg(argumentName string) {
-	Logger.Error().Str("argName", argumentName).Msg("invalid argument")
-}
 
 func (l StandardLogger) Debug(args ...interface{}) {
-	Logger.Debug().Msgf(fmt.Sprint(args))
+	l.logger.Debug().Msgf(fmt.Sprint(args))
 }
 
 func (l StandardLogger) Info(args ...interface{}) {
-	Logger.Info().Msgf(fmt.Sprint(args))
+	l.logger.Info().Msgf(fmt.Sprint(args))
 }
 
 func (l StandardLogger) Warn(args ...interface{}) {
-	Logger.Warn().Msgf(fmt.Sprint(args))
+	l.logger.Warn().Msgf(fmt.Sprint(args))
 }
 
 func (l StandardLogger) Error(args ...interface{}) {
-	Logger.Error().Msgf(fmt.Sprint(args))
+	l.logger.Error().Msgf(fmt.Sprint(args))
 }
 
 func (l StandardLogger) Panic(args ...interface{}) {
-	Logger.Panic().Msgf(fmt.Sprint(args))
+	l.logger.Panic().Msgf(fmt.Sprint(args))
 }
 
 func (l StandardLogger) Fatal(args ...interface{}) {
-	Logger.Fatal().Msgf(fmt.Sprint(args))
+	l.logger.Fatal().Msgf(fmt.Sprint(args))
 }
 
 func (l StandardLogger) Debugf(format string, args ...interface{}) {
-	Logger.Debug().Msgf(format, args...)
+	l.logger.Debug().Msgf(format, args...)
 }
 
 func (l StandardLogger) Infof(format string, args ...interface{}) {
-	Logger.Info().Msgf(format, args...)
+	l.logger.Info().Msgf(format, args...)
 }
 
 func (l StandardLogger) Warnf(format string, args ...interface{}) {
-	Logger.Warn().Msgf(format, args...)
+	l.logger.Warn().Msgf(format, args...)
 }
 
 func (l StandardLogger) Errorf(format string, args ...interface{}) {
-	Logger.Error().Msgf(format, args...)
+	l.logger.Error().Msgf(format, args...)
 }
 
 func (l StandardLogger) Panicf(format string, args ...interface{}) {
-	Logger.Panic().Msgf(format, args...)
+	l.logger.Panic().Msgf(format, args...)
 }
 
 func (l StandardLogger) Fatalf(format string, args ...interface{}) {
-	Logger.Fatal().Msgf(format, args...)
+	l.logger.Fatal().Msgf(format, args...)
 }
+
+
+
+
+
 
 func Debugf(format string, args ...interface{}) {
 	log.Debug().Msgf(format, args...)

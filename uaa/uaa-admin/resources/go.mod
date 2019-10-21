@@ -1,4 +1,4 @@
-module mmrath.com/gobase/admin
+module mmrath.com/gobase/uaa-admin
 
 go 1.12
 
@@ -19,6 +19,16 @@ require (
 	mmrath.com/gobase/model v0.0.0
 )
 
-replace mmrath.com/gobase/common => ../../common
+replace mmrath.com/gobase/common/auth => ../../common/auth
+
+replace mmrath.com/gobase/common/config => ../../common/config
+
+replace mmrath.com/gobase/common/crypto => ../../common/crypto
+
+replace mmrath.com/gobase/common/email => ../../common/email
+
+replace mmrath.com/gobase/common/errors => ../../common/errors
+
+replace mmrath.com/gobase/common/log => ../../common/log
 
 replace mmrath.com/gobase/model => ../../model

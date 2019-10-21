@@ -7,12 +7,13 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"mmrath.com/gobase/common/log"
-	"mmrath.com/gobase/uaa/pkg/config"
 	"net"
 	"net/http"
 	"os"
 	"time"
+
+	"mmrath.com/gobase/common/log"
+	"mmrath.com/gobase/uaa/pkg/config"
 
 	"github.com/ghodss/yaml"
 	grpcprometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
@@ -63,16 +64,15 @@ func serve(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("error parse config file %s: %v", configFile, err)
 	}
 
-	logger := log.Logger
 
 	if c.Logger.Level != "" {
-		logger.Infof("config using log level: %s", c.Logger.Level)
+		log.Infof("config using log level: %s", c.Logger.Level)
 	}
 	if err := c.Validate(); err != nil {
 		return err
 	}
 
-	logger.Infof("config issuer: %s", c.Issuer)
+	log.Infof("config issuer: %s", c.Issuer)
 
 	prometheusRegistry := prometheus.NewRegistry()
 	err = prometheusRegistry.Register(prometheus.NewGoCollector())
@@ -130,15 +130,17 @@ func serve(cmd *cobra.Command, args []string) error {
 		grpcOptions = append(grpcOptions, grpc.Creds(credentials.NewTLS(&tlsConfig)))
 	}
 
+	logger := log.NewLogger()
+
 	s, err := c.Storage.Config.Open(logger)
 	if err != nil {
 		return fmt.Errorf("failed to initialize storage: %v", err)
 	}
-	logger.Infof("config storage: %s", c.Storage.Type)
+	log.Infof("config storage: %s", c.Storage.Type)
 
 	if len(c.StaticClients) > 0 {
 		for _, client := range c.StaticClients {
-			logger.Infof("config static client: %s", client.Name)
+			log.Infof("config static client: %s", client.Name)
 		}
 		s = storage.WithStaticClients(s, c.StaticClients)
 	}
@@ -158,7 +160,7 @@ func serve(cmd *cobra.Command, args []string) error {
 		if c.Config == nil {
 			return fmt.Errorf("invalid config: no config field for connector %q", c.ID)
 		}
-		logger.Infof("config connector: %s", c.ID)
+		log.Infof("config connector: %s", c.ID)
 
 		// convert to a storage connector object
 		conn, err := config.ToStorageConnector(c)
@@ -175,19 +177,19 @@ func serve(cmd *cobra.Command, args []string) error {
 			Name: "Email",
 			Type: server.LocalConnector,
 		})
-		logger.Infof("config connector: local passwords enabled")
+		log.Infof("config connector: local passwords enabled")
 	}
 
 	s = storage.WithStaticConnectors(s, storageConnectors)
 
 	if len(c.OAuth2.ResponseTypes) > 0 {
-		logger.Infof("config response types accepted: %s", c.OAuth2.ResponseTypes)
+		log.Infof("config response types accepted: %s", c.OAuth2.ResponseTypes)
 	}
 	if c.OAuth2.SkipApprovalScreen {
-		logger.Infof("config skipping approval screen")
+		log.Infof("config skipping approval screen")
 	}
 	if len(c.Web.AllowedOrigins) > 0 {
-		logger.Infof("config allowed origins: %s", c.Web.AllowedOrigins)
+		log.Infof("config allowed origins: %s", c.Web.AllowedOrigins)
 	}
 
 	// explicitly convert to UTC.
