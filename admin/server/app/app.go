@@ -3,9 +3,9 @@ package app
 import (
 	"context"
 	"github.com/rs/zerolog/log"
-	"mmrath.com/gobase/admin/pkg/account"
-	"mmrath.com/gobase/common/config"
-	"mmrath.com/gobase/model"
+	"github.com/mmrath/gobase/admin/pkg/account"
+	"github.com/mmrath/gobase/common/config"
+	"github.com/mmrath/gobase/model"
 	"net/http"
 	"os"
 	"os/signal"

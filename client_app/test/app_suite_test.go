@@ -2,7 +2,7 @@ package test
 
 import (
 	"log"
-	"mmrath.com/gobase/client/app"
+	"github.com/mmrath/gobase/client/app"
 	"net/http/httptest"
 	"path/filepath"
 	"runtime"
@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-	"mmrath.com/gobase/model"
+	"github.com/mmrath/gobase/model"
 )
 
 type TestSuite struct {

@@ -9,9 +9,9 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/rs/zerolog/log"
-	"mmrath.com/gobase/client/account"
-	"mmrath.com/gobase/common/email"
-	"mmrath.com/gobase/model"
+	"github.com/mmrath/gobase/client/account"
+	"github.com/mmrath/gobase/common/email"
+	"github.com/mmrath/gobase/model"
 )
 
 // Server provides an http.Server.

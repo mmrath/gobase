@@ -1,4 +1,4 @@
-module mmrath.com/gobase/db_migration
+module github.com/mmrath/gobase/db_migration
 
 go 1.12
 

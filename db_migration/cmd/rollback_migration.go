@@ -20,7 +20,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/github"
 	"github.com/spf13/cobra"
-	"mmrath.com/gobase/db_migration/app"
+	"github.com/mmrath/gobase/db_migration/app"
 )
 
 // rollback_migration represents the upgradeDb command

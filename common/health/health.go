@@ -7,13 +7,6 @@ import (
 	"github.com/go-chi/render"
 )
 
-package health
-
-import (
-"github.com/go-chi/chi"
-"github.com/go-chi/render"
-"net/http"
-)
 type Service interface {
 	RegisterRoutes(r chi.Router)
 }

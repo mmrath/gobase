@@ -97,7 +97,7 @@ func (s *jwtService) Authenticator(next http.Handler) http.Handler {
 			return
 		}
 
-		userId, ok := claims.Get("userId")
+		userId, ok := claims["userId"]
 
 		if !ok {
 			http.Error(w, http.StatusText(401), 401)

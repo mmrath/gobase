@@ -2,7 +2,7 @@ package account
 
 import (
 	"context"
-	"mmrath.com/gobase/model"
+	"github.com/mmrath/gobase/model"
 )
 
 type UserService interface {

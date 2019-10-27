@@ -3,8 +3,8 @@ package account
 import (
 	"context"
 	"fmt"
-	"mmrath.com/gobase/common/errors"
-	"mmrath.com/gobase/model"
+	"github.com/mmrath/gobase/common/errors"
+	"github.com/mmrath/gobase/model"
 )
 
 type RoleService interface {

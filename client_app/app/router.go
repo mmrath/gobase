@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"mmrath.com/gobase/client/account"
-	"mmrath.com/gobase/common/auth"
+	"github.com/mmrath/gobase/client/account"
+	"github.com/mmrath/gobase/common/auth"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"

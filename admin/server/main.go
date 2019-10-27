@@ -1,6 +1,6 @@
 package main
 
-import "mmrath.com/gobase/admin/cmd"
+import "github.com/mmrath/gobase/admin/cmd"
 
 func main() {
 	cmd.Main()

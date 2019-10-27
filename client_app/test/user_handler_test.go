@@ -3,8 +3,8 @@ package test
 import (
 	"bytes"
 	"log"
-	"mmrath.com/gobase/common/auth"
-	"mmrath.com/gobase/common/crypto"
+	"github.com/mmrath/gobase/common/auth"
+	"github.com/mmrath/gobase/common/crypto"
 	"net/http"
 	"regexp"
 	"testing"
@@ -14,7 +14,7 @@ import (
 	"github.com/gavv/httpexpect"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-	"mmrath.com/gobase/model"
+	"github.com/mmrath/gobase/model"
 )
 
 type AccountTestSuite struct {

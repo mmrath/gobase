@@ -1,8 +1,8 @@
 package main
 
 import (
-	"mmrath.com/gobase/client/app"
-	"mmrath.com/gobase/common/email"
+	"github.com/mmrath/gobase/client/app"
+	"github.com/mmrath/gobase/common/email"
 )
 
 func main() {

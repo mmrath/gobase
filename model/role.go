@@ -2,7 +2,7 @@ package model
 
 import (
 	"github.com/rs/zerolog/log"
-	"mmrath.com/gobase/common/errors"
+	"github.com/mmrath/gobase/common/errors"
 	"strings"
 )
 

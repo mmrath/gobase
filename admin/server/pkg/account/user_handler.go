@@ -5,8 +5,8 @@ import (
 	"github.com/go-chi/render"
 	"github.com/spf13/cast"
 	"gopkg.in/go-playground/validator.v9"
-	"mmrath.com/gobase/common/errors"
-	"mmrath.com/gobase/model"
+	"github.com/mmrath/gobase/common/errors"
+	"github.com/mmrath/gobase/model"
 	"net/http"
 )
 

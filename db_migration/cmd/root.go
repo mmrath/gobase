@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"mmrath.com/gobase/db_migration/app"
+	"github.com/mmrath/gobase/db_migration/app"
 )
 
 // rootCmd represents the base command when called without any subcommands

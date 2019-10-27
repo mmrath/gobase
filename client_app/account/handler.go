@@ -7,9 +7,9 @@ import (
 	"github.com/go-chi/jwtauth"
 	"github.com/go-chi/render"
 	"github.com/rs/zerolog/log"
-	"mmrath.com/gobase/common/auth"
-	"mmrath.com/gobase/common/errors"
-	"mmrath.com/gobase/model"
+	"github.com/mmrath/gobase/common/auth"
+	"github.com/mmrath/gobase/common/errors"
+	"github.com/mmrath/gobase/model"
 )
 
 var AuthTokenCookieName = "Token"

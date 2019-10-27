@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/rs/zerolog/log"
-	"mmrath.com/gobase/common/auth"
-	"mmrath.com/gobase/common/crypto"
-	"mmrath.com/gobase/common/errors"
-	"mmrath.com/gobase/model"
+	"github.com/mmrath/gobase/common/auth"
+	"github.com/mmrath/gobase/common/crypto"
+	"github.com/mmrath/gobase/common/errors"
+	"github.com/mmrath/gobase/model"
 
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/google/uuid"

@@ -1,10 +1,10 @@
 package app
 
 import (
-	"mmrath.com/gobase/common/auth"
-	"mmrath.com/gobase/common/config"
-	"mmrath.com/gobase/common/email"
-	"mmrath.com/gobase/model"
+	"github.com/mmrath/gobase/common/auth"
+	"github.com/mmrath/gobase/common/config"
+	"github.com/mmrath/gobase/common/email"
+	"github.com/mmrath/gobase/model"
 )
 
 type Config struct {

@@ -1,6 +1,6 @@
 package app
 
-import "mmrath.com/gobase/model"
+import "github.com/mmrath/gobase/model"
 
 type Config struct {
 	DB  model.DBConfig `yaml:"db"`

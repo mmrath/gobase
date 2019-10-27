@@ -5,8 +5,8 @@ import (
 	"github.com/go-chi/render"
 	"github.com/spf13/cast"
 	"gopkg.in/go-playground/validator.v9"
-	"mmrath.com/gobase/common/errors"
-	"mmrath.com/gobase/model"
+	"github.com/mmrath/gobase/common/errors"
+	"github.com/mmrath/gobase/model"
 	"net/http"
 )
 
@@ -44,19 +44,5 @@ func (h *UserHandler) FindUser(id int64) http.HandlerFunc{
 func (h *UserHandler) CreateUser(user *model.CreateUserRequest) http.HandlerFunc{
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		if err != nil {
-			errors.RenderError(w, r, err)
-			return
-		}
-		user, err := h.userService.Find(r.Context(), cast.ToInt32(id))
-
-		if err != nil {
-			errors.RenderError(w, r, err)
-			return
-		} else {
-			render.Status(r, http.StatusOK)
-			render.JSON(w, r, user)
-			return
-		}
 	}
 }

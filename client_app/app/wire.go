@@ -5,9 +5,9 @@ package app
 
 import (
 	"github.com/google/wire"
-	"mmrath.com/gobase/client/account"
-	"mmrath.com/gobase/common/auth"
-	"mmrath.com/gobase/common/email"
+	"github.com/mmrath/gobase/client/account"
+	"github.com/mmrath/gobase/common/auth"
+	"github.com/mmrath/gobase/common/email"
 )
 
 func ProvideJWTConfig(config Config) auth.JWTConfig {

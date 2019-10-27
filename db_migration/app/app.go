@@ -3,7 +3,7 @@ package app
 import (
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "mmrath.com/gobase/db_migration/internal"
+	_ "github.com/mmrath/gobase/db_migration/internal"
 )
 
 func Upgrade() error {

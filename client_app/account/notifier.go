@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"html/template"
 
-	"mmrath.com/gobase/common/email"
-	"mmrath.com/gobase/model"
+	"github.com/mmrath/gobase/common/email"
+	"github.com/mmrath/gobase/model"
 )
 
 type Notifier interface {
