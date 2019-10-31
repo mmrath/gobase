@@ -12,6 +12,7 @@ require (
 	github.com/go-openapi/spec v0.19.4 // indirect
 	github.com/go-openapi/validate v0.19.4 // indirect
 	github.com/go-pg/pg v8.0.6+incompatible // indirect
+	github.com/google/wire v0.3.0
 	github.com/mailru/easyjson v0.7.0 // indirect
 	github.com/mmrath/gobase/common v0.0.0
 	github.com/mmrath/gobase/model v0.0.0

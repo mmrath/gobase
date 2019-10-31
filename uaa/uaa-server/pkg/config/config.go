@@ -14,6 +14,7 @@ type Config struct {
 }
 
 type WebConfig struct {
+	ExternalURL string `yaml:"externalUrl"`
 	URL         string `yaml:"url"`
 	Port        string `yaml:"port"`
 	ContextPath string `yaml:"contextPath"`

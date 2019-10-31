@@ -8,6 +8,7 @@ import (
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation"
+	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 
 	"github.com/mmrath/gobase/common/auth"

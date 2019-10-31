@@ -7,7 +7,7 @@ import (
 	"github.com/mmrath/gobase/uaa-server/pkg/config"
 )
 
-func RegisterRoutes(r chi.Router, config *config.Config) {
+func RegisterHandlers(r chi.Router, config *config.Config) {
 
 	hydraTransportConfig := &client.TransportConfig{
 		Schemes:  []string{"http"},

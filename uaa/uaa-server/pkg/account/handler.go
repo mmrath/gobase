@@ -3,16 +3,20 @@ package account
 import (
 	"net/http"
 
+	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/rs/zerolog/log"
 
 	"github.com/mmrath/gobase/common/errors"
 	"github.com/mmrath/gobase/model"
+	"github.com/mmrath/gobase/uaa-server/pkg/config"
 )
 
 type handler struct {
 	service Service
 }
+
+
 
 
 

@@ -6,6 +6,10 @@ import (
 	"github.com/mmrath/gobase/uaa-server/pkg/config"
 )
 
-func RegisterRoutes(r chi.Router, config *config.Config) {
+type RouteBuilder struct {
+
+}
+
+func (h *RouteBuilder) RegisterRoutes(r chi.Router, config *config.Config) {
 
 }
