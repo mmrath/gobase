@@ -6,10 +6,18 @@ import (
 	"github.com/mmrath/gobase/uaa-server/pkg/config"
 )
 
-type RouteBuilder struct {
-
+type Router struct {
+	handler *Handler
 }
 
-func (h *RouteBuilder) RegisterRoutes(r chi.Router, config *config.Config) {
 
+
+func (h *Router) Register(r chi.Router, config *config.Config) {
+	r.Route("/", func(r chi.Router) {
+		r.Post("/signup", h.handler.SignUp)
+		r.Post("/activate", h.handler.Activate)
+		r.Post("/reset-password/init", h.handler.PasswordResetInit)
+		r.Post("/reset-password/finish", h.handler.ResetPasswordFinish)
+		r.Post("/change-password", h.handler.ChangePassword)
+	})
 }

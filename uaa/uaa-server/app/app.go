@@ -16,6 +16,8 @@ type App struct {
 	httpServer *http.Server
 }
 
+
+
 func NewApp(profiles ...string) (*App, error) {
 	cfg, err := config.LoadConfig("./resources", profiles...)
 	if err != nil {
@@ -28,14 +30,25 @@ func NewApp(profiles ...string) (*App, error) {
 		return nil, err
 	}
 
-	httpHandler, err := HttpRouter(cfg)
-
-	if err != nil {
-		return nil, err
-	}
-
-	httpServer := NewHttpServer(cfg, httpHandler)
+	httpServer := BuildServer(nil)
 	return &App{httpServer: httpServer}, nil
+}
+
+func LoadConfig() *config.Config{
+	cfg,err:= config.LoadConfig("./resources", )
+	if err!=nil {
+		log.Panic().Err(err).Msg("failed to load config")
+		panic(err)
+	}
+	return cfg
+}
+
+func NewDB(cfg *config.Config) *model.DB {
+	db, err := model.DBConn(cfg.DB)
+	if err != nil {
+		panic(err)
+	}
+	return db
 }
 
 // Start runs ListenAndServe on the http.Server with graceful shutdown.

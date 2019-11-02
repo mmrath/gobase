@@ -264,3 +264,16 @@ func (s *service) SignUp(signUpRequest *model.SignUpRequest) (*model.User, error
 	log.Debug().Interface("user", newUser).Msg("successfully signed up user")
 	return &newUser, nil
 }
+
+
+func (s *service) checkForDuplicate(input string, by string, fn func(string) (bool, error)) error {
+	exists, err := fn(input)
+	if err != nil {
+		return errors.NewInternal(err, "Error while checking for duplicate email")
+	} else if exists {
+		log.Info().Str(by, input).Msgf("found user with same %s", by)
+		fieldErrors := []errors.FieldError{{Field: "email", Message: "user already exists"}}
+		return errors.WithFieldErrors(fieldErrors)
+	}
+	return nil
+}
