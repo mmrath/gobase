@@ -6,7 +6,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cast"
 	"gopkg.in/go-playground/validator.v9"
-	"github.com/mmrath/gobase/common/errors"
+	"github.com/mmrath/gobase/common/error_util"
 	"github.com/mmrath/gobase/model"
 	"net/http"
 )
@@ -25,14 +25,14 @@ func (h *RoleHandler) FindRole() http.HandlerFunc {
 		err := validator.New().Var(&id, "required")
 
 		if err != nil {
-			errors.RenderError(w, r, err)
+			error_helper.RenderError(w, r, err)
 			return
 		}
 
 		role, err := h.roleService.Find(r.Context(), cast.ToInt32(id))
 
 		if err != nil {
-			errors.RenderError(w, r, err)
+			error_helper.RenderError(w, r, err)
 			return
 		} else {
 			render.Status(r, http.StatusOK)
@@ -55,7 +55,7 @@ func (h *RoleHandler) CreateRole() http.HandlerFunc {
 
 		if err != nil {
 			log.Error().Err(err).Msg("error creating role")
-			errors.RenderError(w, r, err)
+			error_helper.RenderError(w, r, err)
 			return
 		} else {
 			render.Status(r, http.StatusOK)
@@ -78,7 +78,7 @@ func (h *RoleHandler) UpdateRole() http.HandlerFunc {
 
 		if err != nil {
 			log.Error().Err(err).Msg("error creating role")
-			errors.RenderError(w, r, err)
+			error_helper.RenderError(w, r, err)
 			return
 		} else {
 			render.Status(r, http.StatusOK)

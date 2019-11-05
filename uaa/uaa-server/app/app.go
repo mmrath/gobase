@@ -9,7 +9,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/mmrath/gobase/model"
-	"github.com/mmrath/gobase/uaa-server/pkg/config"
+	"github.com/mmrath/gobase/uaa-server/internal/config"
 )
 
 type App struct {

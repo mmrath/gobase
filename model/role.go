@@ -1,9 +1,11 @@
 package model
 
 import (
-	"github.com/rs/zerolog/log"
-	"github.com/mmrath/gobase/common/errors"
 	"strings"
+
+	"github.com/rs/zerolog/log"
+
+	"github.com/mmrath/gobase/common/error_util"
 )
 
 type Role struct {
@@ -76,7 +78,7 @@ func (d *roleDao) Create(role *Role, permissions []int32) error {
 			Int32("roleId", role.ID).
 			Err(err).
 			Msg("failed to update role")
-		return errors.NewInternal(err, "failed to insert role")
+		return error_util.NewInternal(err, "failed to insert role")
 	}
 	return createRolePermissions(d.tx, role.ID, permissions)
 }
@@ -89,7 +91,7 @@ func (d *roleDao) Update(role *Role, permissions []int32) error {
 			Err(err).
 			Msg("failed to update role")
 
-		return errors.NewInternal(err, "failed to update role")
+		return error_util.NewInternal(err, "failed to update role")
 	}
 
 	return createRolePermissions(d.tx, role.ID, permissions)
@@ -102,7 +104,7 @@ func createRolePermissions(tx *Tx, roleId int32, permissions []int32) error {
 			Int32("roleId", roleId).
 			Err(err).
 			Msg("failed to delete existing permissions of role")
-		return errors.NewInternal(err, "failed to delete existing permissions of role")
+		return error_util.NewInternal(err, "failed to delete existing permissions of role")
 	}
 	if permissions == nil || len(permissions) == 0 {
 		return nil

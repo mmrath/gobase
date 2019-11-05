@@ -12,9 +12,9 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/rs/zerolog/log"
 
-	"github.com/mmrath/gobase/uaa-server/pkg/account"
-	"github.com/mmrath/gobase/uaa-server/pkg/config"
-	"github.com/mmrath/gobase/uaa-server/pkg/oauth2"
+	"github.com/mmrath/gobase/uaa-server/internal/account"
+	"github.com/mmrath/gobase/uaa-server/internal/config"
+	"github.com/mmrath/gobase/uaa-server/internal/oauth2"
 )
 
 type appHandler struct {

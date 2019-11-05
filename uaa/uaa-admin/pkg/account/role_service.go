@@ -3,7 +3,7 @@ package account
 import (
 	"context"
 	"fmt"
-	"github.com/mmrath/gobase/common/errors"
+	"github.com/mmrath/gobase/common/error_util"
 	"github.com/mmrath/gobase/model"
 )
 
@@ -43,10 +43,10 @@ func create(tx *model.Tx, roleAndPermission *model.RoleAndPermission) (err error
 
 	exists, err := roleDao.ExistsByName(roleAndPermission.Role.Name)
 	if err != nil {
-		return errors.NewInternal(err, "error while checking if role exists")
+		return error_helper.NewInternal(err, "error while checking if role exists")
 	}
 	if exists {
-		return errors.NewBadRequest(fmt.Sprintf("role with name %s already exists", roleAndPermission.Role.Name))
+		return error_helper.NewBadRequest(fmt.Sprintf("role with name %s already exists", roleAndPermission.Role.Name))
 	}
 	return roleDao.Create(roleAndPermission.Role, roleAndPermission.Permissions)
 }

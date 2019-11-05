@@ -5,7 +5,7 @@ import (
 	"github.com/go-chi/render"
 	"github.com/spf13/cast"
 	"gopkg.in/go-playground/validator.v9"
-	"github.com/mmrath/gobase/common/errors"
+	"github.com/mmrath/gobase/common/error_util"
 	"github.com/mmrath/gobase/model"
 	"net/http"
 )
@@ -25,13 +25,13 @@ func (h *UserHandler) FindUser(id int64) http.HandlerFunc{
 		err := validator.New().Var(&id, "required,int32")
 
 		if err != nil {
-			errors.RenderError(w, r, err)
+			error_helper.RenderError(w, r, err)
 			return
 		}
 		user, err := h.userService.Find(r.Context(), cast.ToInt32(id))
 
 		if err != nil {
-			errors.RenderError(w, r, err)
+			error_helper.RenderError(w, r, err)
 			return
 		} else {
 			render.Status(r, http.StatusOK)

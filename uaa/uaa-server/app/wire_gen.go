@@ -7,7 +7,7 @@ package app
 
 import (
 	"github.com/mmrath/gobase/common/email"
-	"github.com/mmrath/gobase/uaa-server/pkg/account"
+	"github.com/mmrath/gobase/uaa-server/internal/account"
 	"net/http"
 )
 

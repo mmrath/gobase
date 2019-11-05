@@ -10,7 +10,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/mmrath/gobase/common/auth"
 	"github.com/mmrath/gobase/common/crypto"
-	"github.com/mmrath/gobase/common/errors"
+	"github.com/mmrath/gobase/common/error_util"
 	"github.com/mmrath/gobase/model"
 
 	validation "github.com/go-ozzo/ozzo-validation"
@@ -42,13 +42,13 @@ func (s *Service) Activate(token string) error {
 		uc, err := tx.UserCredentialDao().GetByActivationKey(tokenHash)
 		if err != nil {
 			if model.IsNoDataFound(err) {
-				return errors.NewBadRequest("invalid activation token")
+				return error_helper.NewBadRequest("invalid activation token")
 			}
 			return err
 		}
 		if !uc.Activated {
 			if uc.ActivationKeyExpiresAt.Before(time.Now()) {
-				return errors.NewBadRequest("activation token is expired, sign up again")
+				return error_helper.NewBadRequest("activation token is expired, sign up again")
 			}
 			err = tx.UserCredentialDao().Activate(uc.ID)
 			if err != nil {
@@ -72,29 +72,29 @@ func (s *Service) Login(login *model.LoginRequest) (*model.User, error) {
 		user, err = tx.UserDao().GetByEmail(login.Email)
 		if err != nil {
 			if model.IsNoDataFound(err) {
-				return errors.NewUnauthorized("invalid email or password")
+				return error_helper.NewUnauthorized("invalid email or password")
 			}
 			return err
 		}
 
 		if !user.Active {
-			return errors.NewUnauthorized("user is not active")
+			return error_helper.NewUnauthorized("user is not active")
 		}
 
 		uc, err := tx.UserCredentialDao().Get(user.ID)
 		if err != nil {
 			if model.IsNoDataFound(err) {
-				return errors.NewUnauthorized("invalid email or password")
+				return error_helper.NewUnauthorized("invalid email or password")
 			}
 			return err
 		}
 
 		if !uc.Activated {
-			return errors.NewUnauthorized("user is not activated")
+			return error_helper.NewUnauthorized("user is not activated")
 		} else if !uc.ExpiresAt.IsZero() && uc.ExpiresAt.Before(time.Now()) {
-			return errors.NewUnauthorized("password expired")
+			return error_helper.NewUnauthorized("password expired")
 		} else if uc.Locked {
-			return errors.NewUnauthorized("account is locked")
+			return error_helper.NewUnauthorized("account is locked")
 		}
 
 		passwordSha := crypto.SHA256([]byte(login.Password))
@@ -116,7 +116,7 @@ func (s *Service) Login(login *model.LoginRequest) (*model.User, error) {
 					return err
 				}
 			}
-			return errors.NewUnauthorized("invalid email or password")
+			return error_helper.NewUnauthorized("invalid email or password")
 		}
 
 		if uc.InvalidAttempts > 0 {
@@ -143,7 +143,7 @@ func (s *Service) ChangePassword(ctx context.Context, data *model.ChangePassword
 
 		if err != nil {
 			if model.IsNoDataFound(err) {
-				return errors.NewBadRequest("password cannot be changed as user does not exist")
+				return error_helper.NewBadRequest("password cannot be changed as user does not exist")
 			}
 			return err
 		}
@@ -167,12 +167,12 @@ func (s *Service) ChangePassword(ctx context.Context, data *model.ChangePassword
 					return err
 				}
 			}
-			return errors.NewUnauthorized("invalid current password")
+			return error_helper.NewUnauthorized("invalid current password")
 		}
 
 		newPasswordHash, err := crypto.HashPassword(crypto.SHA256([]byte(data.NewPassword)))
 		if err != nil {
-			return errors.NewInternal(err, "failed to hash password")
+			return error_helper.NewInternal(err, "failed to hash password")
 		}
 
 		err = tx.UserCredentialDao().ChangePassword(uc.ID, newPasswordHash)
@@ -194,7 +194,7 @@ func (s *Service) InitiatePasswordReset(email string) error {
 		user, err = tx.UserDao().GetByEmail(email)
 		if err != nil {
 			if model.IsNoDataFound(err) {
-				return errors.NewBadRequest("user not found")
+				return error_helper.NewBadRequest("user not found")
 			}
 			return err
 		}
@@ -225,7 +225,7 @@ func (s *Service) InitiatePasswordReset(email string) error {
 
 	if err != nil {
 		log.Error().Err(err).Int64("id", user.ID).Msg("failed to send password reset email")
-		return errors.NewInternal(err, "Failed to send password reset email")
+		return error_helper.NewInternal(err, "Failed to send password reset email")
 	}
 
 	log.Info().Int64("id", user.ID).Msg("successfully sent password reset email")
@@ -240,18 +240,18 @@ func (s *Service) ResetPassword(passwordResetRequest *model.ResetPasswordRequest
 
 		if err != nil {
 			if model.IsNoDataFound(err) {
-				return errors.NewBadRequest("reset key is invalid")
+				return error_helper.NewBadRequest("reset key is invalid")
 			}
 			return err
 		}
 
 		if uc.ResetKeyExpiresAt.Before(time.Now()) {
-			return errors.NewBadRequest("reset key is expired")
+			return error_helper.NewBadRequest("reset key is expired")
 		}
 
 		passwordHash, err := crypto.HashPassword(crypto.SHA256([]byte(passwordResetRequest.NewPassword)))
 		if err != nil {
-			return errors.NewInternal(err, "failed to hash password")
+			return error_helper.NewInternal(err, "failed to hash password")
 		}
 
 		err = tx.UserCredentialDao().ResetPassword(uc.ID, passwordHash)
@@ -283,7 +283,7 @@ func (s *Service) SignUp(signUpRequest *model.SignUpRequest) (*model.User, error
 
 	passwordHash, err := crypto.HashPassword(crypto.SHA256([]byte(signUpRequest.Password)))
 	if err != nil {
-		return nil, errors.NewInternal(err, "failed to hash password")
+		return nil, error_helper.NewInternal(err, "failed to hash password")
 	}
 
 	activationToken := uuid.New().String()
@@ -296,7 +296,7 @@ func (s *Service) SignUp(signUpRequest *model.SignUpRequest) (*model.User, error
 
 		err = tx.UserDao().Insert(&newUser)
 		if err != nil {
-			return errors.NewInternal(err, "failed to insert user")
+			return error_helper.NewInternal(err, "failed to insert user")
 		}
 
 		cred := model.UserCredential{
@@ -308,20 +308,20 @@ func (s *Service) SignUp(signUpRequest *model.SignUpRequest) (*model.User, error
 
 		err = tx.UserCredentialDao().Insert(&cred)
 		if err != nil {
-			return errors.NewInternal(err, "Internal error - unable to insert user_credential")
+			return error_helper.NewInternal(err, "Internal error - unable to insert user_credential")
 		}
 		return nil
 	})
 
 	if err != nil {
-		return nil, errors.ToError(err, "failed to complete sign-up transaction")
+		return nil, error_helper.ToError(err, "failed to complete sign-up transaction")
 	}
 
 	err = s.notifier.NotifyActivation(&newUser, activationToken)
 
 	if err != nil {
 		log.Error().Err(err).Msg("failed to send account activation email")
-		return nil, errors.NewInternal(err, "failed to send account activation email")
+		return nil, error_helper.NewInternal(err, "failed to send account activation email")
 	}
 
 	log.Debug().Interface("user", newUser).Msg("successfully signed up user")
@@ -347,11 +347,11 @@ func (s *Service) UpdateProfile(user *model.User) error {
 func (s *Service) checkForDuplicate(input string, by string, fn func(string) (bool, error)) error {
 	exists, err := fn(input)
 	if err != nil {
-		return errors.NewInternal(err, "Error while checking for duplicate email")
+		return error_helper.NewInternal(err, "Error while checking for duplicate email")
 	} else if exists {
 		log.Info().Str(by, input).Msgf("found user with same %s", by)
-		fieldErrors := []errors.FieldError{{Field: "email", Message: "user already exists"}}
-		return errors.WithFieldErrors(fieldErrors)
+		fieldErrors := []error_helper.FieldError{{Field: "email", Message: "user already exists"}}
+		return error_helper.WithFieldErrors(fieldErrors)
 	}
 	return nil
 }

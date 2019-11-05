@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/mmrath/gobase/uaa-server/pkg/config"
+	"github.com/mmrath/gobase/uaa-server/internal/config"
 )
 
 func NewHttpServer(cfg *config.Config, handler http.Handler) *http.Server {

@@ -8,7 +8,7 @@ import (
 	"github.com/go-chi/render"
 	"github.com/rs/zerolog/log"
 	"github.com/mmrath/gobase/common/auth"
-	"github.com/mmrath/gobase/common/errors"
+	"github.com/mmrath/gobase/common/error_util"
 	"github.com/mmrath/gobase/model"
 )
 
@@ -33,13 +33,13 @@ func (h *Handler) Login(service auth.JWTService) http.HandlerFunc {
 		user, err := h.Service.Login(data)
 
 		if err != nil {
-			errors.RenderError(w, r, err)
+			error_helper.RenderError(w, r, err)
 			return
 		} else {
 			var token string
 			token, err = service.NewToken(user)
 			if err != nil {
-				errors.RenderError(w, r, err)
+				error_helper.RenderError(w, r, err)
 				return
 			} else {
 				render.Status(r, http.StatusOK)
@@ -87,7 +87,7 @@ func (h *Handler) SignUp() http.HandlerFunc {
 
 		if err != nil {
 			log.Error().Err(err).Msg("error during sign up")
-			errors.RenderError(w, r, err)
+			error_helper.RenderError(w, r, err)
 			return
 		} else {
 			render.Status(r, http.StatusOK)
@@ -103,7 +103,7 @@ func (h *Handler) Activate() http.HandlerFunc {
 		err := h.Service.Activate(key)
 
 		if err != nil {
-			errors.RenderError(w, r, err)
+			error_helper.RenderError(w, r, err)
 			return
 		} else {
 			render.Status(r, http.StatusOK)
@@ -143,7 +143,7 @@ func (h *Handler) InitPasswordReset() http.HandlerFunc {
 
 		if err != nil {
 			log.Error().Err(err).Msg("Error initiating password reset")
-			errors.RenderError(w, r, err)
+			error_helper.RenderError(w, r, err)
 			return
 		} else {
 			render.Status(r, http.StatusOK)
@@ -166,7 +166,7 @@ func (h *Handler) ResetPassword() http.HandlerFunc {
 
 		if err != nil {
 			log.Error().Err(err).Msg("error initiating password reset")
-			errors.RenderError(w, r, err)
+			error_helper.RenderError(w, r, err)
 			return
 		} else {
 			render.Status(r, http.StatusOK)
@@ -188,7 +188,7 @@ func (h *Handler) ChangePassword() http.HandlerFunc {
 
 		if err != nil {
 			log.Error().Err(err).Msg("error changing password")
-			errors.RenderError(w, r, err)
+			error_helper.RenderError(w, r, err)
 			return
 		} else {
 			render.Status(r, http.StatusOK)
