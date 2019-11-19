@@ -1,7 +1,7 @@
 web:
   port: 9020
-  contextPath: '/oauth2'
-  templateDir: "./resources/web/static/templates"
+  contextPath: ''
+  templateDir: "./resources/web/templates"
 db:
   url: "postgres://uaa_dev:password@localhost/uaa?sslmode=disable"
 

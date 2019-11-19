@@ -1,6 +1,8 @@
 package model
 
 import (
+	"context"
+
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
 )
@@ -96,38 +98,38 @@ type userDao struct {
 }
 
 type UserDao interface {
-	Get(id int64) (*User, error)
-	Insert(user *User) error
-	Update(user *User) error
-	GetByEmail(email string) (*User, error)
-	ExistsByEmail(email string) (bool, error)
+	Find(ctx context.Context, id int64) (*User, error)
+	Insert(ctx context.Context, user *User) error
+	Update(ctx context.Context, user *User) error
+	FindByEmail(ctx context.Context, email string) (*User, error)
+	ExistsByEmail(ctx context.Context, email string) (bool, error)
 }
 
 func newUserDao(tx *Tx) UserDao {
 	return &userDao{
-		tx: tx,
 	}
 }
 
-func (dao *userDao) Get(id int64) (*User, error) {
+func (dao *userDao) Find(ctx context.Context, id int64) (*User, error) {
+	tx := TxFromContext(ctx)
 	user := &User{ID: id}
-	err := dao.tx.Select(user)
+	err := tx.Select(user)
 	return user, err
 }
 
-func (dao *userDao) Insert(user *User) error {
-	err := dao.tx.Insert(user)
+func (dao *userDao) Insert(ctx context.Context, user *User) error {
+	err := TxFromContext(ctx).Insert(user)
 	return err
 }
 
-func (dao *userDao) Update(user *User) error {
-	err := dao.tx.Update(user)
+func (dao *userDao) Update(ctx context.Context, user *User) error {
+	err := TxFromContext(ctx).Update(user)
 	return err
 }
 
-func (dao *userDao) GetByEmail(email string) (*User, error) {
+func (dao *userDao) FindByEmail(ctx context.Context, email string) (*User, error) {
 	user := new(User)
-	err := dao.tx.Model(user).Where("email = ?", email).Select()
+	err := TxFromContext(ctx).Model(user).Where("email = ?", email).Select()
 	if err != nil {
 		return nil, err
 	} else {
@@ -135,7 +137,7 @@ func (dao *userDao) GetByEmail(email string) (*User, error) {
 	}
 }
 
-func (dao *userDao) ExistsByEmail(email string) (bool, error) {
+func (dao *userDao) ExistsByEmail(ctx context.Context, email string) (bool, error) {
 	user := new(User)
-	return dao.tx.Model(user).Where("email = ?", email).Exists()
+	return TxFromContext(ctx).Model(user).Where("email = ?", email).Exists()
 }

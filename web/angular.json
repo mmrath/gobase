@@ -1,0 +1,257 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "uaa": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "projects/uaa",
+      "sourceRoot": "projects/uaa/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/uaa",
+            "index": "projects/uaa/src/index.html",
+            "main": "projects/uaa/src/main.ts",
+            "polyfills": "projects/uaa/src/polyfills.ts",
+            "tsConfig": "projects/uaa/tsconfig.app.json",
+            "aot": true,
+            "assets": [
+              "projects/uaa/src/favicon.ico",
+              "projects/uaa/src/assets"
+            ],
+            "styles": [
+              "./node_modules/@angular/material/prebuilt-themes/purple-green.css",
+              "projects/uaa/src/styles.scss"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "projects/uaa/src/environments/environment.ts",
+                  "with": "projects/uaa/src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb",
+                  "maximumError": "10kb"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "uaa:build"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "uaa:build:production"
+            }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "uaa:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/uaa/src/test.ts",
+            "polyfills": "projects/uaa/src/polyfills.ts",
+            "tsConfig": "projects/uaa/tsconfig.spec.json",
+            "karmaConfig": "projects/uaa/karma.conf.js",
+            "assets": [
+              "projects/uaa/src/favicon.ico",
+              "projects/uaa/src/assets"
+            ],
+            "styles": [
+              "./node_modules/@angular/material/prebuilt-themes/purple-green.css",
+              "projects/uaa/src/styles.scss"
+            ],
+            "scripts": []
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/uaa/tsconfig.app.json",
+              "projects/uaa/tsconfig.spec.json",
+              "projects/uaa/e2e/tsconfig.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        },
+        "e2e": {
+          "builder": "@angular-devkit/build-angular:protractor",
+          "options": {
+            "protractorConfig": "projects/uaa/e2e/protractor.conf.js",
+            "devServerTarget": "uaa:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "uaa:serve:production"
+            }
+          }
+        }
+      }
+    },
+    "uaa-admin": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "projects/uaa-admin",
+      "sourceRoot": "projects/uaa-admin/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/uaa-admin",
+            "index": "projects/uaa-admin/src/index.html",
+            "main": "projects/uaa-admin/src/main.ts",
+            "polyfills": "projects/uaa-admin/src/polyfills.ts",
+            "tsConfig": "projects/uaa-admin/tsconfig.app.json",
+            "aot": true,
+            "assets": [
+              "projects/uaa-admin/src/favicon.ico",
+              "projects/uaa-admin/src/assets"
+            ],
+            "styles": [
+              "./node_modules/@angular/material/prebuilt-themes/purple-green.css",
+              "projects/uaa-admin/src/styles.scss"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "projects/uaa-admin/src/environments/environment.ts",
+                  "with": "projects/uaa-admin/src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb",
+                  "maximumError": "10kb"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "uaa-admin:build"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "uaa-admin:build:production"
+            }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "uaa-admin:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/uaa-admin/src/test.ts",
+            "polyfills": "projects/uaa-admin/src/polyfills.ts",
+            "tsConfig": "projects/uaa-admin/tsconfig.spec.json",
+            "karmaConfig": "projects/uaa-admin/karma.conf.js",
+            "assets": [
+              "projects/uaa-admin/src/favicon.ico",
+              "projects/uaa-admin/src/assets"
+            ],
+            "styles": [
+              "./node_modules/@angular/material/prebuilt-themes/purple-green.css",
+              "projects/uaa-admin/src/styles.scss"
+            ],
+            "scripts": []
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/uaa-admin/tsconfig.app.json",
+              "projects/uaa-admin/tsconfig.spec.json",
+              "projects/uaa-admin/e2e/tsconfig.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        },
+        "e2e": {
+          "builder": "@angular-devkit/build-angular:protractor",
+          "options": {
+            "protractorConfig": "projects/uaa-admin/e2e/protractor.conf.js",
+            "devServerTarget": "uaa-admin:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "uaa-admin:serve:production"
+            }
+          }
+        }
+      }
+    }
+  },
+  "cli": {
+    "analytics": "50992341-b87b-421a-bf28-f3c44d24eeb3"
+  },
+  "defaultProject": "uaa"
+}

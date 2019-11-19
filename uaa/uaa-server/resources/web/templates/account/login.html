@@ -1,0 +1,28 @@
+  <!DOCTYPE html>
+  <html>
+
+  <head>
+    <title>{{ .title }}</title>
+  </head>
+
+  <body>
+  <h1>Please log in</h1>{{if .error}}
+    <p>{{.error}}</p>
+  {{end}}
+  <form method="POST">
+    <input type="hidden" name="challenge" value="{{.challenge}}">
+    <table style="{{""}}">
+      <tr>
+        <td><input id="username" name="username" placeholder="god" value="foo@bar.com"></td>
+        <td>(it's "god")</td>
+      </tr>
+      <tr>
+        <td><input type="password" id="password" name="password" value="foo@bar.com"></td>
+        <td>(it's "test123")</td>
+      </tr>
+    </table><input type="checkbox" id="remember" name="remember" value="1"><label for="remember">Remember me</label><br><input type="submit" id="accept" value="Log in">
+  </form>
+  </body>
+
+  </html>
+

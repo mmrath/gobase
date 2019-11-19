@@ -6,11 +6,10 @@ import (
 	"net/http"
 
 	"github.com/ory/hydra/sdk/go/hydra/client"
+	"github.com/rs/zerolog/log"
 
 	hydraAdmin "github.com/ory/hydra/sdk/go/hydra/client/admin"
 	hydraModels "github.com/ory/hydra/sdk/go/hydra/models"
-
-	"github.com/mmrath/gobase/common/log"
 )
 
 var (
@@ -24,12 +23,12 @@ type TemplateProvider interface {
 
 func LoginGetHandler(hydra *client.OryHydra, templateProvider TemplateProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Infof("received login")
+		log.Info().Msg("received login")
 
 		keys, ok := r.URL.Query()["login_challenge"]
 
 		if !ok || len(keys[0]) < 1 || keys[0] == "" {
-			log.Infof("Url Param 'login_challenge' is missing")
+			log.Info().Msg("Url Param 'login_challenge' is missing")
 			w.Header().Set("X-Status-Reason", "no challenge")
 			w.WriteHeader(http.StatusBadRequest)
 			return
@@ -69,15 +68,14 @@ func LoginGetHandler(hydra *client.OryHydra, templateProvider TemplateProvider) 
 			// All we need to do now is to redirect the user back to hydra!
 			http.Redirect(w, r, acceptLoginResponse.GetPayload().RedirectTo, http.StatusTemporaryRedirect)
 		} else {
-			data := map[string]interface{} {
-				"title": "Login",
-				"challenge":challenge,
-				"client": getLoginResponse.Payload.Client,
-
+			data := map[string]interface{}{
+				"title":     "Login",
+				"challenge": challenge,
+				"client":    getLoginResponse.Payload.Client,
 			}
 			err = templateProvider.LoginTemplate().Execute(w, data)
 			if err != nil {
-				log.Errorf("Error rendering network page: %s", err)
+				log.Error().Err(err).Msg("error rendering network page")
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
@@ -103,15 +101,15 @@ func LoginPostHandler(hydra *client.OryHydra, templateProvider TemplateProvider)
 
 		if err != nil {
 
-			data := map[string]interface{} {
-				"title": "Login failed",
-				"challenge":challenge,
-				"err": err.Error(),
+			data := map[string]interface{}{
+				"title":     "Login failed",
+				"challenge": challenge,
+				"err":       err.Error(),
 			}
 
 			err = templateProvider.LoginTemplate().Execute(w, data)
 			if err != nil {
-				log.Errorf("Error rendering network page: %s", err)
+				log.Error().Err(err).Msg("error rendering network page")
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
@@ -153,6 +151,6 @@ func validatePassword(username string, password string) error {
 	if username == password {
 		return nil
 	}
-	log.Infof("login failed [%s]/[%s]", username, password)
+	log.Info().Str("username", username).Msg("login failed")
 	return ErrInvalidCredentials
 }

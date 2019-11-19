@@ -12,127 +12,124 @@ import (
 )
 
 type Handler struct {
-	service          Service
-	templateRegistry *template_util.Registry
+	service Service
+	templateRegistry template_util.Registry
 }
 
-func (h *Handler) Activate(w http.ResponseWriter, r *http.Request) {
-	key := r.URL.Query().Get("key")
-
-	data := struct {
-		Success bool
-		Msg     string
-	}{Success: false}
-
-	err := h.service.Activate(key)
-	if err != nil {
-		data.Msg = err.Error()
-		err := h.templateRegistry.Render(w, "activate.html", data)
-		if err != nil {
-			log.Error().Err(err).Msg("failed to write activation template")
-			render.Status(r, http.StatusInternalServerError)
-		}
-		return
-	} else {
-		render.Status(r, http.StatusOK)
-		data.Success = true
-		err := h.templateRegistry.Render(w, "activation", data)
+func (h *Handler) Activate() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		key := r.URL.Query().Get("key")
+		err := h.service.Activate(key)
 
 		if err != nil {
-			log.Error().Err(err).Msg("failed to write activation template")
-			render.Status(r, http.StatusInternalServerError)
+			h.renderError(w, r, "account/activation", err)
+			return
+		} else {
+			h.renderSuccess(w, r, "account/activation", nil)
+			return
+		}
+	}
+}
+
+func (h *Handler) renderSuccess(w http.ResponseWriter, r *http.Request, templateName string, data interface{}) {
+	h.templateRegistry.RenderHttp(w, templateName, data)
+}
+
+func (h *Handler) renderError(w http.ResponseWriter, r *http.Request, templateName string, err error) {
+	data := map[string]interface{}{
+		"success": false,
+	}
+
+	h.templateRegistry.RenderHttp(w, templateName, data)
+}
+
+func (h *Handler) ChangePassword() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		data := new(model.ChangePasswordRequest)
+
+		if err := render.DecodeJSON(r.Body, data); err != nil {
+			render.JSON(w, r, err)
+			return
+		}
+		err := h.service.ChangePassword(r.Context(), data)
+
+		if err != nil {
+			log.Error().Err(err).Msg("error changing password")
+			error_util.RenderError(w, r, err)
+			return
+		} else {
+			render.Status(r, http.StatusOK)
+			return
+		}
+	}
+}
+
+func (h *Handler) ResetPasswordFinish() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		data := new(model.ResetPasswordRequest)
+
+		if err := render.DecodeJSON(r.Body, data); err != nil {
+			render.JSON(w, r, err)
+			return
 		}
 
-		render.PlainText(w, r, http.StatusText(http.StatusOK))
-		return
+		err := h.service.ResetPassword(data)
+
+		if err != nil {
+			log.Error().Err(err).Msg("error initiating password reset")
+			error_util.RenderError(w, r, err)
+			return
+		} else {
+			render.Status(r, http.StatusOK)
+			return
+		}
 	}
 }
 
-func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
-	data := new(model.ChangePasswordRequest)
+func (h *Handler) PasswordResetInit() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		type InitPasswordResetRequest struct {
+			Email string `json:"email"`
+		}
+		data := new(InitPasswordResetRequest)
 
-	if err := render.DecodeJSON(r.Body, data); err != nil {
-		render.JSON(w, r, err)
-		return
-	}
+		if err := render.DecodeJSON(r.Body, data); err != nil {
+			render.JSON(w, r, err)
+			return
+		}
 
-	err := h.service.ChangePassword(r.Context(), data)
+		err := h.service.InitiatePasswordReset(data.Email)
 
-	if err != nil {
-		log.Error().Err(err).Msg("error changing password")
-		error_util.RenderError(w, r, err)
-		return
-	} else {
-		render.Status(r, http.StatusOK)
-		return
+		if err != nil {
+			log.Error().Err(err).Msg("Error initiating password reset")
+			error_util.RenderError(w, r, err)
+			return
+		} else {
+			render.Status(r, http.StatusOK)
+			return
+		}
 	}
 }
 
-func (h *Handler) ResetPasswordFinish(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) SignUp() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		data := &model.SignUpRequest{}
 
-	data := new(model.ResetPasswordRequest)
+		if err := render.DecodeJSON(r.Body, data); err != nil {
+			render.JSON(w, r, err)
+			return
+		}
 
-	if err := render.DecodeJSON(r.Body, data); err != nil {
-		render.JSON(w, r, err)
-		return
+		user, err := h.service.SignUp(data)
+
+		if err != nil {
+			log.Error().Err(err).Msg("error during sign up")
+			error_util.RenderError(w, r, err)
+			return
+		} else {
+			render.Status(r, http.StatusOK)
+			render.JSON(w, r, user)
+			return
+		}
 	}
-
-	err := h.service.ResetPassword(data)
-
-	if err != nil {
-		log.Error().Err(err).Msg("error initiating password reset")
-		error_util.RenderError(w, r, err)
-		return
-	} else {
-		render.Status(r, http.StatusOK)
-		return
-	}
-
-}
-
-func (h *Handler) PasswordResetInit(w http.ResponseWriter, r *http.Request) {
-	type InitPasswordResetRequest struct {
-		Email string `json:"email"`
-	}
-	data := new(InitPasswordResetRequest)
-
-	if err := render.DecodeJSON(r.Body, data); err != nil {
-		render.JSON(w, r, err)
-		return
-	}
-
-	err := h.service.InitiatePasswordReset(data.Email)
-
-	if err != nil {
-		log.Error().Err(err).Msg("Error initiating password reset")
-		error_util.RenderError(w, r, err)
-		return
-	} else {
-		render.Status(r, http.StatusOK)
-		return
-	}
-
-}
-
-func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
-
-	data := &model.SignUpRequest{}
-
-	if err := render.DecodeJSON(r.Body, data); err != nil {
-		render.JSON(w, r, err)
-		return
-	}
-
-	user, err := h.service.SignUp(data)
-
-	if err != nil {
-		log.Error().Err(err).Msg("error during sign up")
-		error_util.RenderError(w, r, err)
-		return
-	} else {
-		render.Status(r, http.StatusOK)
-		render.JSON(w, r, user)
-		return
-	}
-
 }

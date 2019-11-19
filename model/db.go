@@ -7,6 +7,26 @@ import (
 	"github.com/go-pg/pg"
 )
 
+type txKeyType string
+
+var txKey txKeyType
+
+func NewTxContext(ctx context.Context, db *DB) (context.Context, error) {
+	tx, err := db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	return context.WithValue(ctx, txKey, tx), nil
+}
+
+func TxFromContext(ctx context.Context) *pg.Tx {
+	tx, ok := ctx.Value(txKey).(*pg.Tx)
+	if !ok {
+		panic("must be called after transaction has started")
+	}
+	return tx
+}
+
 type DBConfig struct {
 	URL   string `yaml:"url"`
 	Debug bool   `yaml:"debug"`
@@ -86,26 +106,25 @@ func (db *DB) RunTx(fn func(tx *Tx) error) error {
 	return tx.Commit()
 }
 
-func (db *DB) Tx(ctx context.Context, fn func(tx *Tx) error) error {
-	pgTx, err := db.Begin()
+func (db *DB) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
+	txCtx,err := NewTxContext(ctx, db)
 	if err != nil {
 		return err
 	}
-	tx := &Tx{pgTx, ctx}
 
-	defer tx.cleanUp()
+	defer cleanUp(txCtx)
 
-	if err := fn(tx); err != nil {
-		_ = tx.Commit()
+	if err := fn(txCtx); err != nil {
+		_ = TxFromContext(txCtx).Commit()
 		return err
 	}
-	return tx.Commit()
+	return TxFromContext(txCtx).Commit()
 }
 
-func (tx *Tx) UserDao() UserDao {
-	return newUserDao(tx)
+func cleanUp(txCtx context.Context) {
+	if err := recover(); err != nil {
+		_ = TxFromContext(txCtx).Rollback()
+		panic(err)
+	}
 }
 
-func (tx *Tx) UserCredentialDao() UserCredentialDao {
-	return newUserCredentialDao(tx)
-}

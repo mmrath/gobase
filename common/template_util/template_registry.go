@@ -4,9 +4,12 @@ import (
 	"html/template"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/mmrath/gobase/common/error_util"
 )
@@ -17,6 +20,10 @@ type Registry struct {
 
 func (t *Registry) Render(w io.Writer, name string, data interface{}) error {
 	return t.templates.ExecuteTemplate(w, name, data)
+}
+
+func (t *Registry) Get(name string) *template.Template {
+	return t.templates.Lookup(name)
 }
 
 func BuildRegistry(templateDir string) (*Registry, error) {
@@ -51,9 +58,23 @@ func findAndParseTemplates(rootDir string, funcMap template.FuncMap) (*template.
 				return e2
 			}
 		}
-
 		return nil
 	})
 
 	return root, err
+}
+
+func (t *Registry) RenderHttp(w http.ResponseWriter, templateName string, data interface{}) {
+	err := t.Render(w, templateName, data)
+	if err != nil {
+		err = error_util.NewInternal(err, "failed to render template")
+		log.Error().
+			Err(err).
+			Str("template", templateName).
+			Interface("data", data).
+			Msg("failed to render template")
+		w.WriteHeader(http.StatusInternalServerError)
+		err = t.Render(w, "error/500.html", error_util.GetErrorID(err))
+
+	}
 }

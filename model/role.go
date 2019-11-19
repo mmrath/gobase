@@ -1,8 +1,10 @@
 package model
 
 import (
+	"context"
 	"strings"
 
+	"github.com/go-pg/pg"
 	"github.com/rs/zerolog/log"
 
 	"github.com/mmrath/gobase/common/error_util"
@@ -26,53 +28,50 @@ type RolePermission struct {
 }
 
 type RoleAndPermission struct {
-	Role *Role
+	Role        *Role
 	Permissions []int32
 }
 
 type RoleDao interface {
-	Find(id int32) (*Role, error)
-	FindPermissionsByRoleId(id int32) ([]int32, error)
-	ExistsByName(name string) (bool, error)
-	Create(role *Role, permissions []int32) error
-	Update(role *Role, permissions []int32) error
+	Find(ctx context.Context, id int32) (*Role, error)
+	FindPermissionsByRoleId(ctx context.Context, id int32) ([]int32, error)
+	ExistsByName(ctx context.Context, name string) (bool, error)
+	Create(ctx context.Context, role *Role, permissions []int32) error
+	Update(ctx context.Context, role *Role, permissions []int32) error
 }
 
-func NewRoleDao(tx *Tx) RoleDao {
-	return &roleDao{tx}
+func NewRoleDao() *roleDao {
+	return &roleDao{}
 }
 
 type roleDao struct {
-	tx *Tx
 }
 
-func (d *roleDao) Find(id int32) (*Role, error) {
+func (d *roleDao) Find(ctx context.Context,id int32) (*Role, error) {
 	role := Role{ID: id}
-	err := d.tx.Select(&role)
+	err := TxFromContext(ctx).Select(&role)
 	if err != nil {
 		return nil, err
 	}
 	return &role, nil
 }
 
-func (d *roleDao) FindPermissionsByRoleId(id int32) ([]int32, error) {
+func (d *roleDao) FindPermissionsByRoleId(ctx context.Context, id int32) ([]int32, error) {
 	var permissions []int32
-	err := d.tx.Model(&RolePermission{}).Column("permission_id").Where("role_id = ?", id).Select(&permissions)
+	err := TxFromContext(ctx).Model(&RolePermission{}).Column("permission_id").Where("role_id = ?", id).Select(&permissions)
 	if err != nil {
 		return nil, err
 	}
 	return permissions, nil
 }
 
-func (d *roleDao) ExistsByName(name string) (bool, error) {
+func (d *roleDao) ExistsByName(ctx context.Context, name string) (bool, error) {
 	role := new(Role)
-	return d.tx.Model(role).Where(" LOWER(name) = ?", strings.ToLower(name)).Exists()
+	return TxFromContext(ctx).Model(role).Where(" LOWER(name) = ?", strings.ToLower(name)).Exists()
 }
 
-
-
-func (d *roleDao) Create(role *Role, permissions []int32) error {
-	err := d.tx.Insert(role)
+func (d *roleDao) Create(ctx context.Context, role *Role, permissions []int32) error {
+	err := TxFromContext(ctx).Insert(role)
 	if err != nil {
 		log.Error().
 			Int32("roleId", role.ID).
@@ -80,11 +79,11 @@ func (d *roleDao) Create(role *Role, permissions []int32) error {
 			Msg("failed to update role")
 		return error_util.NewInternal(err, "failed to insert role")
 	}
-	return createRolePermissions(d.tx, role.ID, permissions)
+	return createRolePermissions(TxFromContext(ctx), role.ID, permissions)
 }
 
-func (d *roleDao) Update(role *Role, permissions []int32) error {
-	err := d.tx.Update(role)
+func (d *roleDao) Update(ctx context.Context, role *Role, permissions []int32) error {
+	err := TxFromContext(ctx).Update(role)
 	if err != nil {
 		log.Error().
 			Int32("roleId", role.ID).
@@ -94,10 +93,10 @@ func (d *roleDao) Update(role *Role, permissions []int32) error {
 		return error_util.NewInternal(err, "failed to update role")
 	}
 
-	return createRolePermissions(d.tx, role.ID, permissions)
+	return createRolePermissions(TxFromContext(ctx), role.ID, permissions)
 }
 
-func createRolePermissions(tx *Tx, roleId int32, permissions []int32) error {
+func createRolePermissions(tx *pg.Tx, roleId int32, permissions []int32) error {
 	_, err := tx.Model(&RolePermission{}).Where("role_id = ?", roleId).Delete()
 	if err != nil {
 		log.Error().
@@ -112,7 +111,7 @@ func createRolePermissions(tx *Tx, roleId int32, permissions []int32) error {
 	rolePermissions := make([]RolePermission, len(permissions))
 	for i, perm := range permissions {
 		rolePermissions[i].RoleID = roleId
-		rolePermissions[i].PermissionID =perm
+		rolePermissions[i].PermissionID = perm
 	}
 	return tx.Insert(rolePermissions)
 }

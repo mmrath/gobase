@@ -3,9 +3,8 @@ package oauth2
 import (
 	"fmt"
 	"html/template"
-	"io/ioutil"
-	"path/filepath"
 
+	"github.com/mmrath/gobase/common/template_util"
 	"github.com/mmrath/gobase/uaa-server/internal/config"
 )
 
@@ -25,30 +24,25 @@ func (t *templateProvider) ConsentTemplate() *template.Template {
 func loadTemplates(cfg config.WebConfig) (TemplateProvider, error) {
 	templatesDir := cfg.TemplateDir
 
-	files, err := ioutil.ReadDir(templatesDir)
+	tr, err := template_util.BuildRegistry(templatesDir)
+
 	if err != nil {
-		return nil, fmt.Errorf("failed to read tempalte dir %s: %w", templatesDir, err)
+		return nil, err
 	}
 
-	filenames := []string{}
-	for _, file := range files {
-		if file.IsDir() {
-			continue
-		}
-		filenames = append(filenames, filepath.Join(templatesDir, file.Name()))
-	}
-	if len(filenames) == 0 {
-		return nil, fmt.Errorf("no files in template dir %q", templatesDir)
+	lt := tr.Get("account/login.html")
+	if lt == nil {
+		return nil, fmt.Errorf("login template not found")
 	}
 
-	tmpls, err := template.New("").ParseFiles(filenames...)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse template files: %w", err)
+	ct := tr.Get("account/consent.html")
+	if ct == nil {
+		return nil, fmt.Errorf("consent template not found")
 	}
 
-	loginTmpl := tmpls.Lookup("login.html")
-	consentTmpl := tmpls.Lookup("consent.html")
-
-	return &templateProvider{loginTemplate: loginTmpl, consentTemplate: consentTmpl}, nil
+	return &templateProvider{
+		loginTemplate:   lt,
+		consentTemplate: ct,
+	}, nil
 
 }

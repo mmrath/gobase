@@ -3,6 +3,7 @@ module github.com/mmrath/gobase/uaa-server
 go 1.12
 
 require (
+	github.com/andybalholm/cascadia v1.1.0 // indirect
 	github.com/go-chi/chi v4.0.2+incompatible
 	github.com/go-chi/cors v1.0.0
 	github.com/go-chi/render v1.0.1
@@ -17,17 +18,21 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/google/wire v0.3.0
 	github.com/mailru/easyjson v0.7.0 // indirect
+	github.com/mattn/go-runewidth v0.0.6 // indirect
 	github.com/mmrath/gobase/common v0.0.0
 	github.com/mmrath/gobase/model v0.0.0
-	github.com/ory/hydra v1.0.8
+	github.com/olekukonko/tablewriter v0.0.2 // indirect
+	github.com/ory/hydra v1.0.9
 	github.com/pelletier/go-toml v1.6.0 // indirect
 	github.com/rs/zerolog v1.16.0
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/pflag v1.0.5 // indirect
-	go.mongodb.org/mongo-driver v1.1.2 // indirect
-	golang.org/x/crypto v0.0.0-20191029031824-8986dd9e96cf // indirect
-	golang.org/x/net v0.0.0-20191028085509-fe3aa8a45271 // indirect
-	golang.org/x/sys v0.0.0-20191028164358-195ce5e7f934 // indirect
+	github.com/spf13/viper v1.5.0 // indirect
+	go.mongodb.org/mongo-driver v1.1.3 // indirect
+	golang.org/x/crypto v0.0.0-20191106202628-ed6320f186d4 // indirect
+	golang.org/x/net v0.0.0-20191105084925-a882066a44e0 // indirect
+	golang.org/x/sys v0.0.0-20191105231009-c1f44814a5cd // indirect
+	gopkg.in/yaml.v2 v2.2.5 // indirect
 )
 
 replace github.com/mmrath/gobase/common => ../../common

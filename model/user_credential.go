@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"time"
 )
 
@@ -23,29 +24,28 @@ type UserCredential struct {
 }
 
 type userCredentialDao struct {
-	tx *Tx
 }
 
 type UserCredentialDao interface {
-	GetByActivationKey(key string) (*UserCredential, error)
-	Activate(id int64) error
-	Get(id int64) (*UserCredential, error)
-	Insert(credential *UserCredential) error
-	IncrementInvalidAttempts(id int64, lock bool) error
-	UpdateResetKey(id int64, resetKey string, expiresAt time.Time) error
-	FindByResetKey(key string) (*UserCredential, error)
-	ResetPassword(id int64, newPassword string) error
-	ChangePassword(id int64, newPassword string) error
-	ResetInvalidAttempts(id int64) error
+	GetByActivationKey(ctx context.Context,key string) (*UserCredential, error)
+	Activate(ctx context.Context,id int64) error
+	Get(ctx context.Context,id int64) (*UserCredential, error)
+	Insert(ctx context.Context,credential *UserCredential) error
+	IncrementInvalidAttempts(ctx context.Context,id int64, lock bool) error
+	UpdateResetKey(ctx context.Context,id int64, resetKey string, expiresAt time.Time) error
+	FindByResetKey(ctx context.Context,key string) (*UserCredential, error)
+	ResetPassword(ctx context.Context,id int64, newPassword string) error
+	ChangePassword(ctx context.Context,id int64, newPassword string) error
+	ResetInvalidAttempts(ctx context.Context,id int64) error
 }
 
 func newUserCredentialDao(tx *Tx) UserCredentialDao {
-	return &userCredentialDao{tx}
+	return &userCredentialDao{}
 }
 
-func (dao *userCredentialDao) GetByActivationKey(key string) (*UserCredential, error) {
+func (dao *userCredentialDao) GetByActivationKey(ctx context.Context,key string) (*UserCredential, error) {
 	userCred := new(UserCredential)
-	err := dao.tx.Model(userCred).Where("activation_key = ?", key).Select()
+	err := TxFromContext(ctx).Model(userCred).Where("activation_key = ?", key).Select()
 	if err != nil {
 		return nil, err
 	} else {
@@ -53,26 +53,26 @@ func (dao *userCredentialDao) GetByActivationKey(key string) (*UserCredential, e
 	}
 }
 
-func (dao *userCredentialDao) Activate(id int64) error {
+func (dao *userCredentialDao) Activate(ctx context.Context,id int64) error {
 	userCred := UserCredential{ID: id, Activated: true}
-	_, err := dao.tx.Model(&userCred).Column("activated").WherePK().Update()
+	_, err := TxFromContext(ctx).Model(&userCred).Column("activated").WherePK().Update()
 	return err
 }
 
-func (dao *userCredentialDao) Get(id int64) (*UserCredential, error) {
+func (dao *userCredentialDao) Get(ctx context.Context,id int64) (*UserCredential, error) {
 	userCred := &UserCredential{ID: id}
-	err := dao.tx.Select(userCred)
+	err := TxFromContext(ctx).Select(userCred)
 	return userCred, err
 }
 
-func (dao *userCredentialDao) Insert(credential *UserCredential) error {
-	err := dao.tx.Insert(credential)
+func (dao *userCredentialDao) Insert(ctx context.Context,credential *UserCredential) error {
+	err := TxFromContext(ctx).Insert(credential)
 	return err
 }
 
-func (dao *userCredentialDao) IncrementInvalidAttempts(id int64, lock bool) error {
+func (dao *userCredentialDao) IncrementInvalidAttempts(ctx context.Context,id int64, lock bool) error {
 	userCred := UserCredential{ID: id}
-	_, err := dao.tx.Model(&userCred).
+	_, err := TxFromContext(ctx).Model(&userCred).
 		Set("invalid_attempts = invalid_attempts + 1").
 		Set("locked = ?", lock).
 		WherePK().
@@ -80,27 +80,27 @@ func (dao *userCredentialDao) IncrementInvalidAttempts(id int64, lock bool) erro
 	return err
 }
 
-func (dao *userCredentialDao) UpdateResetKey(id int64, resetKey string, expiresAt time.Time) error {
+func (dao *userCredentialDao) UpdateResetKey(ctx context.Context,id int64, resetKey string, expiresAt time.Time) error {
 	userCred := UserCredential{ID: id, ResetKey: resetKey, ResetKeyExpiresAt: expiresAt}
-	_, err := dao.tx.Model(&userCred).
+	_, err := TxFromContext(ctx).Model(&userCred).
 		Column("reset_key", "reset_key_expires_at").
 		WherePK().
 		Update()
 	return err
 }
 
-func (dao *userCredentialDao) FindByResetKey(key string) (*UserCredential, error) {
+func (dao *userCredentialDao) FindByResetKey(ctx context.Context,key string) (*UserCredential, error) {
 	userCred := new(UserCredential)
-	err := dao.tx.Model(userCred).
+	err := TxFromContext(ctx).Model(userCred).
 		Where("reset_key = ?", key).
 		Select()
 	return userCred, err
 }
 
-func (dao *userCredentialDao) ResetPassword(id int64, newPassword string) error {
+func (dao *userCredentialDao) ResetPassword(ctx context.Context,id int64, newPassword string) error {
 	userCred := UserCredential{ID: id, PasswordHash: newPassword}
 
-	_, err := dao.tx.Model(&userCred).
+	_, err := TxFromContext(ctx).Model(&userCred).
 		Set("password_hash = ?", newPassword).
 		Set("expires_at = ?", time.Now().AddDate(1, 0, 0)).
 		Set("activated = true").
@@ -114,10 +114,10 @@ func (dao *userCredentialDao) ResetPassword(id int64, newPassword string) error 
 	return err
 }
 
-func (dao *userCredentialDao) ChangePassword(id int64, newPassword string) error {
+func (dao *userCredentialDao) ChangePassword(ctx context.Context,id int64, newPassword string) error {
 	userCred := UserCredential{ID: id, PasswordHash: newPassword}
 
-	_, err := dao.tx.Model(&userCred).
+	_, err := TxFromContext(ctx).Model(&userCred).
 		Set("password_hash = ?", newPassword).
 		Set("expires_at = ?", time.Now().AddDate(1, 0, 0)).
 		Set("invalid_attempts = 0").
@@ -127,10 +127,10 @@ func (dao *userCredentialDao) ChangePassword(id int64, newPassword string) error
 	return err
 }
 
-func (dao *userCredentialDao) ResetInvalidAttempts(id int64) error {
+func (dao *userCredentialDao) ResetInvalidAttempts(ctx context.Context,id int64) error {
 	userCred := UserCredential{ID: id}
 
-	_, err := dao.tx.Model(&userCred).
+	_, err := TxFromContext(ctx).Model(&userCred).
 		Set("invalid_attempts = 0").
 		WherePK().
 		Update()

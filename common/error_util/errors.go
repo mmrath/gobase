@@ -52,7 +52,12 @@ func wrap(err error, msg string) error {
 		return errors.New(msg)
 	}
 }
-
+func GetErrorID(err error) string {
+	if ce, ok := err.(Error); ok {
+		return ce.ID.String()
+	}
+	return ""
+}
 func ToError(err error, msg string) Error {
 	if ce, ok := err.(Error); ok {
 		return ce
@@ -60,7 +65,14 @@ func ToError(err error, msg string) Error {
 	return NewInternal(err, msg)
 }
 
+
+
 func NewInternal(err error, msg string) Error {
+	if ce, ok := err.(Error); ok {
+		if ce.Code == ErrorCodeInternal {
+			return ce
+		}
+	}
 	return Error{ID: uuid.New(), Err: wrap(err, msg), Code: ErrorCodeInternal}
 }
 
