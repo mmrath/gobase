@@ -58,7 +58,8 @@ func HttpRouter(cfg *config.Config, h *appHandler) http.Handler {
 			oauth2.RegisterHandlers(r,cfg)
 		})
 		r.Route("/account", func(r chi.Router) {
-			r.Post("/signup", h.account.SignUp())
+			r.Get("/sign-up", h.account.SignUpForm())
+			r.Post("/sign-up", h.account.SignUp())
 			r.Post("/activate", h.account.Activate())
 			r.Post("/reset-password/init", h.account.PasswordResetInit())
 			r.Post("/reset-password/finish", h.account.ResetPasswordFinish())

@@ -12,8 +12,8 @@ import (
 )
 
 type Handler struct {
-	service Service
-	templateRegistry template_util.Registry
+	service          Service
+	templateRegistry *template_util.Registry
 }
 
 func (h *Handler) Activate() http.HandlerFunc {
@@ -29,18 +29,6 @@ func (h *Handler) Activate() http.HandlerFunc {
 			return
 		}
 	}
-}
-
-func (h *Handler) renderSuccess(w http.ResponseWriter, r *http.Request, templateName string, data interface{}) {
-	h.templateRegistry.RenderHttp(w, templateName, data)
-}
-
-func (h *Handler) renderError(w http.ResponseWriter, r *http.Request, templateName string, err error) {
-	data := map[string]interface{}{
-		"success": false,
-	}
-
-	h.templateRegistry.RenderHttp(w, templateName, data)
 }
 
 func (h *Handler) ChangePassword() http.HandlerFunc {
@@ -111,6 +99,13 @@ func (h *Handler) PasswordResetInit() http.HandlerFunc {
 	}
 }
 
+func (h *Handler) SignUpForm() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		err := h.templateRegistry.RenderHttp(w, "account/sign-up-form.html", "")
+		h.handleInternalError(r, w, err)
+	}
+}
+
 func (h *Handler) SignUp() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data := &model.SignUpRequest{}
@@ -131,5 +126,26 @@ func (h *Handler) SignUp() http.HandlerFunc {
 			render.JSON(w, r, user)
 			return
 		}
+	}
+}
+
+func (h *Handler) renderSuccess(w http.ResponseWriter, r *http.Request, templateName string, data interface{}) {
+	err := h.templateRegistry.RenderHttp(w, templateName, data)
+	h.handleInternalError(nil, nil, err)
+}
+
+func (h *Handler) renderError(w http.ResponseWriter, r *http.Request, templateName string, err error) {
+	data := map[string]interface{}{
+		"success": false,
+	}
+	err = h.templateRegistry.RenderHttp(w, templateName, data)
+	h.handleInternalError(r, w, err)
+}
+
+func (h *Handler) handleInternalError(r *http.Request, w http.ResponseWriter, e error) {
+	render.Status(r, http.StatusInternalServerError)
+	err := h.templateRegistry.Render(w, "error/500.html", e)
+	if err != nil {
+		log.Error().Err(err).Msg("error rendering error/500.html template")
 	}
 }

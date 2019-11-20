@@ -4,6 +4,7 @@ import (
 	"github.com/google/wire"
 
 	"github.com/mmrath/gobase/common/email"
+	"github.com/mmrath/gobase/common/template_util"
 	"github.com/mmrath/gobase/model"
 	"github.com/mmrath/gobase/uaa-server/internal/config"
 )
@@ -11,13 +12,21 @@ import (
 var Provider = wire.NewSet(
 	wire.Bind(new(Service), new(*service)),
 	wire.Bind(new(Notifier), new(*notifier)),
+	TemplateRegistry,
 	NewHandler,
 	NewService,
 	NewNotifier,
 )
 
-func NewHandler(s Service) *Handler {
-	return &Handler{service: s}
+func TemplateRegistry(config *config.Config) *template_util.Registry {
+	t, err := template_util.BuildRegistry(config.Web.TemplateDir)
+	if err != nil {
+		panic(err)
+	}
+	return t
+}
+func NewHandler(s Service, registry *template_util.Registry) *Handler {
+	return &Handler{service: s, templateRegistry: registry}
 }
 
 func NewService(db *model.DB, notifier Notifier) *service {

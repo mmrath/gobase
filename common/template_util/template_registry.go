@@ -19,7 +19,14 @@ type Registry struct {
 }
 
 func (t *Registry) Render(w io.Writer, name string, data interface{}) error {
-	return t.templates.ExecuteTemplate(w, name, data)
+
+	log.Info().Str("name", name).Msg("trying to render template")
+
+	for _, t := range t.templates.Templates() {
+		log.Info().Str("name", t.Name()).Msg("template loaded")
+	}
+
+	return t.templates.ExecuteTemplate(w, "base", data)
 }
 
 func (t *Registry) Get(name string) *template.Template {
@@ -28,7 +35,6 @@ func (t *Registry) Get(name string) *template.Template {
 
 func BuildRegistry(templateDir string) (*Registry, error) {
 	tmpl, err := findAndParseTemplates(templateDir, template.FuncMap{})
-
 	if err != nil {
 		return nil, error_util.NewInternal(err, "failed to load template")
 	}
@@ -64,17 +70,7 @@ func findAndParseTemplates(rootDir string, funcMap template.FuncMap) (*template.
 	return root, err
 }
 
-func (t *Registry) RenderHttp(w http.ResponseWriter, templateName string, data interface{}) {
+func (t *Registry) RenderHttp(w http.ResponseWriter, templateName string, data interface{}) error {
 	err := t.Render(w, templateName, data)
-	if err != nil {
-		err = error_util.NewInternal(err, "failed to render template")
-		log.Error().
-			Err(err).
-			Str("template", templateName).
-			Interface("data", data).
-			Msg("failed to render template")
-		w.WriteHeader(http.StatusInternalServerError)
-		err = t.Render(w, "error/500.html", error_util.GetErrorID(err))
-
-	}
+	return err
 }
