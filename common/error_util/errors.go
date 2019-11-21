@@ -65,8 +65,6 @@ func ToError(err error, msg string) Error {
 	return NewInternal(err, msg)
 }
 
-
-
 func NewInternal(err error, msg string) Error {
 	if ce, ok := err.(Error); ok {
 		if ce.Code == ErrorCodeInternal {

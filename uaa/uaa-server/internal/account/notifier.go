@@ -8,8 +8,6 @@ import (
 	"github.com/mmrath/gobase/model"
 )
 
-
-
 type notifier struct {
 	sender  email.Mailer
 	baseUrl string

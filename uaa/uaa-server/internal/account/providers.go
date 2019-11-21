@@ -6,7 +6,7 @@ import (
 	"github.com/mmrath/gobase/common/email"
 	"github.com/mmrath/gobase/common/template_util"
 	"github.com/mmrath/gobase/model"
-	"github.com/mmrath/gobase/uaa-server/internal/config"
+	"github.com/mmrath/gobase/uaa/uaa-server/internal/config"
 )
 
 var Provider = wire.NewSet(

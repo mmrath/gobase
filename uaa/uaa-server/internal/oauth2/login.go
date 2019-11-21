@@ -47,7 +47,7 @@ func LoginGetHandler(hydra *client.OryHydra, templateProvider TemplateProvider) 
 			return
 		}
 
-		if getLoginResponse.GetPayload().Skip {
+		if getLoginResponse.Payload.Skip {
 			// You can apply logic here, for example grant another scope, or do whatever...
 			// ...
 
@@ -66,7 +66,7 @@ func LoginGetHandler(hydra *client.OryHydra, templateProvider TemplateProvider) 
 				return
 			}
 			// All we need to do now is to redirect the user back to hydra!
-			http.Redirect(w, r, acceptLoginResponse.GetPayload().RedirectTo, http.StatusTemporaryRedirect)
+			http.Redirect(w, r, acceptLoginResponse.Payload.RedirectTo, http.StatusTemporaryRedirect)
 		} else {
 			data := map[string]interface{}{
 				"title":     "Login",

@@ -1,12 +1,9 @@
 PROJ=gobase
-ORG_PATH=mmrath.com
+ORG_PATH=github.com/mmrath
 REPO_PATH=$(ORG_PATH)/$(PROJ)
 export PATH := $(PWD)/bin:$(PATH)
 
 VERSION ?= $(shell ./scripts/git-version)
-
-DOCKER_REPO=quay.io/mmrath/gobase
-DOCKER_IMAGE=$(DOCKER_REPO):$(VERSION)
 
 $( shell mkdir -p bin )
 
@@ -17,27 +14,18 @@ export GOBIN=$(PWD)/bin
 
 LD_FLAGS="-w -X $(REPO_PATH)/version.Version=$(VERSION)"
 
-build: bin/gobase-client bin/gobase-admin bin/gobase-db-migration bin/gobase-uaa
+build: bin/uaa-server bin/uaa-client-example bin/db_migration
 
-bin/gobase-client:
-	@go install -v -ldflags $(LD_FLAGS) $(REPO_PATH)/cmd/dex
+bin/uaa-server:
+	go install -v -ldflags $(LD_FLAGS) $(REPO_PATH)/uaa/uaa-server
 
-bin/gobase-admin:
-	@go install -v -ldflags $(LD_FLAGS) $(REPO_PATH)/cmd/example-app
+bin/uaa-client-example:
+	@go install -v -ldflags $(LD_FLAGS) $(REPO_PATH)/uaa/uaa-client-example
 
-bin/gobase-db-migration:
-	@go install -v -ldflags $(LD_FLAGS) $(REPO_PATH)/examples/grpc-client
+bin/db_migration:
+	@go install -v -ldflags $(LD_FLAGS) $(REPO_PATH)/db_migration
 
 
-.PHONY: release-binary
-release-binary:
-	@go build -o /go/bin/dex -v -ldflags $(LD_FLAGS) $(REPO_PATH)/cmd/dex
-
-.PHONY: revendor
-revendor:
-	@go mod tidy -v
-	@go mod vendor -v
-	@go mod verify
 
 test:
 	@go test -v ./...

@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/mmrath/gobase/uaa/uaa-server/app"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
-	"github.com/mmrath/gobase/uaa-server/app"
 	"os"
 )
 

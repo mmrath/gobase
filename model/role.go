@@ -47,7 +47,7 @@ func NewRoleDao() *roleDao {
 type roleDao struct {
 }
 
-func (d *roleDao) Find(ctx context.Context,id int32) (*Role, error) {
+func (d *roleDao) Find(ctx context.Context, id int32) (*Role, error) {
 	role := Role{ID: id}
 	err := TxFromContext(ctx).Select(&role)
 	if err != nil {

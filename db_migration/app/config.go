@@ -3,7 +3,6 @@ package app
 import (
 	"fmt"
 	"github.com/rs/zerolog/log"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 

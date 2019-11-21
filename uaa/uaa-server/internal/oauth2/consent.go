@@ -9,7 +9,7 @@ import (
 	hydraModels "github.com/ory/hydra/sdk/go/hydra/models"
 
 	"github.com/mmrath/gobase/common/log"
-	"github.com/mmrath/gobase/uaa-server/internal/helpers"
+	"github.com/mmrath/gobase/uaa/uaa-server/internal/helpers"
 )
 
 func ConsentGetHandler(hydraClient *client.OryHydra, templateProvider TemplateProvider) http.HandlerFunc {
@@ -36,7 +36,7 @@ func ConsentGetHandler(hydraClient *client.OryHydra, templateProvider TemplatePr
 			return
 		}
 
-		if getConsentResponse.GetPayload().Skip {
+		if getConsentResponse.Payload.Skip {
 			// You can apply logic here, for example grant another scope, or do whatever...
 			// ...
 
@@ -49,7 +49,7 @@ func ConsentGetHandler(hydraClient *client.OryHydra, templateProvider TemplatePr
 
 			// We can grant all scopes that have been requested - hydra already checked for us that no additional scopes
 			// are requested accidentally.
-			acceptConsentRequestParams.Body.GrantedScope = getConsentResponse.GetPayload().RequestedScope
+			acceptConsentRequestParams.Body.GrantedScope = getConsentResponse.Payload.RequestedScope
 
 			// Grant the roles scope to every client, so they can get the users roles over the backchannel
 			// ... is roles scope already in requestBody.GrantScope
@@ -67,7 +67,7 @@ func ConsentGetHandler(hydraClient *client.OryHydra, templateProvider TemplatePr
 			}
 
 			// ORY Hydra checks if requested audiences are allowed by the client, so we can simply echo this.
-			acceptConsentRequestParams.Body.GrantedAudience = getConsentResponse.GetPayload().RequestedAudience
+			acceptConsentRequestParams.Body.GrantedAudience = getConsentResponse.Payload.RequestedAudience
 
 			// This data will be available when introspecting the token. Try to avoid sensitive information here,
 			// unless you limit who can introspect tokens.
@@ -88,7 +88,7 @@ func ConsentGetHandler(hydraClient *client.OryHydra, templateProvider TemplatePr
 			}
 
 			// All we need to do now is to redirect the user back to hydra!
-			http.Redirect(w, r, acceptConsentResponse.GetPayload().RedirectTo, http.StatusTemporaryRedirect, )
+			http.Redirect(w, r, acceptConsentResponse.Payload.RedirectTo, http.StatusTemporaryRedirect)
 		} else {
 			// If consent can't be skipped we MUST show the consent UI.
 
@@ -96,9 +96,9 @@ func ConsentGetHandler(hydraClient *client.OryHydra, templateProvider TemplatePr
 				"title":          "consent",
 				"csrfToken":      "",
 				"challenge":      challenge,
-				"requestedScope": getConsentResponse.GetPayload().RequestedScope,
-				"user":           getConsentResponse.GetPayload().Subject,
-				"client":         getConsentResponse.GetPayload().Client,
+				"requestedScope": getConsentResponse.Payload.RequestedScope,
+				"user":           getConsentResponse.Payload.Subject,
+				"client":         getConsentResponse.Payload.Client,
 			}
 
 			err = templateProvider.ConsentTemplate().Execute(w, data)
@@ -141,7 +141,7 @@ func ConsentPostHandler(hydraClient *client.OryHydra, templateProvider TemplateP
 			}
 
 			// All we need to do now is to redirect the browser back to hydra!
-			http.Redirect(w, r, rejectConsentResponse.GetPayload().RedirectTo, http.StatusTemporaryRedirect, )
+			http.Redirect(w, r, rejectConsentResponse.Payload.RedirectTo, http.StatusTemporaryRedirect)
 		} else {
 			grantScope := r.PostForm["grant_scope"]
 
@@ -189,7 +189,7 @@ func ConsentPostHandler(hydraClient *client.OryHydra, templateProvider TemplateP
 			}
 
 			// ORY Hydra checks if requested audiences are allowed by the client, so we can simply echo this.
-			acceptConsentRequestParams.Body.GrantedAudience = getConsentResponse.GetPayload().RequestedAudience
+			acceptConsentRequestParams.Body.GrantedAudience = getConsentResponse.Payload.RequestedAudience
 
 			// This tells hydra to remember this consent request and allow the same client to request the same
 			// scopes from the same user, without showing the UI, in the future.
@@ -207,8 +207,8 @@ func ConsentPostHandler(hydraClient *client.OryHydra, templateProvider TemplateP
 			session := new(models.ConsentRequestSessionData)
 			//acceptConsentRequestParams.Body.Session = session
 
-			login := getConsentResponse.GetPayload().Subject
-			clientID := getConsentResponse.GetPayload().Client.ClientID
+			login := getConsentResponse.Payload.Subject
+			clientID := getConsentResponse.Payload.Client.ClientID
 
 			log.Infof("login %s and client id %s consent approved", login, clientID)
 
@@ -233,7 +233,7 @@ func ConsentPostHandler(hydraClient *client.OryHydra, templateProvider TemplateP
 			}
 
 			// All we need to do now is to redirect the user back to hydra!
-			http.Redirect(w, r, acceptConsentResponse.GetPayload().RedirectTo, http.StatusTemporaryRedirect, )
+			http.Redirect(w, r, acceptConsentResponse.Payload.RedirectTo, http.StatusTemporaryRedirect)
 
 		}
 	}

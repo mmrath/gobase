@@ -106,8 +106,7 @@ type UserDao interface {
 }
 
 func newUserDao(tx *Tx) UserDao {
-	return &userDao{
-	}
+	return &userDao{}
 }
 
 func (dao *userDao) Find(ctx context.Context, id int64) (*User, error) {

@@ -10,6 +10,7 @@ cmake-build-debug
 /debug/
 logs/
 log/
+bin/
 
 **/target/**/*
 .DS_Store

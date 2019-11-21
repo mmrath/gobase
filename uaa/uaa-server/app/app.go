@@ -9,14 +9,12 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/mmrath/gobase/model"
-	"github.com/mmrath/gobase/uaa-server/internal/config"
+	"github.com/mmrath/gobase/uaa/uaa-server/internal/config"
 )
 
 type App struct {
 	httpServer *http.Server
 }
-
-
 
 func NewApp(profiles ...string) (*App, error) {
 	cfg, err := config.LoadConfig("./resources", profiles...)
@@ -34,9 +32,9 @@ func NewApp(profiles ...string) (*App, error) {
 	return &App{httpServer: httpServer}, nil
 }
 
-func LoadConfig() *config.Config{
-	cfg,err:= config.LoadConfig("./resources", )
-	if err!=nil {
+func LoadConfig() *config.Config {
+	cfg, err := config.LoadConfig("./resources")
+	if err != nil {
 		log.Panic().Err(err).Msg("failed to load config")
 		panic(err)
 	}

@@ -30,7 +30,7 @@ type HydraConfig struct {
 func LoadConfig(resourceRoot string, profiles ...string) (*Config, error) {
 	cfg := &Config{}
 	err := config.LoadConfig(cfg, resourceRoot, profiles...)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 

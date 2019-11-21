@@ -12,9 +12,9 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/rs/zerolog/log"
 
-	"github.com/mmrath/gobase/uaa-server/internal/account"
-	"github.com/mmrath/gobase/uaa-server/internal/config"
-	"github.com/mmrath/gobase/uaa-server/internal/oauth2"
+	"github.com/mmrath/gobase/uaa/uaa-server/internal/account"
+	"github.com/mmrath/gobase/uaa/uaa-server/internal/config"
+	"github.com/mmrath/gobase/uaa/uaa-server/internal/oauth2"
 )
 
 type appHandler struct {
@@ -55,7 +55,7 @@ func HttpRouter(cfg *config.Config, h *appHandler) http.Handler {
 			}
 		})
 		r.Route("/oauth2", func(r chi.Router) {
-			oauth2.RegisterHandlers(r,cfg)
+			oauth2.RegisterHandlers(r, cfg)
 		})
 		r.Route("/account", func(r chi.Router) {
 			r.Get("/sign-up", h.account.SignUpForm())

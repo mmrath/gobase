@@ -20,7 +20,6 @@ func NewLogger() StandardLogger {
 	}
 }
 
-
 func (l StandardLogger) Debug(args ...interface{}) {
 	l.logger.Debug().Msgf(fmt.Sprint(args))
 }
@@ -68,11 +67,6 @@ func (l StandardLogger) Panicf(format string, args ...interface{}) {
 func (l StandardLogger) Fatalf(format string, args ...interface{}) {
 	l.logger.Fatal().Msgf(format, args...)
 }
-
-
-
-
-
 
 func Debugf(format string, args ...interface{}) {
 	log.Debug().Msgf(format, args...)

@@ -107,7 +107,7 @@ func (db *DB) RunTx(fn func(tx *Tx) error) error {
 }
 
 func (db *DB) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
-	txCtx,err := NewTxContext(ctx, db)
+	txCtx, err := NewTxContext(ctx, db)
 	if err != nil {
 		return err
 	}
@@ -127,4 +127,3 @@ func cleanUp(txCtx context.Context) {
 		panic(err)
 	}
 }
-

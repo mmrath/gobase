@@ -4,7 +4,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/ory/hydra/sdk/go/hydra/client"
 
-	"github.com/mmrath/gobase/uaa-server/internal/config"
+	"github.com/mmrath/gobase/uaa/uaa-server/internal/config"
 )
 
 func RegisterHandlers(r chi.Router, config *config.Config) {
@@ -16,8 +16,8 @@ func RegisterHandlers(r chi.Router, config *config.Config) {
 	}
 
 	hydraClient := client.NewHTTPClientWithConfig(nil, hydraTransportConfig)
-	templateProvider,err  := loadTemplates(config.Web)
-	if err!= nil {
+	templateProvider, err := loadTemplates(config.Web)
+	if err != nil {
 		panic(err)
 	}
 
