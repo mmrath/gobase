@@ -9,6 +9,7 @@ import (
 	"github.com/mmrath/gobase/common/error_util"
 	"github.com/mmrath/gobase/common/template_util"
 	"github.com/mmrath/gobase/model"
+	"github.com/mmrath/gobase/uaa/uaa-server/internal/utils"
 )
 
 type Handler struct {
@@ -101,7 +102,10 @@ func (h *Handler) PasswordResetInit() http.HandlerFunc {
 
 func (h *Handler) SignUpForm() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		err := h.templateRegistry.RenderHttp(w, "account/sign-up-form.html", "")
+		utils.SetTemplateConfig("uaa/uaa-server/resources/web/templates/layout", "uaa/uaa-server/resources/web/templates")
+		utils.LoadTemplates()
+
+		err := utils.RenderTemplate(w, "account/sign-up-form.html", "")
 		h.handleInternalError(r, w, err)
 	}
 }
@@ -144,8 +148,6 @@ func (h *Handler) renderError(w http.ResponseWriter, r *http.Request, templateNa
 
 func (h *Handler) handleInternalError(r *http.Request, w http.ResponseWriter, e error) {
 	render.Status(r, http.StatusInternalServerError)
-	err := h.templateRegistry.Render(w, "error/500.html", e)
-	if err != nil {
-		log.Error().Err(err).Msg("error rendering error/500.html template")
-	}
+	log.Error().Err(e).Msg("internal error")
+
 }

@@ -25,8 +25,7 @@ func (t *Registry) Render(w io.Writer, name string, data interface{}) error {
 	for _, t := range t.templates.Templates() {
 		log.Info().Str("name", t.Name()).Msg("template loaded")
 	}
-
-	return t.templates.ExecuteTemplate(w, "base", data)
+	return t.templates.ExecuteTemplate(w, name, data)
 }
 
 func (t *Registry) Get(name string) *template.Template {

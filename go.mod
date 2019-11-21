@@ -27,6 +27,7 @@ require (
 	github.com/mmrath/gobase/db_migration v0.0.0-20191120231020-b739eea9111c // indirect
 	github.com/olekukonko/tablewriter v0.0.2 // indirect
 	github.com/ory/hydra v1.0.9
+	github.com/oxtoacart/bpool v0.0.0-20190530202638-03653db5a59c
 	github.com/pelletier/go-toml v1.6.0 // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/rs/zerolog v1.17.2

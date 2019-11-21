@@ -16,7 +16,7 @@ LD_FLAGS="-w -X $(REPO_PATH)/version.Version=$(VERSION)"
 
 build: bin/uaa-server bin/uaa-client-example bin/db_migration
 
-bin/uaa-server:
+bin/uaa-server: uaa/uaa-server $(wildcard uaa/uaa-server/*) $(wildcard common/*) $(wildcard model/*)
 	go install -v -ldflags $(LD_FLAGS) $(REPO_PATH)/uaa/uaa-server
 
 bin/uaa-client-example:

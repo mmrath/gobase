@@ -17,23 +17,12 @@ type App struct {
 }
 
 func NewApp(profiles ...string) (*App, error) {
-	cfg, err := config.LoadConfig("./resources", profiles...)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = model.DBConn(cfg.DB)
-
-	if err != nil {
-		return nil, err
-	}
-
 	httpServer := BuildServer(nil)
 	return &App{httpServer: httpServer}, nil
 }
 
 func LoadConfig() *config.Config {
-	cfg, err := config.LoadConfig("./resources")
+	cfg, err := config.LoadConfig("./uaa/uaa-server/resources")
 	if err != nil {
 		log.Panic().Err(err).Msg("failed to load config")
 		panic(err)
