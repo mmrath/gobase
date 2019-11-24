@@ -102,11 +102,16 @@ func (h *Handler) PasswordResetInit() http.HandlerFunc {
 
 func (h *Handler) SignUpForm() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		utils.SetTemplateConfig("uaa/uaa-server/resources/web/templates/layout", "uaa/uaa-server/resources/web/templates")
-		utils.LoadTemplates()
+		t, err := utils.NewTemplateRegistry()
 
-		err := utils.RenderTemplate(w, "account/sign-up-form.html", "")
-		h.handleInternalError(r, w, err)
+		if err != nil {
+			log.Error().Err(err).Msg("filed to load templates")
+		}
+
+		err = t.RenderTemplate(w, "account/sign-up-form.html", "")
+		if err != nil {
+			log.Error().Err(err).Msg("filed to render template")
+		}
 	}
 }
 

@@ -2,23 +2,71 @@ package utils
 
 import (
 	"fmt"
-	"github.com/oxtoacart/bpool"
 	"html/template"
-	"io/ioutil"
-	"log"
 	"net/http"
-	"os"
 	"path/filepath"
-	"strings"
+
+	"github.com/oxtoacart/bpool"
 )
 
-var templates map[string]*template.Template
-var bufpool *bpool.BufferPool
-var mainTmpl = `{{define "main" }} {{ template "base" . }} {{ end }}`
+type templateRegistry struct {
+	templates  map[string]*template.Template
+	bufferPool *bpool.BufferPool
+}
 
+func NewTemplateRegistry() (*templateRegistry, error) {
+	templates := make(map[string]*template.Template)
+	templateDir := "uaa/uaa-server/resources/web/templates"
+
+	layoutDir := filepath.Join(templateDir, "layout")
+
+	layoutFiles, err := filepath.Glob(filepath.Join(layoutDir, "*.html"))
+	if err != nil {
+		return nil, err
+	}
+
+	layoutTemplates := template.Must(template.ParseFiles(layoutFiles...))
+
+	layoutClone := template.Must(layoutTemplates.Clone())
+
+	tmplName := "account/sign-up-form.html"
+	tmplPath := filepath.Join(templateDir, tmplName)
+	templates[tmplName] = template.Must(layoutClone.ParseFiles(tmplPath))
+
+	return &templateRegistry{
+		templates:  templates,
+		bufferPool: bpool.NewBufferPool(64),
+	}, nil
+}
+
+func (r *templateRegistry) RenderTemplate(w http.ResponseWriter, name string, data interface{}) error {
+	tmpl, ok := r.templates[name]
+	if !ok {
+		http.Error(w, fmt.Sprintf("The template %s does not exist.", name),
+			http.StatusInternalServerError)
+		err := fmt.Errorf("template doesn't exist")
+		return err
+	}
+
+	buf := r.bufferPool.Get()
+	defer r.bufferPool.Put(buf)
+
+	err := tmpl.Execute(buf, data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		err := fmt.Errorf("template execution failed")
+		return err
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	buf.WriteTo(w)
+	return nil
+}
+
+/*
 // create a buffer pool
 func init() {
-	bufpool = bpool.NewBufferPool(64)
+	bufferPool = bpool.NewBufferPool(64)
 	log.Println("buffer allocation successful")
 }
 
@@ -149,8 +197,8 @@ func RenderTemplate(w http.ResponseWriter, name string, data interface{}) error 
 		return err
 	}
 
-	buf := bufpool.Get()
-	defer bufpool.Put(buf)
+	buf := bufferPool.Get()
+	defer bufferPool.Put(buf)
 
 	err := tmpl.Execute(buf, data)
 	if err != nil {
@@ -163,3 +211,4 @@ func RenderTemplate(w http.ResponseWriter, name string, data interface{}) error 
 	buf.WriteTo(w)
 	return nil
 }
+*/
