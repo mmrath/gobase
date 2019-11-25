@@ -22,20 +22,20 @@ func (t *templateProvider) ConsentTemplate() *template.Template {
 }
 
 func loadTemplates(cfg config.WebConfig) (TemplateProvider, error) {
-	templatesDir := cfg.TemplateDir
+	//	templatesDir := cfg.TemplateDir
 
-	tr, err := template_util.BuildRegistry(templatesDir)
+	tr, err := template_util.BuildRegistry("uaa/uaa-web-react/dist/public")
 
 	if err != nil {
 		return nil, err
 	}
 
-	lt := tr.Get("account/login.html")
+	lt := tr.Get("login.html")
 	if lt == nil {
 		return nil, fmt.Errorf("login template not found")
 	}
 
-	ct := tr.Get("account/consent.html")
+	ct := tr.Get("consent.html")
 	if ct == nil {
 		return nil, fmt.Errorf("consent template not found")
 	}

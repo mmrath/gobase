@@ -23,8 +23,8 @@ const entry = getFilesFromDir(PAGE_DIR, [".js"]).reduce( (obj, filePath) => {
 module.exports = (env, argv) => ({
   entry: entry,
   output: {
-    path: path.join(__dirname, "build"),
-    filename: "[name].[hash:4].js"
+    path: path.join(__dirname, "dist"),
+    filename: path.join("public", "[name].[hash:4].js")
   },
   devtool: argv.mode === 'production' ? false : 'eval-source-maps',
   plugins: [
@@ -68,7 +68,7 @@ module.exports = (env, argv) => ({
                   const relativePath = path.relative(context, resourcePath);
                   return `/${relativePath}`;
                 }
-                return `/assets/images/${path.basename(resourcePath)}`;
+                return `/public/assets/images/${path.basename(resourcePath)}`;
               }
             }
           }
@@ -85,7 +85,7 @@ module.exports = (env, argv) => ({
                   const relativePath = path.relative(context, resourcePath);
                   return `/${relativePath}`;
                 }
-                return `/assets/fonts/${path.basename(resourcePath)}`;
+                return `/public/assets/fonts/${path.basename(resourcePath)}`;
               }
             }
           }

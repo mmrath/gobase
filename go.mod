@@ -18,13 +18,13 @@ require (
 	github.com/go-openapi/validate v0.19.5 // indirect
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/go-pg/pg v8.0.6+incompatible
+	github.com/golang-migrate/migrate/v4 v4.7.0
 	github.com/google/uuid v1.1.1
 	github.com/google/wire v0.3.0
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/jaytaylor/html2text v0.0.0-20190408195923-01ec452cbe43
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/mattn/go-runewidth v0.0.6 // indirect
-	github.com/mmrath/gobase/db_migration v0.0.0-20191120231020-b739eea9111c // indirect
 	github.com/olekukonko/tablewriter v0.0.2 // indirect
 	github.com/ory/hydra v1.0.9
 	github.com/oxtoacart/bpool v0.0.0-20190530202638-03653db5a59c

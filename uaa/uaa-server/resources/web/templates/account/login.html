@@ -4,9 +4,9 @@
     <title>{{ .title }}</title>
   </head>
   <body>
-  <h1>Please log in</h1>{{if .error}}
-    <p>{{.error}}</p>
-  {{end}}
+        <h1>Please log in</h1>{{if .error}}
+          <p>{{.error}}</p>
+        {{end}}
   <form method="POST">
     <input type="hidden" name="challenge" value="{{.challenge}}">
     <table style="{{""}}">
