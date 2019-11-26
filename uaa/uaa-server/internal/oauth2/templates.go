@@ -24,7 +24,7 @@ func (t *templateProvider) ConsentTemplate() *template.Template {
 func loadTemplates(cfg config.WebConfig) (TemplateProvider, error) {
 	//	templatesDir := cfg.TemplateDir
 
-	tr, err := template_util.BuildRegistry("uaa/uaa-web-react/dist/public")
+	tr, err := template_util.BuildRegistry("uaa/uaa-web-react/dist")
 
 	if err != nil {
 		return nil, err

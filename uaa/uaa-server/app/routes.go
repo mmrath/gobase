@@ -65,8 +65,13 @@ func HttpRouter(cfg *config.Config, h *appHandler) http.Handler {
 			r.Post("/reset-password/finish", h.account.ResetPasswordFinish())
 			r.Post("/change-password", h.account.ChangePassword())
 		})
-		fs := http.FileServer(http.Dir("static"))
-		r.Route("/public/", http.StripPrefix("uaa/uaa-web-react/dist/public", fs))
+
+		fs := http.FileServer(http.Dir("uaa/uaa-web-react/dist/public"))
+		publicFiles := http.StripPrefix("/public", fs)
+
+		r.Route("/public", func(r chi.Router) {
+			r.Get("/*", publicFiles.ServeHTTP)
+		})
 	})
 
 	r.NotFound(http.NotFound)
