@@ -1,6 +1,4 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import Menu from 'components/Menu';
+import $ from "jquery";
 
-ReactDOM.render(<Menu/>, document.getElementById('menu'));
+$('#menu').text("Hello World");
 

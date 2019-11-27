@@ -1,5 +1,6 @@
 const path = require("path");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const getFilesFromDir = require("./config/files");
 const PAGE_DIR = path.join("src", "pages", path.sep);
 
@@ -24,11 +25,12 @@ module.exports = (env, argv) => ({
   entry: entry,
   output: {
     path: path.join(__dirname, "dist"),
-    filename: path.join("public", "[name].[hash:4].js")
+    filename: path.join("[name].[hash:8].js")
   },
   devtool: argv.mode === 'production' ? false : 'eval-source-maps',
   plugins: [
-    ...htmlPlugins
+    ...htmlPlugins,
+      new CleanWebpackPlugin(),
   ],
   resolve:{
 		alias:{
@@ -51,6 +53,34 @@ module.exports = (env, argv) => ({
 					}
 				},
       },
+            {
+                test: /\.(scss)$/,
+                use: [
+                    {
+                        // Adds CSS to the DOM by injecting a `<style>` tag
+                        loader: 'style-loader'
+                    },
+                    {
+                        // Interprets `@import` and `url()` like `import/require()` and will resolve them
+                        loader: 'css-loader'
+                    },
+                    {
+                        // Loader for webpack to process CSS with PostCSS
+                        loader: 'postcss-loader',
+                        options: {
+                            plugins: function () {
+                                return [
+                                    require('autoprefixer')
+                                ];
+                            }
+                        }
+                    },
+                    {
+                        // Loads a SASS/SCSS file and compiles it to CSS
+                        loader: 'sass-loader'
+                    }
+                ]
+            },
       {
 				test: /\.css$/,
 				use: ["style-loader", {loader: "css-loader", options: {modules: true}}],
@@ -68,7 +98,7 @@ module.exports = (env, argv) => ({
                   const relativePath = path.relative(context, resourcePath);
                   return `/${relativePath}`;
                 }
-                return `/public/assets/images/${path.basename(resourcePath)}`;
+                return `assets/images/${path.basename(resourcePath)}`;
               }
             }
           }
@@ -85,7 +115,7 @@ module.exports = (env, argv) => ({
                   const relativePath = path.relative(context, resourcePath);
                   return `/${relativePath}`;
                 }
-                return `/public/assets/fonts/${path.basename(resourcePath)}`;
+                return `assets/fonts/${path.basename(resourcePath)}`;
               }
             }
           }
@@ -104,5 +134,10 @@ module.exports = (env, argv) => ({
           }
         }
       }
-    }
+    },
+    performance: {
+        hints: "warning", // "error" or false are valid too
+        maxEntrypointSize: 50000, // in bytes, default 250k
+        maxAssetSize: 450000, // in bytes
+    },
 });

@@ -7,13 +7,5 @@
 <body>
 <div id="menu"></div>
 <div id="form"></div>
-<script type="text/javascript">
-    let data = {};
-    {{if .error}}
-    data.error = '{{.error}}';
-    {{end}}
-    data.challenge = '{{.challenge}}';
-    window.loginFormData = data;
-</script>
 </body>
 </html>
