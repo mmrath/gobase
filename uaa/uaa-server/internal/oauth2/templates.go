@@ -3,10 +3,14 @@ package oauth2
 import (
 	"fmt"
 	"html/template"
+	"path/filepath"
 
 	"github.com/mmrath/gobase/common/template_util"
 	"github.com/mmrath/gobase/uaa/uaa-server/internal/config"
 )
+
+var templateDir string = "uaa/uaa-web-app/build/"
+
 
 type templateProvider struct {
 	loginTemplate   *template.Template
@@ -14,28 +18,33 @@ type templateProvider struct {
 }
 
 func (t *templateProvider) LoginTemplate() *template.Template {
-	return t.loginTemplate
+	tmplPath := filepath.Join(templateDir, "oauth2/login.html")
+	tmpl := template.Must(template.ParseFiles(tmplPath))
+
+	return tmpl
 }
 
 func (t *templateProvider) ConsentTemplate() *template.Template {
-	return t.consentTemplate
+	tmplPath := filepath.Join(templateDir, "oauth2/consent.html")
+	tmpl := template.Must(template.ParseFiles(tmplPath))
+	return tmpl
 }
 
 func loadTemplates(cfg config.WebConfig) (TemplateProvider, error) {
 	//	templatesDir := cfg.TemplateDir
-
-	tr, err := template_util.BuildRegistry("uaa/uaa-web-react/dist")
+	templateDir = cfg.TemplateDir
+	tr, err := template_util.BuildRegistry(cfg.TemplateDir)
 
 	if err != nil {
 		return nil, err
 	}
 
-	lt := tr.Get("login.html")
+	lt := tr.Get("oauth2/login.html")
 	if lt == nil {
 		return nil, fmt.Errorf("login template not found")
 	}
 
-	ct := tr.Get("consent.html")
+	ct := tr.Get("oauth2/consent.html")
 	if ct == nil {
 		return nil, fmt.Errorf("consent template not found")
 	}

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ .title }}</title>
+</head>
+<body>
+<h1>Please log in</h1>
+<div id="menu"></div>
+<div id="loginForm"></div>
+<script>
+  let data = {};
+  {{if .error}}
+  data.error= "{{.error}}";
+  {{end}}
+  data.challenge = "{{.challenge}}";
+  window.loginData = data;
+</script>
+</body>
+</html>
+

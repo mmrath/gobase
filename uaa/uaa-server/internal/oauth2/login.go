@@ -65,6 +65,9 @@ func LoginGetHandler(hydra *client.OryHydra, templateProvider TemplateProvider) 
 				w.WriteHeader(http.StatusBadRequest)
 				return
 			}
+
+			log.Error().Msg("redirecting from get login")
+
 			// All we need to do now is to redirect the user back to hydra!
 			http.Redirect(w, r, acceptLoginResponse.Payload.RedirectTo, http.StatusTemporaryRedirect)
 		} else {
@@ -138,6 +141,7 @@ func LoginPostHandler(hydra *client.OryHydra, templateProvider TemplateProvider)
 		acceptLoginResponse, err := hydra.Admin.AcceptLoginRequest(acceptLoginRequestParams)
 
 		if err != nil {
+			log.Info().Str("username", username).Msg("hydra accept login failed")
 			w.Header().Set("X-Status-Reason", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -149,6 +153,7 @@ func LoginPostHandler(hydra *client.OryHydra, templateProvider TemplateProvider)
 
 func validatePassword(username string, password string) error {
 	if username == password {
+		log.Info().Str("username", username).Msg("login passed")
 		return nil
 	}
 	log.Info().Str("username", username).Msg("login failed")
