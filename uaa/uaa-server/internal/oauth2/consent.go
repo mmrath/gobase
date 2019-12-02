@@ -36,7 +36,7 @@ func ConsentGetHandler(hydraClient *client.OryHydra, templateProvider TemplatePr
 			return
 		}
 
-		if getConsentResponse.Payload.Skip {
+		if getConsentResponse.Payload.Skip  || isInternalClient(getConsentResponse.Payload.Client){
 			// You can apply logic here, for example grant another scope, or do whatever...
 			// ...
 
@@ -108,6 +108,15 @@ func ConsentGetHandler(hydraClient *client.OryHydra, templateProvider TemplatePr
 		}
 	}
 
+}
+
+func isInternalClient(c *hydraModels.Client) bool{
+	if c !=nil && c.Metadata["isInternal"] != nil {
+		if isInternal, ok := c.Metadata["isInternal"].(bool); ok {
+			return isInternal
+		}
+	}
+	return false
 }
 
 func ConsentPostHandler(hydraClient *client.OryHydra, templateProvider TemplateProvider) http.HandlerFunc {

@@ -33,6 +33,15 @@
   <p><input type="submit" id="accept" name="submit" value="Allow access"><input type="submit" id="reject" name="submit" value="Deny access"></p>
 </form>
 
+
+<script>
+  let data = {};
+  {{if .error}}
+  data.error= "{{.error}}";
+  {{end}}
+  data.challenge = "{{.challenge}}";
+  window.loginData = data;
+</script>
 </body>
 
 </html>
