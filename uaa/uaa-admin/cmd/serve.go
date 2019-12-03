@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
-	"github.com/mmrath/gobase/uaa-admin/app"
+	"github.com/mmrath/gobase/uaa/uaa-admin/app"
 	"os"
 )
 

@@ -1,0 +1,29 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "handler.go",
+        "notifier.go",
+        "providers.go",
+        "routes.go",
+        "service.go",
+    ],
+    importpath = "github.com/mmrath/gobase/uaa/uaa-server/internal/account",
+    visibility = ["//uaa/uaa-server:__subpackages__"],
+    deps = [
+        "//common/auth:go_default_library",
+        "//common/crypto:go_default_library",
+        "//common/email:go_default_library",
+        "//common/error_util:go_default_library",
+        "//common/template_util:go_default_library",
+        "//model:go_default_library",
+        "//uaa/uaa-server/internal/config:go_default_library",
+        "//uaa/uaa-server/internal/utils:go_default_library",
+        "@com_github_go_chi_render//:go_default_library",
+        "@com_github_go_ozzo_ozzo_validation//:go_default_library",
+        "@com_github_google_uuid//:go_default_library",
+        "@com_github_google_wire//:go_default_library",
+        "@com_github_rs_zerolog//log:go_default_library",
+    ],
+)

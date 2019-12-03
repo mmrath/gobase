@@ -25,7 +25,7 @@ func commandServe() *cobra.Command {
 
 func serve(command *cobra.Command, args []string) error {
 	log.Info().Strs("arguments", args).Msg("starting application")
-	app, err := app.NewApp()
+	app, err := app.NewApp(args...)
 	if err != nil {
 		return err
 	}

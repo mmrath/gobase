@@ -1,0 +1,8 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["helpers.go"],
+    importpath = "github.com/mmrath/gobase/uaa/uaa-server/internal/helpers",
+    visibility = ["//uaa/uaa-server:__subpackages__"],
+)

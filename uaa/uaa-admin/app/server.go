@@ -5,7 +5,7 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/render"
-	"github.com/mmrath/gobase/uaa-admin/pkg/account"
+	"github.com/mmrath/gobase/uaa/uaa-admin/pkg/account"
 	"net/http"
 	"os"
 	"path"

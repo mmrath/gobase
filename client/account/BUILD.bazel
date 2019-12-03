@@ -1,0 +1,24 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "handler.go",
+        "notifier.go",
+        "service.go",
+    ],
+    importpath = "github.com/mmrath/gobase/client/account",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//common/auth:go_default_library",
+        "//common/crypto:go_default_library",
+        "//common/email:go_default_library",
+        "//common/error_util:go_default_library",
+        "//model:go_default_library",
+        "@com_github_go_chi_jwtauth//:go_default_library",
+        "@com_github_go_chi_render//:go_default_library",
+        "@com_github_go_ozzo_ozzo_validation//:go_default_library",
+        "@com_github_google_uuid//:go_default_library",
+        "@com_github_rs_zerolog//log:go_default_library",
+    ],
+)

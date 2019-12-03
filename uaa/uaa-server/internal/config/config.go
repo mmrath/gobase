@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/spf13/viper"
 
 	"github.com/mmrath/gobase/common/config"
 	"github.com/mmrath/gobase/model"
@@ -29,6 +30,14 @@ type HydraConfig struct {
 
 func LoadConfig(resourceRoot string, profiles ...string) (*Config, error) {
 	cfg := &Config{}
+	v := viper.New()
+	v.SetDefault("web", WebConfig{
+		Port:"9020",
+		TemplateDir:"",
+	})
+
+
+
 	err := config.LoadConfig(cfg, resourceRoot, profiles...)
 	if err != nil {
 		return nil, err

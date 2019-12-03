@@ -16,12 +16,15 @@ type App struct {
 	httpServer *http.Server
 }
 
-func NewApp(profiles ...string) (*App, error) {
+func NewApp(configFiles... string) (*App, error) {
+	config := LoadConfig(configFiles)
 	httpServer := BuildServer(nil)
 	return &App{httpServer: httpServer}, nil
 }
 
-func LoadConfig() *config.Config {
+func LoadConfig(configFiles... string) *config.Config {
+
+
 	cfg, err := config.LoadConfig("./uaa/uaa-server/resources")
 	if err != nil {
 		log.Panic().Err(err).Msg("failed to load config")

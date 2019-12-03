@@ -1,0 +1,28 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "consent.go",
+        "hydra.go",
+        "login.go",
+        "logout.go",
+        "routes.go",
+        "service.go",
+        "templates.go",
+    ],
+    importpath = "github.com/mmrath/gobase/uaa/uaa-server/internal/oauth2",
+    visibility = ["//uaa/uaa-server:__subpackages__"],
+    deps = [
+        "//common/log:go_default_library",
+        "//common/template_util:go_default_library",
+        "//model:go_default_library",
+        "//uaa/uaa-server/internal/config:go_default_library",
+        "//uaa/uaa-server/internal/helpers:go_default_library",
+        "@com_github_go_chi_chi//:go_default_library",
+        "@com_github_ory_hydra//sdk/go/hydra/client:go_default_library",
+        "@com_github_ory_hydra//sdk/go/hydra/client/admin:go_default_library",
+        "@com_github_ory_hydra//sdk/go/hydra/models:go_default_library",
+        "@com_github_rs_zerolog//log:go_default_library",
+    ],
+)

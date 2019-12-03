@@ -1,0 +1,16 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "config.go",
+        "sender.go",
+    ],
+    importpath = "github.com/mmrath/gobase/common/email",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@com_github_go_mail_mail//:go_default_library",
+        "@com_github_jaytaylor_html2text//:go_default_library",
+        "@com_github_vanng822_go_premailer//premailer:go_default_library",
+    ],
+)
