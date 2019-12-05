@@ -17,15 +17,16 @@ type App struct {
 }
 
 func NewApp(configFiles... string) (*App, error) {
-	config := LoadConfig(configFiles)
-	httpServer := BuildServer(nil)
+	config := LoadConfig(configFiles...)
+	log.Info().Interface("config", config).Msg("App config")
+	httpServer := BuildServer(config, nil)
 	return &App{httpServer: httpServer}, nil
 }
 
 func LoadConfig(configFiles... string) *config.Config {
 
 
-	cfg, err := config.LoadConfig("./uaa/uaa-server/resources")
+	cfg, err := config.LoadConfig(configFiles...)
 	if err != nil {
 		log.Panic().Err(err).Msg("failed to load config")
 		panic(err)

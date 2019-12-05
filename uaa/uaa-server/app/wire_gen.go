@@ -8,20 +8,20 @@ package app
 import (
 	"github.com/mmrath/gobase/common/email"
 	"github.com/mmrath/gobase/uaa/uaa-server/internal/account"
+	"github.com/mmrath/gobase/uaa/uaa-server/internal/config"
 	"net/http"
 )
 
 // Injectors from wire.go:
 
-func BuildServer(mailer email.Mailer) *http.Server {
-	config := LoadConfig()
-	db := NewDB(config)
-	notifier := account.NewNotifier(config, mailer)
+func BuildServer(cfg  *config.Config, mailer email.Mailer) *http.Server {
+	db := NewDB(cfg)
+	notifier := account.NewNotifier(cfg, mailer)
 	service := account.NewService(db, notifier)
-	registry := account.TemplateRegistry(config)
+	registry := account.TemplateRegistry(cfg)
 	handler := account.NewHandler(service, registry)
 	appAppHandler := NewAppRouter(handler)
-	httpHandler := HttpRouter(config, appAppHandler)
-	server := NewHttpServer(config, httpHandler)
+	httpHandler := HttpRouter(cfg, appAppHandler)
+	server := NewHttpServer(cfg, httpHandler)
 	return server
 }
