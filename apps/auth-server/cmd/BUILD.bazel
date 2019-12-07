@@ -1,0 +1,17 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "main.go",
+        "serve.go",
+        "version.go",
+    ],
+    importpath = "github.com/mmrath/gobase/apps/auth-server/cmd",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//apps/auth-server/app:go_default_library",
+        "@com_github_rs_zerolog//log:go_default_library",
+        "@com_github_spf13_cobra//:go_default_library",
+    ],
+)
