@@ -3,7 +3,7 @@ bazel-gobase/
 bazel-out/
 bazel-testlogs/
 bazel-*
-
+dist/
 /target/
 /build/
 **/*.rs.bk

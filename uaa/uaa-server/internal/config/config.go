@@ -32,7 +32,7 @@ type HydraConfig struct {
 
 func LoadConfig(files ...string) (*Config, error) {
 	dir := os.Getenv("UAA_DB_URL")
-	envPrefix:="UAA"
+	envPrefix := "UAA"
 	fmt.Println(dir)
 
 	cfg := &Config{
@@ -86,7 +86,6 @@ func LoadConfig(files ...string) (*Config, error) {
 		return nil, fmt.Errorf("failed to unmarshall config file: %v", err)
 	}
 	log.Info().Interface("config", cfg).Msg("successfully loaded configuration")
-
 
 	return cfg, nil
 
