@@ -33,7 +33,7 @@ func main() {
 		ClientSecret: clientSecret,
 		Endpoint:     provider.Endpoint(),
 		RedirectURL:  "http://127.0.0.1:9010/example/auth/callback",
-		Scopes:       []string{oidc.ScopeOpenID, "offline"},
+		Scopes:       []string{oidc.ScopeOpenID, oidc.ScopeOfflineAccess},
 	}
 
 	state := "foobar1234" // Don't do this in production.
