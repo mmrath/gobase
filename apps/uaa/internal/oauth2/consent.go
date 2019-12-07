@@ -7,8 +7,8 @@ import (
 	hydraAdmin "github.com/ory/hydra/sdk/go/hydra/client/admin"
 	"github.com/ory/hydra/sdk/go/hydra/models"
 	hydraModels "github.com/ory/hydra/sdk/go/hydra/models"
+	"github.com/rs/zerolog/log"
 
-	"github.com/mmrath/gobase/common/log"
 	"github.com/mmrath/gobase/apps/uaa/internal/helpers"
 )
 
@@ -18,7 +18,7 @@ func ConsentGetHandler(hydraClient *client.OryHydra, templateProvider TemplatePr
 		keys, ok := r.URL.Query()["consent_challenge"]
 
 		if !ok || len(keys[0]) < 1 || keys[0] == "" {
-			log.Infof("URL param 'consent_challenge' is missing")
+			log.Info().Msg("URL param 'consent_challenge' is missing")
 			w.Header().Set("X-Status-Reason", "no consent_challenge")
 			w.WriteHeader(http.StatusBadRequest)
 			return
@@ -36,7 +36,7 @@ func ConsentGetHandler(hydraClient *client.OryHydra, templateProvider TemplatePr
 			return
 		}
 
-		if getConsentResponse.Payload.Skip  || isInternalClient(getConsentResponse.Payload.Client){
+		if getConsentResponse.Payload.Skip || isInternalClient(getConsentResponse.Payload.Client) {
 			// You can apply logic here, for example grant another scope, or do whatever...
 			// ...
 
@@ -110,8 +110,8 @@ func ConsentGetHandler(hydraClient *client.OryHydra, templateProvider TemplatePr
 
 }
 
-func isInternalClient(c *hydraModels.Client) bool{
-	if c !=nil && c.Metadata["isInternal"] != nil {
+func isInternalClient(c *hydraModels.Client) bool {
+	if c != nil && c.Metadata["isInternal"] != nil {
 		if isInternal, ok := c.Metadata["isInternal"].(bool); ok {
 			return isInternal
 		}
@@ -219,7 +219,7 @@ func ConsentPostHandler(hydraClient *client.OryHydra, templateProvider TemplateP
 			login := getConsentResponse.Payload.Subject
 			clientID := getConsentResponse.Payload.Client.ClientID
 
-			log.Infof("login %s and client id %s consent approved", login, clientID)
+			log.Info().Str("login", login).Str("client", clientID).Msg("consent approved")
 
 			permissions := [2]string{"user.edit", "user.read"}
 

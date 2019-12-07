@@ -18,9 +18,6 @@ func BuildHttpServer(cfg *config.Config) *http.Server {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.DefaultCompress)
 	r.Use(middleware.Timeout(10 * time.Second))
-	//r.Use(log.NewStructuredLogger(logger))
-	//r.Use(render.SetContentType(render.ContentTypeJSON))
-
 
 	var contextPath string
 	if cfg.Web.ContextPath != "" {
