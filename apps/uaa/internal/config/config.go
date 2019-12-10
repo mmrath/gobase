@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"github.com/mmrath/gobase/model"
+	"github.com/mmrath/gobase/pkg/db"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 	"os"
@@ -11,9 +11,9 @@ import (
 )
 
 type Config struct {
-	DB    model.DBConfig `mapstructure:"db"`
-	Web   WebConfig      `mapstructure:"web"`
-	Hydra HydraConfig    `mapstructure:"hydra"`
+	DB    db.Config   `mapstructure:"db"`
+	Web   WebConfig   `mapstructure:"web"`
+	Hydra HydraConfig `mapstructure:"hydra"`
 }
 
 type WebConfig struct {
@@ -36,7 +36,7 @@ func LoadConfig(files ...string) (*Config, error) {
 	fmt.Println(dir)
 
 	cfg := &Config{
-		model.DBConfig{},
+		db.Config{},
 		WebConfig{
 			Port:        "9020",
 			TemplateDir: "apps/uaa/web/dist",

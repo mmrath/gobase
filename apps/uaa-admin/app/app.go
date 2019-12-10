@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/mmrath/gobase/apps/uaa-admin/internal/account"
 	"github.com/mmrath/gobase/common/config"
-	"github.com/mmrath/gobase/model"
+	"github.com/mmrath/gobase/pkg/db"
 	"github.com/rs/zerolog/log"
 	"net/http"
 	"os"
@@ -22,7 +22,7 @@ func NewApp(profiles ...string) (*App, error) {
 		return nil, err
 	}
 
-	db, err := model.DBConn(cfg.DB)
+	db, err := db.Open(cfg.DB)
 
 	if err != nil {
 		return nil, err

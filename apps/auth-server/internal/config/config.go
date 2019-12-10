@@ -28,7 +28,7 @@ func LoadConfig(files ...string) (*Config, error) {
 	envPrefix := "AUTH_SERVER"
 
 	cfg := &Config{
-		Web: WebConfig{Port: ":8020"},
+		Web: WebConfig{Port: ":9000"},
 	}
 	v := viper.New()
 	v.BindEnv("db.url")

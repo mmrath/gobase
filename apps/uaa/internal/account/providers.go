@@ -2,11 +2,11 @@ package account
 
 import (
 	"github.com/google/wire"
+	"github.com/mmrath/gobase/pkg/db"
 
+	"github.com/mmrath/gobase/apps/uaa/internal/config"
 	"github.com/mmrath/gobase/common/email"
 	"github.com/mmrath/gobase/common/template_util"
-	"github.com/mmrath/gobase/model"
-	"github.com/mmrath/gobase/apps/uaa/internal/config"
 )
 
 var Provider = wire.NewSet(
@@ -29,7 +29,7 @@ func NewHandler(s Service, registry *template_util.Registry) *Handler {
 	return &Handler{service: s, templateRegistry: registry}
 }
 
-func NewService(db *model.DB, notifier Notifier) *service {
+func NewService(db *db.DB, notifier Notifier) *service {
 	return &service{
 		notifier: notifier,
 		db:       db,

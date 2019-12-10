@@ -7,6 +7,7 @@ go_library(
     visibility = ["//apps/uaa:__subpackages__"],
     deps = [
         "//model:go_default_library",
+        "//pkg/db:go_default_library",
         "@com_github_rs_zerolog//log:go_default_library",
         "@com_github_spf13_viper//:go_default_library",
     ],

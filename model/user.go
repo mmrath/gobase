@@ -1,15 +1,12 @@
 package model
 
 import (
-	"context"
-
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
+	"github.com/mmrath/gobase/pkg/db"
 )
 
 type User struct {
-	tableName struct{} `sql:"user_account"`
-
 	AuditDetails
 
 	ID          int64  `json:"id,omitempty"`
@@ -94,49 +91,39 @@ func (s *SignUpRequest) Validate() error {
 }
 
 type userDao struct {
-	tx *Tx
 }
 
 type UserDao interface {
-	Find(ctx context.Context, id int64) (*User, error)
-	Insert(ctx context.Context, user *User) error
-	Update(ctx context.Context, user *User) error
-	FindByEmail(ctx context.Context, email string) (*User, error)
-	ExistsByEmail(ctx context.Context, email string) (bool, error)
+	Find(tx *db.Tx, id int64) (User, error)
+	Insert(tx *db.Tx, user *User) error
+	Update(tx *db.Tx, user *User) error
+	FindByEmail(tx *db.Tx, email string) (User, error)
+	ExistsByEmail(tx *db.Tx, email string) (bool, error)
 }
 
-func newUserDao(tx *Tx) UserDao {
-	return &userDao{}
-}
-
-func (dao *userDao) Find(ctx context.Context, id int64) (*User, error) {
-	tx := TxFromContext(ctx)
-	user := &User{ID: id}
-	err := tx.Select(user)
+func (dao *userDao) Find(tx *db.Tx, id int64) (User, error) {
+	user := User{}
+	err := tx.First(&user, id).Error
 	return user, err
 }
 
-func (dao *userDao) Insert(ctx context.Context, user *User) error {
-	err := TxFromContext(ctx).Insert(user)
+func (dao *userDao) Insert(tx *db.Tx, user *User) error {
+	err := tx.Model(user).Create(user).Error
 	return err
 }
 
-func (dao *userDao) Update(ctx context.Context, user *User) error {
-	err := TxFromContext(ctx).Update(user)
-	return err
+func (dao *userDao) Update(tx *db.Tx, user *User) error {
+	return tx.Save(user).Error
 }
 
-func (dao *userDao) FindByEmail(ctx context.Context, email string) (*User, error) {
-	user := new(User)
-	err := TxFromContext(ctx).Model(user).Where("email = ?", email).Select()
-	if err != nil {
-		return nil, err
-	} else {
-		return user, nil
-	}
+func (dao *userDao) FindByEmail(tx *db.Tx, email string) (User, error) {
+	user := User{}
+	err := tx.Where("email = ?", email).Find(&user).Error
+	return user, err
 }
 
-func (dao *userDao) ExistsByEmail(ctx context.Context, email string) (bool, error) {
-	user := new(User)
-	return TxFromContext(ctx).Model(user).Where("email = ?", email).Exists()
+func (dao *userDao) ExistsByEmail(tx *db.Tx, email string) (bool, error) {
+	count := 0
+	err := tx.Model(&User{}).Where("email = ?", email).Count(&count).Error
+	return count != 0, err
 }

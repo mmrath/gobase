@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/mmrath/gobase/common/error_util"
 	"github.com/mmrath/gobase/model"
+	"github.com/mmrath/gobase/pkg/db"
 )
 
 type RoleService interface {
@@ -14,21 +15,21 @@ type RoleService interface {
 }
 
 type roleService struct {
-	db      *model.DB
+	db      *db.DB
 	roleDao model.RoleDao
 }
 
 func (s *roleService) Find(ctx context.Context, id int32) (role *model.RoleAndPermission, err error) {
-	err = s.db.Tx(ctx, func(ctx context.Context) error {
-		role.Role, err = s.roleDao.Find(ctx, id)
+	err = s.db.Tx(ctx, func(tx *db.Tx) error {
+		role.Role, err = s.roleDao.Find(tx, id)
 		return err
 	})
 	return role, err
 }
 
 func (s *roleService) Create(ctx context.Context, roleAndPermission *model.RoleAndPermission) (err error) {
-	err = s.db.Tx(ctx, func(ctx context.Context) error {
-		exists, err := s.roleDao.ExistsByName(ctx, roleAndPermission.Role.Name)
+	err = s.db.Tx(ctx, func(tx *db.Tx) error {
+		exists, err := s.roleDao.ExistsByName(tx, roleAndPermission.Role.Name)
 		if err != nil {
 			return error_util.NewInternal(err, "error while checking if roleAndPermission exists")
 		}
@@ -36,20 +37,20 @@ func (s *roleService) Create(ctx context.Context, roleAndPermission *model.RoleA
 			return error_util.NewBadRequest(
 				fmt.Sprintf("role with name %s already exists", roleAndPermission.Role.Name))
 		}
-		err = s.roleDao.Create(ctx, roleAndPermission.Role, roleAndPermission.Permissions)
+		err = s.roleDao.Create(tx, &roleAndPermission.Role, roleAndPermission.Permissions)
 		return err
 	})
 	return err
 }
 
 func (s *roleService) Update(ctx context.Context, roleAndPermission *model.RoleAndPermission) (err error) {
-	err = s.db.Tx(ctx, func(ctx context.Context) error {
-		return s.roleDao.Update(ctx, roleAndPermission.Role, roleAndPermission.Permissions)
+	err = s.db.Tx(ctx, func(tx *db.Tx) error {
+		return s.roleDao.Update(tx, &roleAndPermission.Role, roleAndPermission.Permissions)
 	})
 	return err
 }
 
-func NewRoleService(db *model.DB) RoleService {
+func NewRoleService(db *db.DB) RoleService {
 	return &roleService{
 		db:      db,
 	}

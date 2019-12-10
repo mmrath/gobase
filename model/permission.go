@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/mmrath/gobase/pkg/db"
 	"strings"
 )
 
@@ -14,39 +15,37 @@ type Permission struct {
 }
 
 type PermissionDao interface {
-	FindById(id int32) (Permission, error)
-	FindAllByApplication(app string) ([]Permission, error)
-	FindAll() ([]Permission, error)
+	FindById(tx *db.Tx, id int32) (Permission, error)
+	FindAllByApplication(tx *db.Tx, app string) ([]Permission, error)
+	FindAll(tx *db.Tx) ([]Permission, error)
 }
 
 type permissionDao struct {
-	tx Tx
 }
 
-func (p permissionDao) FindById(id int32) (perm Permission, err error) {
-	perm = Permission{ID: id}
-	err = p.tx.Select(&perm)
+func (p permissionDao) FindById(tx *db.Tx, id int32) (perm Permission, err error) {
+	err = tx.Find(&perm, id).Error
 	return
 }
 
-func (p permissionDao) FindAllByApplication(app string) ([]Permission, error) {
+func (p permissionDao) FindAllByApplication(tx *db.Tx, app string) ([]Permission, error) {
 	var perms []Permission
-	err := p.tx.Model(&perms).Where("UPPER(application) = ", strings.ToUpper(app)).Select()
+	err := tx.Where("UPPER(application) = ", strings.ToUpper(app)).Find(perms).Error
 	if err != nil {
 		return nil, err
 	}
 	return perms, nil
 }
 
-func (p permissionDao) FindAll() ([]Permission, error) {
+func (p permissionDao) FindAll(tx *db.Tx) ([]Permission, error) {
 	var perms []Permission
-	err := p.tx.Model(&perms).Select()
+	err := tx.Find(perms).Error
 	if err != nil {
 		return nil, err
 	}
 	return perms, nil
 }
 
-func NewPermissionDao(tx Tx) PermissionDao {
-	return &permissionDao{tx}
+func NewPermissionDao() PermissionDao {
+	return &permissionDao{}
 }

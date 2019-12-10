@@ -18,6 +18,7 @@ go_library(
         "//apps/uaa/internal/helpers:go_default_library",
         "//common/template_util:go_default_library",
         "//model:go_default_library",
+        "//pkg/db:go_default_library",
         "@com_github_go_chi_chi//:go_default_library",
         "@com_github_ory_hydra//sdk/go/hydra/client:go_default_library",
         "@com_github_ory_hydra//sdk/go/hydra/client/admin:go_default_library",

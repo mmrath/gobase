@@ -1,7 +1,9 @@
 package oauth2
 
-import "github.com/mmrath/gobase/model"
+import (
+	"github.com/mmrath/gobase/pkg/db"
+)
 
 type Service struct {
-	db *model.DB
+	db *db.DB
 }

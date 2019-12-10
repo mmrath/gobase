@@ -1,0 +1,18 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "app.go",
+        "config.go",
+    ],
+    importpath = "github.com/mmrath/gobase/apps/db_migration/app",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//apps/db_migration/internal:go_default_library",
+        "@com_github_golang_migrate_migrate_v4//:go_default_library",
+        "@com_github_golang_migrate_migrate_v4//database/postgres:go_default_library",
+        "@com_github_rs_zerolog//log:go_default_library",
+        "@com_github_spf13_viper//:go_default_library",
+    ],
+)

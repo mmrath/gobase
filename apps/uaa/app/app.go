@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	 "github.com/mmrath/gobase/pkg/db"
 	"net/http"
 	"os"
 	"os/signal"
@@ -9,7 +10,6 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/mmrath/gobase/apps/uaa/internal/config"
-	"github.com/mmrath/gobase/model"
 )
 
 type App struct {
@@ -33,8 +33,8 @@ func LoadConfig(configFiles ...string) *config.Config {
 	return cfg
 }
 
-func NewDB(cfg *config.Config) *model.DB {
-	db, err := model.DBConn(cfg.DB)
+func NewDB(cfg *config.Config) *db.DB {
+	db, err := db.Open(cfg.DB)
 	if err != nil {
 		panic(err)
 	}

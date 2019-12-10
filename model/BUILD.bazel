@@ -4,7 +4,6 @@ go_library(
     name = "go_default_library",
     srcs = [
         "auth_token.go",
-        "db.go",
         "permission.go",
         "role.go",
         "shared.go",
@@ -15,9 +14,10 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//common/error_util:go_default_library",
+        "//pkg/db:go_default_library",
         "@com_github_go_ozzo_ozzo_validation//:go_default_library",
         "@com_github_go_ozzo_ozzo_validation//is:go_default_library",
-        "@com_github_go_pg_pg//:go_default_library",
+        "@com_github_jinzhu_gorm//:go_default_library",
         "@com_github_rs_zerolog//log:go_default_library",
     ],
 )

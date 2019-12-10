@@ -196,8 +196,8 @@ def go_repositories():
     go_repository(
         name = "com_github_coreos_go_systemd",
         importpath = "github.com/coreos/go-systemd",
-        sum = "h1:F5haX7vjVVG0kc13fIWeqUViNPyEJxv/OmvnBo0Yme4=",
-        version = "v0.0.0-20190321100706-95778dfbb74e",
+        sum = "h1:JOrtw2xFKzlg+cbHpyrpLDmnN1HqhBfnX7WDiW7eG2c=",
+        version = "v0.0.0-20190719114852-fd7a80b32e1f",
     )
     go_repository(
         name = "com_github_coreos_pkg",
@@ -368,6 +368,12 @@ def go_repositories():
         version = "v0.0.0-20181003060214-f58a169a71a5",
     )
     go_repository(
+        name = "com_github_erikstmartin_go_testdb",
+        importpath = "github.com/erikstmartin/go-testdb",
+        sum = "h1:Yzb9+7DPaBjB8zlTR87/ElzFsnQfuHnVUVqpZZIcV5Y=",
+        version = "v0.0.0-20160219214506-8d10e4a1bae5",
+    )
+    go_repository(
         name = "com_github_fasthttp_contrib_websocket",
         importpath = "github.com/fasthttp-contrib/websocket",
         sum = "h1:DddqAaWDpywytcG8w/qoQ5sAN8X12d3Z3koB0C3Rxsc=",
@@ -534,12 +540,6 @@ def go_repositories():
         importpath = "github.com/go-ozzo/ozzo-validation",
         sum = "h1:msy24VGS42fKO9K1vLz82/GeYW1cILu7Nuuj1N3BBkE=",
         version = "v3.6.0+incompatible",
-    )
-    go_repository(
-        name = "com_github_go_pg_pg",
-        importpath = "github.com/go-pg/pg",
-        sum = "h1:Hi7yUJ2zwmHFq1Mar5XqhCe3NJ7j9r+BaiNmd+vqf+A=",
-        version = "v8.0.6+incompatible",
     )
     go_repository(
         name = "com_github_go_playground_locales",
@@ -1094,10 +1094,22 @@ def go_repositories():
         version = "v1.4.0",
     )
     go_repository(
+        name = "com_github_jinzhu_gorm",
+        importpath = "github.com/jinzhu/gorm",
+        sum = "h1:gaHGvE+UnWGlbWG4Y3FUwY1EcZ5n6S9WtqBA/uySMLE=",
+        version = "v1.9.11",
+    )
+    go_repository(
         name = "com_github_jinzhu_inflection",
         importpath = "github.com/jinzhu/inflection",
         sum = "h1:K317FqzuhWc8YvSVlFMCCUb36O/S9MCKRDI7QkRKD/E=",
         version = "v1.0.0",
+    )
+    go_repository(
+        name = "com_github_jinzhu_now",
+        importpath = "github.com/jinzhu/now",
+        sum = "h1:HjfetcXq097iXP0uoPCdnM4Efp5/9MsM0/M+XOTeR3M=",
+        version = "v1.0.1",
     )
     go_repository(
         name = "com_github_jmespath_go_jmespath",
@@ -1240,8 +1252,8 @@ def go_repositories():
     go_repository(
         name = "com_github_lib_pq",
         importpath = "github.com/lib/pq",
-        sum = "h1:X5PMW56eZitiTeO7tKzZxFCSpbFZJtkMMooicw2us9A=",
-        version = "v1.0.0",
+        sum = "h1:sJZmqHoEaY7f+NPP8pgLB/WxulyR3fewgCM2qaSlBb4=",
+        version = "v1.1.1",
     )
     go_repository(
         name = "com_github_luna_duclos_instrumentedsql",
@@ -1348,8 +1360,8 @@ def go_repositories():
     go_repository(
         name = "com_github_mattn_go_sqlite3",
         importpath = "github.com/mattn/go-sqlite3",
-        sum = "h1:jbhqpg7tQe4SupckyijYiy0mJJ/pRyHvXf7JdWK860o=",
-        version = "v1.10.0",
+        sum = "h1:LDdKkqtYlom37fkvqs8rMPFKAMe8+SgjbwZ6ex1/A/Q=",
+        version = "v1.11.0",
     )
     go_repository(
         name = "com_github_mattn_goveralls",
@@ -1534,8 +1546,8 @@ def go_repositories():
     go_repository(
         name = "com_github_ory_fosite",
         importpath = "github.com/ory/fosite",
-        sum = "h1:FnOVgpEApo8yxq0Vrp313o4XZeAXRUH1d41Q6NElwmY=",
-        version = "v0.30.0",
+        sum = "h1:1HQZPXQ+PdeIe27H9Fjfvxem5uxVc/diIwUDk5XTEM4=",
+        version = "v0.30.2",
     )
     go_repository(
         name = "com_github_ory_go_acc",
@@ -2148,12 +2160,6 @@ def go_repositories():
         importpath = "cloud.google.com/go/datastore",
         sum = "h1:Kt+gOPPp2LEPWp8CSfxhsM8ik9CcyE/gYu+0r+RnZvM=",
         version = "v1.0.0",
-    )
-    go_repository(
-        name = "im_mellium_sasl",
-        importpath = "mellium.im/sasl",
-        sum = "h1:nspKSRg7/SyO0cRGY71OkfHab8tf9kCts6a6oTDut0w=",
-        version = "v0.2.1",
     )
     go_repository(
         name = "in_gopkg_airbrake_gobrake_v2",

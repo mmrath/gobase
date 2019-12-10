@@ -1,10 +1,12 @@
 package app
 
-import "github.com/mmrath/gobase/model"
+import (
+	"github.com/mmrath/gobase/pkg/db"
+)
 
 type Config struct {
-	DB  model.DBConfig `yaml:"db"`
-	Web WebConfig      `yaml:"web"`
+	DB  db.Config `yaml:"db"`
+	Web WebConfig `yaml:"web"`
 }
 
 type WebConfig struct {
@@ -13,4 +15,3 @@ type WebConfig struct {
 	CorsEnabled bool   `yaml:"corsEnabled"`
 	TemplateDir string `yaml:"templateDir"`
 }
-
