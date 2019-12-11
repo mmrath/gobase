@@ -2,9 +2,9 @@ package test
 
 import (
 	"bytes"
-	"log"
 	"github.com/mmrath/gobase/common/auth"
 	"github.com/mmrath/gobase/common/crypto"
+	"log"
 	"net/http"
 	"regexp"
 	"testing"
@@ -12,9 +12,9 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gavv/httpexpect"
+	"github.com/mmrath/gobase/model"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-	"github.com/mmrath/gobase/model"
 )
 
 type AccountTestSuite struct {
