@@ -21,6 +21,7 @@ func NewUserHandler(service UserService) *UserHandler {
 func (h *UserHandler) FindUser(id int64) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
+
 		err := validator.New().Var(&id, "required,int32")
 
 		if err != nil {

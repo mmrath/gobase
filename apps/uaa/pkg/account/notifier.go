@@ -9,9 +9,9 @@ import (
 )
 
 type Notifier interface {
-	NotifyActivation(user *model.User, token string) error
-	NotifyPasswordChange(user *model.User) error
-	NotifyPasswordResetInit(user *model.User, token string) error
+	NotifyActivation(user model.User, token string) error
+	NotifyPasswordChange(user model.User) error
+	NotifyPasswordResetInit(user model.User, token string) error
 }
 
 func NewNotifier(baseUrl string, mailer email.Mailer) Notifier {
@@ -23,7 +23,7 @@ type notifier struct {
 	baseUrl string
 }
 
-func (e *notifier) NotifyPasswordChange(user *model.User) error {
+func (e *notifier) NotifyPasswordChange(user model.User) error {
 
 	data := make(map[string]interface{})
 	data["user"] = user
@@ -42,12 +42,12 @@ func (e *notifier) NotifyPasswordChange(user *model.User) error {
 	return nil
 }
 
-func (e *notifier) NotifyActivation(user *model.User, token string) error {
+func (e *notifier) NotifyActivation(user model.User, token string) error {
 
 	url := fmt.Sprintf("%s/account/activate?key=%s", e.baseUrl, token)
 	data := struct {
 		URL  template.URL
-		User *model.User
+		User model.User
 	}{
 		URL:  template.URL(url),
 		User: user,
@@ -71,11 +71,11 @@ func (e *notifier) NotifyActivation(user *model.User, token string) error {
 	return nil
 }
 
-func (e *notifier) NotifyPasswordResetInit(user *model.User, token string) error {
+func (e *notifier) NotifyPasswordResetInit(user model.User, token string) error {
 	url := fmt.Sprintf("%s/account/reset-password?key=%s", e.baseUrl, token)
 	data := struct {
 		URL  template.URL
-		User *model.User
+		User model.User
 	}{
 		URL:  template.URL(url),
 		User: user,

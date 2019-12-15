@@ -2,8 +2,10 @@ package app
 
 import (
 	"context"
+	"github.com/mmrath/gobase/apps/uaa/pkg/account"
 	"github.com/mmrath/gobase/apps/uaa/pkg/auth"
 	"github.com/mmrath/gobase/apps/uaa/pkg/config"
+	 "github.com/mmrath/gobase/pkg/db"
 	"github.com/rs/zerolog/log"
 	"net/http"
 	"os"
@@ -20,7 +22,16 @@ func NewApp(configFiles ...string) (*App, error) {
 	if err != nil {
 		return nil, err
 	}
-	srv, err := BuildHttpServer(config, sso)
+
+	db, err := db.Open(config.DB)
+	if err != nil {
+		return nil, err
+	}
+	notifier := account.NewNotifier("", nil)
+	accountService := account.NewService(notifier, db)
+	accountHandler := account.NewHandler(accountService)
+	srv, err := BuildHttpServer(config, sso, accountHandler)
+
 	if err != nil {
 		return nil, err
 	}
