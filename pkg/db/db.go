@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/mmrath/gobase/common/error_util"
+	"github.com/mmrath/gobase/pkg/error_util"
 )
 
 type txKeyType string

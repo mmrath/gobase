@@ -42,6 +42,8 @@ fmt:
 lint: bin/golint
 	@./bin/golint -set_exit_status $(shell go list ./...)
 
+
+
 .PHONY: docker-image
 docker-image:
 	@sudo docker build -t $(DOCKER_IMAGE) .
@@ -74,14 +76,30 @@ FORCE:
 .PHONY: test testrace vet fmt lint testall
 
 generate_certs:
-  generate_certs:
-  	@mkdir -p dist/ssl_certs
-  	@mkdir -p dist/key_pair
-  	@openssl req \
+	@mkdir -p dist/ssl_certs
+	@mkdir -p dist/key_pair
+	@openssl req \
          -newkey rsa:2048 -nodes -keyout dist/ssl_certs/ssl_private.key \
          -x509 -days 365 -out dist/ssl_certs/ssl_public.crt \
          -subj "/C=CA/ST=British Columbia/L=Vancouver/O=Sample SSL Certificate/CN=localhost"
-  	@openssl req \
+	@openssl req \
          -newkey rsa:2048 -nodes -keyout dist/key_pair/sso_private.key \
          -x509 -days 365 -out dist/key_pair/sso_public.crt \
          -subj "/C=CA/ST=British Columbia/L=Vancouver/O=Sample SSL Certificate/CN=localhost"
+
+gen_go_repo:
+	@bazel run //:gazelle -- update-repos -from_file=go.mod -to_macro=go_repositories_new.bzl%go_repositories
+	@rm go_repositories.bzl
+	@mv go_repositories_new.bzl go_repositories.bzl
+	@bazel run //:gazelle
+
+uaa:
+	@bazel build apps/uaa
+
+uaa-admin:
+	@bazel build apps/uaa-admin
+
+db-migration:
+	@bazel build apps/db-migration
+
+apps: uaa uaa-admin db-migration

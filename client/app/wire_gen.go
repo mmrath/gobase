@@ -7,8 +7,8 @@ package app
 
 import (
 	"github.com/mmrath/gobase/client/account"
-	"github.com/mmrath/gobase/common/auth"
-	"github.com/mmrath/gobase/common/email"
+	"github.com/mmrath/gobase/pkg/auth"
+	"github.com/mmrath/gobase/pkg/email"
 )
 
 // Injectors from wire.go:

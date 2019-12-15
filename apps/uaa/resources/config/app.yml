@@ -1,9 +1,0 @@
-web:
-  port: 9020
-  contextPath: ''
-  templateDir: "uaa/uaa-web-app/build"
-db:
-  url: "postgres://uaa_dev:password@localhost/uaa?sslmode=disable"
-
-hydra:
-  host: "127.0.0.1:9001"

@@ -7,7 +7,7 @@ go_library(
     visibility = ["//visibility:private"],
     deps = [
         "//client/app:go_default_library",
-        "//common/email:go_default_library",
+        "//pkg/email:go_default_library",
     ],
 )
 

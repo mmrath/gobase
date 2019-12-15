@@ -11,9 +11,9 @@ go_library(
     importpath = "github.com/mmrath/gobase/apps/uaa-admin/internal/account",
     visibility = ["//visibility:public"],
     deps = [
-        "//common/error_util:go_default_library",
-        "//model:go_default_library",
         "//pkg/db:go_default_library",
+        "//pkg/error_util:go_default_library",
+        "//pkg/model:go_default_library",
         "@com_github_go_chi_chi//:go_default_library",
         "@com_github_go_chi_render//:go_default_library",
         "@com_github_rs_zerolog//log:go_default_library",

@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"github.com/mmrath/gobase/apps/uaa-admin/internal/account"
-	"github.com/mmrath/gobase/common/config"
+	"github.com/mmrath/gobase/pkg/config"
 	"github.com/mmrath/gobase/pkg/db"
 	"github.com/rs/zerolog/log"
 	"net/http"

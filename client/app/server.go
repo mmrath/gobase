@@ -10,7 +10,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/rs/zerolog/log"
 	"github.com/mmrath/gobase/client/account"
-	"github.com/mmrath/gobase/common/email"
+	"github.com/mmrath/gobase/pkg/email"
 	"github.com/mmrath/gobase/model"
 )
 

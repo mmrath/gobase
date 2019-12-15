@@ -3,8 +3,8 @@ package account
 import (
 	"context"
 	"fmt"
-	"github.com/mmrath/gobase/common/error_util"
-	"github.com/mmrath/gobase/model"
+	"github.com/mmrath/gobase/pkg/error_util"
+	"github.com/mmrath/gobase/pkg/model"
 	"github.com/mmrath/gobase/pkg/db"
 )
 

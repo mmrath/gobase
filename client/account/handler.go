@@ -7,8 +7,8 @@ import (
 	"github.com/go-chi/jwtauth"
 	"github.com/go-chi/render"
 	"github.com/rs/zerolog/log"
-	"github.com/mmrath/gobase/common/auth"
-	"github.com/mmrath/gobase/common/error_util"
+	"github.com/mmrath/gobase/pkg/auth"
+	"github.com/mmrath/gobase/pkg/error_util"
 	"github.com/mmrath/gobase/model"
 )
 

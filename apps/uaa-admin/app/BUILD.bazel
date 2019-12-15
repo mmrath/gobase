@@ -11,8 +11,7 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//apps/uaa-admin/internal/account:go_default_library",
-        "//common/config:go_default_library",
-        "//model:go_default_library",
+        "//pkg/config:go_default_library",
         "//pkg/db:go_default_library",
         "@com_github_go_chi_chi//:go_default_library",
         "@com_github_go_chi_chi//middleware:go_default_library",

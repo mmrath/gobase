@@ -3,8 +3,8 @@ package account
 import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
-	"github.com/mmrath/gobase/common/error_util"
-	"github.com/mmrath/gobase/model"
+	"github.com/mmrath/gobase/pkg/error_util"
+	"github.com/mmrath/gobase/pkg/model"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cast"
 	"gopkg.in/go-playground/validator.v9"

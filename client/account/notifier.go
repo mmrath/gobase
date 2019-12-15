@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"html/template"
 
-	"github.com/mmrath/gobase/common/email"
+	"github.com/mmrath/gobase/pkg/email"
 	"github.com/mmrath/gobase/model"
 )
 

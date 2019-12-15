@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/mmrath/gobase/client/account"
-	"github.com/mmrath/gobase/common/auth"
+	"github.com/mmrath/gobase/pkg/auth"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"

@@ -2,8 +2,8 @@ package test
 
 import (
 	"bytes"
-	"github.com/mmrath/gobase/common/auth"
-	"github.com/mmrath/gobase/common/crypto"
+	"github.com/mmrath/gobase/pkg/auth"
+	"github.com/mmrath/gobase/pkg/crypto"
 	"log"
 	"net/http"
 	"regexp"

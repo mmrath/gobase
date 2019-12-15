@@ -1,9 +1,9 @@
 package app
 
 import (
-	"github.com/mmrath/gobase/common/auth"
-	"github.com/mmrath/gobase/common/config"
-	"github.com/mmrath/gobase/common/email"
+	"github.com/mmrath/gobase/pkg/auth"
+	"github.com/mmrath/gobase/pkg/config"
+	"github.com/mmrath/gobase/pkg/email"
 	"github.com/mmrath/gobase/model"
 )
 

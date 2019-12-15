@@ -2,14 +2,12 @@ package app
 
 import (
 	"context"
-	 "github.com/mmrath/gobase/pkg/db"
+	"github.com/mmrath/gobase/apps/uaa/pkg/auth"
+	"github.com/mmrath/gobase/apps/uaa/pkg/config"
+	"github.com/rs/zerolog/log"
 	"net/http"
 	"os"
 	"os/signal"
-
-	"github.com/rs/zerolog/log"
-
-	"github.com/mmrath/gobase/apps/uaa/internal/config"
 )
 
 type App struct {
@@ -18,27 +16,25 @@ type App struct {
 
 func NewApp(configFiles ...string) (*App, error) {
 	config := LoadConfig(configFiles...)
+	sso, err := auth.NewSSO(config.SSO)
+	if err != nil {
+		return nil, err
+	}
+	srv, err := BuildHttpServer(config, sso)
+	if err != nil {
+		return nil, err
+	}
 	log.Info().Interface("config", config).Msg("App config")
-	httpServer := BuildServer(config, nil)
-	return &App{httpServer: httpServer}, nil
+	return &App{httpServer: srv}, nil
 }
 
 func LoadConfig(configFiles ...string) *config.Config {
-
 	cfg, err := config.LoadConfig(configFiles...)
 	if err != nil {
 		log.Panic().Err(err).Msg("failed to load config")
 		panic(err)
 	}
 	return cfg
-}
-
-func NewDB(cfg *config.Config) *db.DB {
-	db, err := db.Open(cfg.DB)
-	if err != nil {
-		panic(err)
-	}
-	return db
 }
 
 // Start runs ListenAndServe on the http.Server with graceful shutdown.
