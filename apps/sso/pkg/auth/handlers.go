@@ -4,39 +4,55 @@ import (
 	"fmt"
 	"github.com/rs/zerolog/log"
 	"html/template"
+	"io/ioutil"
 	"net/http"
 	"time"
 )
 
-func ssoGetHandler(w http.ResponseWriter, r *http.Request) {
-	err := false
-	if r.URL.Query().Get("auth_error") != "" {
-		err = true
-	}
+func SsoGetHandler(fs http.FileSystem) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		err := false
+		if r.URL.Query().Get("auth_error") != "" {
+			err = true
+		}
 
-	data := struct {
-		QueryString string
-		Error       bool
-	}{QueryString: r.URL.Query().Get("s_url"), Error: err}
-	renderTemplate(w, "templates/login.html", &data)
+		data := struct {
+			RedirectURL string
+			Error       bool
+		}{RedirectURL: r.URL.Query().Get("redirectUrl"), Error: err}
+		renderTemplate(w, fs , "login.html", &data)
+	}
 }
 
-func renderTemplate(w http.ResponseWriter, tmpl string, p interface{}) {
-	templates, err := template.ParseFiles(tmpl)
+func renderTemplate(w http.ResponseWriter, fs http.FileSystem, tmpl string, p interface{}) {
+	file, err := fs.Open(tmpl)
+	if err != nil {
+		log.Error().Err(err).Msg("file not found")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	b, err := ioutil.ReadAll(file)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to read file")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	s := string(b)
+
+	templates, err := template.New(tmpl).Parse(s)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to load template")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 	err = templates.ExecuteTemplate(w, tmpl, p)
 	if err != nil {
+		log.Error().Err(err).Msg("failed to execute template")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
-func ssoPostHandler(sso *SSOProvider) http.HandlerFunc {
+func SsoPostHandler(sso *SSOProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
-		pUri := r.PostFormValue("query_string")
+		pUri := r.PostFormValue("redirectUrl")
 		u, g, err := sso.Auth(r.PostFormValue("username"), r.PostFormValue("password"))
 		if err != nil {
 			if sso.Is401(err) {
@@ -50,19 +66,18 @@ func ssoPostHandler(sso *SSOProvider) http.HandlerFunc {
 			return
 		}
 
-		vh := sso.TokenValidityMinutes()
+		vh := sso.CookieValidityMinutes
 		exp := time.Now().Add(time.Minute * time.Duration(vh)).UTC()
 		tok, _ := sso.BuildToken(u, g, exp)
 		c := sso.BuildCookie(tok, exp)
 		http.SetCookie(w, &c)
-		http.Redirect(w, r, pUri, 301)
+		http.Redirect(w, r, pUri, http.StatusFound)
 		return
-
 	}
 
 }
 
-func authTokenHandler(sso *SSOProvider) http.HandlerFunc {
+func AuthTokenHandler(sso *SSOProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
 		email := r.PostFormValue("username")
@@ -81,14 +96,14 @@ func authTokenHandler(sso *SSOProvider) http.HandlerFunc {
 			return
 		}
 
-		tok, _ := sso.BuildToken(u, g, time.Now().Add(time.Minute*time.Duration(sso.TokenValidityMinutes())).UTC())
+		tok, _ := sso.BuildToken(u, g, time.Now().Add(time.Minute*time.Duration(sso.CookieValidityMinutes)).UTC())
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprint(w, tok)
 		return
 	}
 }
 
-func logoutHandler(sso *SSOProvider) http.HandlerFunc {
+func LogoutHandler(sso *SSOProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		expT := time.Now().Add(time.Hour * time.Duration(-1))
 		lc := sso.Logout(expT)

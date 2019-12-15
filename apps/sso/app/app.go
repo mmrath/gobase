@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"github.com/mmrath/gobase/apps/sso/pkg/auth"
 	"github.com/mmrath/gobase/apps/sso/pkg/config"
 	"github.com/rs/zerolog/log"
 	"net/http"
@@ -15,7 +16,14 @@ type App struct {
 
 func NewApp(configFiles ...string) (*App, error) {
 	config := LoadConfig(configFiles...)
-	srv := BuildHttpServer(config)
+	sso, err := auth.NewSSO(config.SSO)
+	if err != nil {
+		return nil, err
+	}
+	srv, err := BuildHttpServer(config, sso)
+	if err != nil {
+		return nil, err
+	}
 	log.Info().Interface("config", config).Msg("App config")
 	return &App{httpServer: srv}, nil
 }

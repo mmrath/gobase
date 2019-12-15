@@ -72,3 +72,16 @@ testall: testrace vet fmt lint
 FORCE:
 
 .PHONY: test testrace vet fmt lint testall
+
+generate_certs:
+  generate_certs:
+  	@mkdir -p dist/ssl_certs
+  	@mkdir -p dist/key_pair
+  	@openssl req \
+         -newkey rsa:2048 -nodes -keyout dist/ssl_certs/ssl_private.key \
+         -x509 -days 365 -out dist/ssl_certs/ssl_public.crt \
+         -subj "/C=CA/ST=British Columbia/L=Vancouver/O=Sample SSL Certificate/CN=localhost"
+  	@openssl req \
+         -newkey rsa:2048 -nodes -keyout dist/key_pair/sso_private.key \
+         -x509 -days 365 -out dist/key_pair/sso_public.crt \
+         -subj "/C=CA/ST=British Columbia/L=Vancouver/O=Sample SSL Certificate/CN=localhost"

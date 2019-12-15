@@ -13,32 +13,50 @@ import (
 type Config struct {
 	DB  db.Config `mapstructure:"db"`
 	Web WebConfig `mapstructure:"web"`
-	SSOCookie CookieConfig `mapstructure:"ssoCookie"`
+	SSO SSOConfig `mapstructure:"ssoCookie"`
 }
 
-type CookieConfig struct {
-	Name       string
-	Domain     string
-	ValidHours int64
+type SSOConfig struct {
+	CookieName            string
+	CookieDomain          string
+	CookieValidityMinutes int64
+	JwtPrivateKeyPath     string
 }
 
 type WebConfig struct {
 	Port        string `mapstructure:"port"`
 	CorsEnabled bool   `mapstructure:"corsEnabled"`
 	ContextPath string `mapstructure:"contextPath"`
+	SSLCertPath string `mapstructure:"sslCertPath"`
+	SSLKeyPath  string `mapstructure:"sslKeyPath"`
 }
 
 func LoadConfig(files ...string) (*Config, error) {
 	envPrefix := "SSO"
+	configPathEnvVar := fmt.Sprintf("$%s_CONFIG_DIR/", strings.ToUpper(envPrefix))
+	//appEnv := fmt.Sprintf("%s_ENV", envPrefix)
 
 	cfg := &Config{
-		Web: WebConfig{Port: ":9000"},
+		Web: WebConfig{
+			Port:        ":6010",
+			SSLCertPath: "dest/ssl_certs/ssl_public.crt",
+			SSLKeyPath:  "dest/ssl_certs/ssl_private.key",
+		},
+		SSO: SSOConfig{
+			CookieName:            "SSO",
+			CookieDomain:          "",
+			CookieValidityMinutes: 60,
+			JwtPrivateKeyPath:     "dist/key_pair/sso_private.key",
+		},
 	}
 	v := viper.New()
 	v.BindEnv("db.url")
 	// Viper settings
-	v.AddConfigPath(".")
-	v.AddConfigPath(fmt.Sprintf("$%s_CONFIG_DIR/", strings.ToUpper(envPrefix)))
+	if dirExists("./config") {
+		v.AddConfigPath("./config")
+	}
+	v.AddConfigPath(configPathEnvVar)
+	v.SetConfigName("app")
 
 	// Environment variable settings
 	v.SetEnvPrefix(envPrefix)
@@ -53,6 +71,8 @@ func LoadConfig(files ...string) (*Config, error) {
 	if _, ok := os.LookupEnv("NO_COLOR"); ok {
 		v.SetDefault("no_color", true)
 	}
+
+	//envSpecificFileName := "app."++""
 
 	for _, configFile := range files {
 		if fileExists(configFile) {
@@ -88,4 +108,12 @@ func fileExists(filename string) bool {
 		return false
 	}
 	return !info.IsDir()
+}
+
+func dirExists(dirName string) bool {
+	info, err := os.Stat(dirName)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return info.IsDir()
 }

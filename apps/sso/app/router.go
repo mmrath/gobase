@@ -3,13 +3,15 @@ package app
 import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/mmrath/gobase/apps/sso/pkg/auth"
 	"github.com/mmrath/gobase/apps/sso/pkg/config"
+	"github.com/mmrath/gobase/apps/sso/static"
 	"github.com/rs/zerolog/log"
 	"net/http"
 	"time"
 )
 
-func BuildHttpServer(cfg *config.Config) *http.Server {
+func BuildHttpServer(cfg *config.Config, sso *auth.SSOProvider) (*http.Server, error){
 	r := chi.NewRouter()
 
 	r.Use(middleware.Recoverer)
@@ -31,6 +33,14 @@ func BuildHttpServer(cfg *config.Config) *http.Server {
 				log.Error().Err(err).Msg("error sending ping message")
 			}
 		})
+
+		files, _ := static.WalkDirs("", true)
+		log.Info().Interface("files", files).Msg("all")
+		r.Get("/sso", auth.SsoGetHandler(static.HTTP))
+		r.Post("/sso", auth.SsoPostHandler(sso))
+		r.Post("/auth_token", auth.AuthTokenHandler(sso))
+		r.Get("/logout", auth.LogoutHandler(sso))
+		r.Get("/*", http.FileServer(static.HTTP).ServeHTTP)
 	})
 
 	r.NotFound(http.NotFound)
@@ -39,5 +49,5 @@ func BuildHttpServer(cfg *config.Config) *http.Server {
 		Addr:    cfg.Web.Port,
 		Handler: r,
 	}
-	return &srv
+	return &srv,nil
 }
