@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go v0.44.3 // indirect
 	github.com/Microsoft/go-winio v0.4.12 // indirect
 	github.com/PuerkitoBio/goquery v1.5.0 // indirect
+	github.com/UnnoTed/fileb0x v1.1.4 // indirect
 	github.com/ajg/form v0.0.0-20160822230020-523a5da1a92f // indirect
 	github.com/andybalholm/cascadia v1.1.0 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20190424111038-f61b66f89f4a // indirect
@@ -51,6 +52,7 @@ require (
 	github.com/spf13/viper v1.5.0
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	github.com/stretchr/testify v1.4.0
+	github.com/unrolled/render v1.0.1
 	github.com/valyala/fasthttp v1.6.0 // indirect
 	github.com/vanng822/css v0.0.0-20190504095207-a21e860bcd04 // indirect
 	github.com/vanng822/go-premailer v0.0.0-20190504065308-ac25997d78c7

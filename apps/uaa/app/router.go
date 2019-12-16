@@ -37,6 +37,12 @@ func BuildHttpServer(cfg *config.Config, sso *auth.SSOProvider, accountHandler *
 
 		files, _ := static.WalkDirs("", true)
 		log.Info().Interface("files", files).Msg("all")
+
+
+		files, _ = static.WalkDirs("web", true)
+		log.Info().Interface("web files", files).Msg("all")
+
+
 		r.Get("/sso", auth.SsoGetHandler(static.HTTP))
 		r.Post("/sso", auth.SsoPostHandler(sso))
 		r.Post("/auth_token", auth.AuthTokenHandler(sso))

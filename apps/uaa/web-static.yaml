@@ -119,7 +119,7 @@ custom:
   # type: array of strings
   - files:
       - "resources/templates/email/"
-    base: ""
+    base: "resources/templates/email/"
     # prefix is the path that will be added to all files' path
     # type: string
     prefix: "email/"
@@ -139,4 +139,4 @@ custom:
 
     # prefix is the path that will be added to all files' path
     # type: string
-    prefix: ""
+    prefix: "web/"

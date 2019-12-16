@@ -4,7 +4,7 @@ import (
 	"github.com/mmrath/gobase/pkg/auth"
 	"github.com/mmrath/gobase/pkg/config"
 	"github.com/mmrath/gobase/pkg/email"
-	"github.com/mmrath/gobase/model"
+	"github.com/mmrath/gobase/pkg/model"
 )
 
 type Config struct {

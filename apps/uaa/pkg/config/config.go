@@ -11,9 +11,10 @@ import (
 )
 
 type Config struct {
-	DB  db.Config `mapstructure:"db"`
-	Web WebConfig `mapstructure:"web"`
-	SSO SSOConfig `mapstructure:"ssoCookie"`
+	DevMode bool      `mapstructure:"devMode"`
+	DB      db.Config `mapstructure:"db"`
+	Web     WebConfig `mapstructure:"web"`
+	SSO     SSOConfig `mapstructure:"ssoCookie"`
 }
 
 type SSOConfig struct {
@@ -32,15 +33,15 @@ type WebConfig struct {
 }
 
 func LoadConfig(files ...string) (*Config, error) {
-	envPrefix := "SSO"
+	envPrefix := "UAA"
 	configPathEnvVar := fmt.Sprintf("$%s_CONFIG_DIR/", strings.ToUpper(envPrefix))
 	//appEnv := fmt.Sprintf("%s_ENV", envPrefix)
 
 	cfg := &Config{
 		Web: WebConfig{
 			Port:        ":6010",
-			SSLCertPath: "dest/ssl_certs/ssl_public.crt",
-			SSLKeyPath:  "dest/ssl_certs/ssl_private.key",
+			SSLCertPath: "dist/ssl_certs/ssl_public.crt",
+			SSLKeyPath:  "dist/ssl_certs/ssl_private.key",
 		},
 		SSO: SSOConfig{
 			CookieName:            "SSO",
