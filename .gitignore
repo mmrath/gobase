@@ -50,3 +50,12 @@ bin/
 ### Node ###
 /node_modules/
 
+### binaries ###
+./clipo
+./clipo.exe
+
+./uaa
+./uaa.exe
+
+./uaa-admin
+./uaa-admin.exe

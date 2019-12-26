@@ -142,7 +142,7 @@ func (h *Handler) InitPasswordReset() http.HandlerFunc {
 		err := h.Service.InitiatePasswordReset(data.Email)
 
 		if err != nil {
-			log.Error().Err(err).Msg("Error initiating password reset")
+			log.Error().Err(err).Msg("defaultError initiating password reset")
 			error_helper.RenderError(w, r, err)
 			return
 		} else {

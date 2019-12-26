@@ -5,7 +5,7 @@
 pkg: static
 
 # destination
-dest: "./static/"
+dest: "./internal/static/"
 
 # gofmt
 # type: bool

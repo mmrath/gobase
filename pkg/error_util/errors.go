@@ -12,24 +12,25 @@ import (
 	"github.com/google/uuid"
 )
 
+
 type errorCode int
 
 const ErrorCodeBadRequest errorCode = http.StatusBadRequest
 const ErrorCodeInternal errorCode = http.StatusInternalServerError
 const ErrorCodeUnauthorized errorCode = http.StatusUnauthorized
 
-type Error struct {
+type defaultError struct {
 	ID      uuid.UUID   `json:"id,omitempty"`
 	Err     error       `json:"-"`
 	Code    errorCode   `json:"code,omitempty"`
 	Details interface{} `json:"details,omitempty"`
 }
 
-func (e Error) Error() string {
+func (e defaultError) Error() string {
 	return fmt.Sprintf("ID:%v, Code:%d, Details:%v, Cause: %v", e.ID, e.Code, e.Details, e.Err)
 }
 
-func (e Error) IsBadRequest() bool {
+func (e defaultError) IsBadRequest() bool {
 	return e.Code == ErrorCodeBadRequest
 }
 
@@ -51,57 +52,50 @@ func wrap(err error, msg string) error {
 	} else {
 		return errors.New(msg)
 	}
+	errors.Unwrap()
 }
-func GetErrorID(err error) string {
-	if ce, ok := err.(Error); ok {
-		return ce.ID.String()
-	}
-	return ""
-}
-func ToError(err error, msg string) Error {
-	if ce, ok := err.(Error); ok {
+
+func ToError(err error, msg string) defaultError {
+	if ce, ok := err.(defaultError); ok {
 		return ce
 	}
 	return NewInternal(err, msg)
 }
 
-func NewInternal(err error, msg string) Error {
-	if ce, ok := err.(Error); ok {
+func NewInternal(err error, msg string) defaultError {
+	if ce, ok := err.(defaultError); ok {
 		if ce.Code == ErrorCodeInternal {
 			return ce
 		}
 	}
-	return Error{ID: uuid.New(), Err: wrap(err, msg), Code: ErrorCodeInternal}
+	return defaultError{ID: uuid.New(), Err: wrap(err, msg), Code: ErrorCodeInternal}
 }
 
-func NewBadRequest(details interface{}) Error {
+func NewBadRequest(details interface{}) defaultError {
 	if reason, ok := details.(string); ok {
-		return Error{ID: uuid.New(), Err: nil, Code: ErrorCodeBadRequest, Details: errorDetails{Cause: reason}}
+		return defaultError{ID: uuid.New(), Err: nil, Code: ErrorCodeBadRequest, Details: errorDetails{Cause: reason}}
 	}
-	return Error{ID: uuid.New(), Err: nil, Code: ErrorCodeBadRequest, Details: details}
+	return defaultError{ID: uuid.New(), Err: nil, Code: ErrorCodeBadRequest, Details: details}
 }
 
-func NewUnauthorized(details interface{}) Error {
+func NewUnauthorized(details interface{}) defaultError {
 	if reason, ok := details.(string); ok {
-		return Error{ID: uuid.New(), Err: nil, Code: ErrorCodeUnauthorized, Details: errorDetails{Cause: reason}}
+		return defaultError{ID: uuid.New(), Err: nil, Code: ErrorCodeUnauthorized, Details: errorDetails{Cause: reason}}
 	}
-	return Error{ID: uuid.New(), Err: nil, Code: ErrorCodeUnauthorized, Details: details}
+	return defaultError{ID: uuid.New(), Err: nil, Code: ErrorCodeUnauthorized, Details: details}
 }
 
-func WithFieldErrors(fieldErrors []FieldError) Error {
+func WithFieldErrors(fieldErrors []FieldError) defaultError {
 	br := NewBadRequest(errorDetails{Cause: causeValidation, FieldErrors: fieldErrors})
 	return br
 }
 
-func WithFieldError(field string, message string) Error {
-	br := NewBadRequest(errorDetails{Cause: causeValidation, FieldErrors: []FieldError{{Field: field, Message: message}}})
-	return br
-}
+
 
 func RenderError(w http.ResponseWriter, r *http.Request, err error) {
 	log.Error().Err(err).Send()
-	var appErr Error
-	if ce, ok := err.(Error); ok {
+	var appErr defaultError
+	if ce, ok := err.(defaultError); ok {
 		appErr = ce
 	} else if e, ok := err.(validation.InternalError); ok {
 		appErr = NewInternal(e.InternalError(), "error during validation")
@@ -112,7 +106,7 @@ func RenderError(w http.ResponseWriter, r *http.Request, err error) {
 		}
 		appErr = WithFieldErrors(result)
 	} else {
-		appErr = NewInternal(err, "unknown internal error")
+		appErr = NewInternal(err, "internal error")
 	}
 
 	render.Status(r, int(appErr.Code))
