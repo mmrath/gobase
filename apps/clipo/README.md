@@ -1,1 +1,0 @@
-*Example external client app*

@@ -1,0 +1,9 @@
+version: '3.4'
+services:
+  builder:
+    image: builder
+    build: .
+  clipo:
+    build: apps/clipo
+  baz:
+    build: apps/db-migration

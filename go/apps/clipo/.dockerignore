@@ -1,0 +1,16 @@
+.editorconfig
+.git
+.gitattributes
+.gitignore
+
+.DS_Store
+**/.vscode
+
+**/dist
+
+stats.json
+**/*.md
+**/*.log*
+**/node_modules
+**/.idea
+**/.git
