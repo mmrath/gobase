@@ -1,8 +1,8 @@
 package model
 
 import (
-	"github.com/mmrath/gobase/go/pkg/error_util"
 	"github.com/mmrath/gobase/go/pkg/db"
+	"github.com/mmrath/gobase/go/pkg/errutil"
 	"github.com/rs/zerolog/log"
 )
 
@@ -72,7 +72,7 @@ func (dao *roleDao) Update(tx *db.Tx, role *Role, permissions []int32) error {
 			Err(err).
 			Msg("failed to update role")
 
-		return error_util.NewInternal(err, "failed to update role")
+		return errutil.Wrap(err, "failed to update role")
 	}
 
 	return dao.createRolePermissions(tx, role.ID, permissions)
@@ -85,7 +85,7 @@ func (dao *roleDao) createRolePermissions(tx *db.Tx, roleId int32, permissions [
 			Int32("roleId", roleId).
 			Err(err).
 			Msg("failed to delete existing permissions of role")
-		return error_util.NewInternal(err, "failed to delete existing permissions of role")
+		return errutil.Wrap(err, "failed to delete existing permissions of role")
 	}
 	if permissions == nil || len(permissions) == 0 {
 		return nil

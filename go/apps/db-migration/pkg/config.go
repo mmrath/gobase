@@ -1,43 +1,23 @@
 package pkg
 
 import (
-	"fmt"
-
+	"github.com/kelseyhightower/envconfig"
+	"github.com/mmrath/gobase/go/pkg/db"
 	"github.com/rs/zerolog/log"
-	"github.com/spf13/viper"
+	"os"
 )
 
 type Config struct {
-	DB dbConfig `yaml:"db"`
+	DB           db.Config
+	MigrationDir string
 }
 
-type dbConfig struct {
-	URL string `yaml:"url"`
-}
-
-func LoadConfig(configPaths ...string) Config {
-	envPrefix := "GO_BASE"
-
-	v := viper.New()
-
-	v.SetConfigName("app")
-	v.SetConfigType("yaml")
-	v.SetEnvPrefix(envPrefix)
-	v.AutomaticEnv()
-
-	v.AddConfigPath("./resources/config")
-
-	for _, path := range configPaths {
-		v.AddConfigPath(path)
+func LoadConfig() Config {
+	cfg := Config{}
+	err := envconfig.Process("", &cfg)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to load env config")
+		os.Exit(1)
 	}
-
-	var config = Config{}
-	if err := v.ReadInConfig(); err != nil {
-		panic(fmt.Sprintf("failed to read the configuration file: %v", err))
-	}
-	if err := v.Unmarshal(&config); err != nil {
-		panic(fmt.Sprintf("failed to unmarshall config file: %v", err))
-	}
-	log.Info().Interface("config", config).Msg("successfully loaded configuration")
-	return config
+	return cfg
 }

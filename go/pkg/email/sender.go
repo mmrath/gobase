@@ -4,6 +4,10 @@ package email
 import (
 	"bytes"
 	"fmt"
+	"github.com/go-mail/mail"
+	"github.com/hashicorp/errwrap"
+	"github.com/jaytaylor/html2text"
+	"github.com/vanng822/go-premailer/premailer"
 	"html/template"
 	"log"
 	"os"
@@ -11,10 +15,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/go-mail/mail"
-	"github.com/jaytaylor/html2text"
-	"github.com/vanng822/go-premailer/premailer"
 )
 
 var (
@@ -35,7 +35,7 @@ type mailer struct {
 // NewMailer returns a configured SMTP Mailer.
 func NewMailer(conf SMTPConfig) (Mailer, error) {
 	if err := LoadTemplates(conf.TemplatePath); err != nil {
-		return nil, err
+		return nil, errwrap.Wrapf("failed to load templates", err)
 	}
 
 	s := &mailer{
@@ -52,9 +52,11 @@ func NewMailer(conf SMTPConfig) (Mailer, error) {
 	d, err := s.client.Dial()
 	if err == nil {
 		d.Close()
+		log.Println("connected to mail server")
 		return s, nil
 	}
-	return nil, err
+
+	return nil, errwrap.Wrapf("failed to dial mail server", err)
 }
 
 // Send sends the mail via smtp.

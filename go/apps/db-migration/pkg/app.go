@@ -24,7 +24,8 @@ func Rollback() error {
 
 func buildMigration() (*migrate.Migrate, error) {
 	config := LoadConfig()
-	return migrate.New("dir://resources/migrations", config.DB.URL)
+	migrationDir := "dir://" + config.MigrationDir
+	return migrate.New(migrationDir, config.DB.URL())
 }
 
 func doMigration(action func() error) error {

@@ -28,6 +28,8 @@ help:
 version: ## Show version
 	@echo $(VERSION) \(git commit: $(GIT_COMMIT)\)
 
+start:
+	docker-compose -f docker-compose.local.yml up --build
 
 # DOCKER TASKS
 docker-build: ## [DOCKER] Build given container. Example: `make docker-build APP=clipo`

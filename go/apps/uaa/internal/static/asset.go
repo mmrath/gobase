@@ -6,7 +6,7 @@ import (
 )
 
 func AssetFunc(prefix string) func(name string) ([]byte, error) {
-	fs:= HTTP
+	fs := HTTP
 	return func(name string) ([]byte, error) {
 		f, err := fs.Open(path.Join(prefix, name))
 		if err != nil {

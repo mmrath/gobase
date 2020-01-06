@@ -2,10 +2,9 @@ package cmd
 
 import (
 	"context"
-	"github.com/mmrath/gobase/go/apps/uaa/internal/account"
 	"github.com/mmrath/gobase/go/apps/uaa/internal/auth"
 	"github.com/mmrath/gobase/go/apps/uaa/internal/config"
-	 "github.com/mmrath/gobase/go/pkg/db"
+	"github.com/mmrath/gobase/go/pkg/db"
 	"github.com/rs/zerolog/log"
 	"net/http"
 	"os"
@@ -27,10 +26,7 @@ func NewApp(configFiles ...string) (*App, error) {
 	if err != nil {
 		return nil, err
 	}
-	notifier := account.NewNotifier("", nil)
-	accountService := account.NewService(notifier, db)
-	accountHandler := account.NewHandler(accountService)
-	srv, err := BuildHttpServer(config, sso, accountHandler)
+	srv, err := BuildHttpServer(config, sso)
 
 	if err != nil {
 		return nil, err

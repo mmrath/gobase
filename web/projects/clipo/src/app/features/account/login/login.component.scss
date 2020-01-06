@@ -1,0 +1,23 @@
+.login-wrapper {
+  .login-form {
+    min-width: 100%;
+    max-width: 300px;
+    width: 100%;
+  }
+
+  mat-card-header {
+    text-align: center;
+    width: 100%;
+    display: block;
+    font-weight: 700;
+    padding-bottom: 20px;
+
+    mat-card-title {
+      font-size: 30px;
+      margin: 0;
+    }
+  }
+  .mat-card {
+    padding: 20px 50px 30px;
+  }
+}

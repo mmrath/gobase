@@ -1,8 +1,8 @@
 package model
 
 import (
-	validation "github.com/go-ozzo/ozzo-validation"
-	"github.com/go-ozzo/ozzo-validation/is"
+	"github.com/go-ozzo/ozzo-validation/v3"
+	"github.com/go-ozzo/ozzo-validation/v3/is"
 	"github.com/mmrath/gobase/go/pkg/db"
 )
 
@@ -68,7 +68,7 @@ func (login *LoginRequest) Validate() error {
 	return nil
 }
 
-type SignUpRequest struct {
+type RegisterAccountRequest struct {
 	Password    string `json:"password"`
 	FirstName   string `json:"firstName"`
 	LastName    string `json:"lastName"`
@@ -76,18 +76,15 @@ type SignUpRequest struct {
 	PhoneNumber string `json:"phoneNumber"`
 }
 
-func (s *SignUpRequest) Validate() error {
+func (s *RegisterAccountRequest) Validate() error {
 	err := validation.ValidateStruct(s,
 		validation.Field(&s.FirstName, validation.Required, validation.Length(2, 32)),
 		validation.Field(&s.LastName, validation.Required, validation.Length(1, 32)),
-		validation.Field(&s.Email, validation.Required, validation.Length(6, 32), is.Email),
+		validation.Field(&s.Email, validation.Required, is.Email, validation.Length(6, 32), is.Email),
 		validation.Field(&s.Password, validation.Required, validation.Length(6, 32)),
 		validation.Field(&s.PhoneNumber, is.E164), // International phone
 	)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 type userDao struct {

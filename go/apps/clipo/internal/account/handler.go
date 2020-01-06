@@ -2,7 +2,7 @@ package account
 
 import (
 	"fmt"
-	"github.com/mmrath/gobase/go/pkg/error_util"
+	"github.com/mmrath/gobase/go/pkg/errutil"
 	"net/http"
 
 	"github.com/go-chi/jwtauth"
@@ -33,13 +33,13 @@ func (h *Handler) Login(service auth.JWTService) http.HandlerFunc {
 		user, err := h.Service.Login(data)
 
 		if err != nil {
-			error_util.RenderError(w, r, err)
+			errutil.RenderError(w, r, err)
 			return
 		} else {
 			var token string
 			token, err = service.NewToken(&user)
 			if err != nil {
-				error_util.RenderError(w, r, err)
+				errutil.RenderError(w, r, err)
 				return
 			} else {
 				render.Status(r, http.StatusOK)
@@ -73,21 +73,21 @@ func (h *Handler) Logout() http.HandlerFunc {
 	}
 }
 
-func (h *Handler) SignUp() http.HandlerFunc {
+func (h *Handler) Register() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		data := model.SignUpRequest{}
+		data := model.RegisterAccountRequest{}
 
 		if err := render.DecodeJSON(r.Body, &data); err != nil {
 			render.JSON(w, r, err)
 			return
 		}
 
-		user, err := h.Service.SignUp(data)
+		user, err := h.Service.Register(data)
 
 		if err != nil {
 			log.Error().Err(err).Msg("error during sign up")
-			error_util.RenderError(w, r, err)
+			errutil.RenderError(w, r, err)
 			return
 		} else {
 			render.Status(r, http.StatusOK)
@@ -103,7 +103,7 @@ func (h *Handler) Activate() http.HandlerFunc {
 		err := h.Service.Activate(key)
 
 		if err != nil {
-			error_util.RenderError(w, r, err)
+			errutil.RenderError(w, r, err)
 			return
 		} else {
 			render.Status(r, http.StatusOK)
@@ -143,7 +143,7 @@ func (h *Handler) InitPasswordReset() http.HandlerFunc {
 
 		if err != nil {
 			log.Error().Err(err).Msg("defaultError initiating password reset")
-			error_util.RenderError(w, r, err)
+			errutil.RenderError(w, r, err)
 			return
 		} else {
 			render.Status(r, http.StatusOK)
@@ -166,7 +166,7 @@ func (h *Handler) ResetPassword() http.HandlerFunc {
 
 		if err != nil {
 			log.Error().Err(err).Msg("error initiating password reset")
-			error_util.RenderError(w, r, err)
+			errutil.RenderError(w, r, err)
 			return
 		} else {
 			render.Status(r, http.StatusOK)
@@ -188,7 +188,7 @@ func (h *Handler) ChangePassword() http.HandlerFunc {
 
 		if err != nil {
 			log.Error().Err(err).Msg("error changing password")
-			error_util.RenderError(w, r, err)
+			errutil.RenderError(w, r, err)
 			return
 		} else {
 			render.Status(r, http.StatusOK)

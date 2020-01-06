@@ -2,7 +2,7 @@ package test
 
 import (
 	"context"
-	"github.com/mmrath/gobase/go/apps/clipo/app"
+	"github.com/mmrath/gobase/go/apps/clipo/cmd"
 	"github.com/mmrath/gobase/go/pkg/db"
 	"log"
 	"net/http/httptest"

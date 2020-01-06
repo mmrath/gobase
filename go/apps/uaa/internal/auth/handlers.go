@@ -20,7 +20,7 @@ func SsoGetHandler(fs http.FileSystem) http.HandlerFunc {
 			RedirectURL string
 			Error       bool
 		}{RedirectURL: r.URL.Query().Get("redirectUrl"), Error: err}
-		renderTemplate(w, fs , "auth/login.html", &data)
+		renderTemplate(w, fs, "auth/login.html", &data)
 	}
 }
 

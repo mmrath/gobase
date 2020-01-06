@@ -16,9 +16,9 @@ var userIdKey userIdKeyType
 
 type JWTConfig struct {
 	Secret         string        `mapstructure:"secret" yaml:"secret"`
-	ExpiryDuration time.Duration `mapstructure:"expiryDuration" yaml:"expiryDuration"`
-	CookieName string `mapstructure:"cookieName" yaml:"cookieName"`
-	PubKeyPath string `mapstructure:"pubKeyPath" yaml:"pubKeyPath"`
+	ExpiryDuration time.Duration `envconfig:"default=30m" mapstructure:"expiryDuration" yaml:"expiryDuration"`
+	CookieName     string        `envconfig:"default=AUTH_TOKEN" mapstructure:"cookieName" yaml:"cookieName"`
+	PubKeyPath     string        `envconfig:"optional" mapstructure:"pubKeyPath" yaml:"pubKeyPath"`
 }
 
 type JWTService interface {

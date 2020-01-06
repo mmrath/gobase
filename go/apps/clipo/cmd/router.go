@@ -56,7 +56,7 @@ func NewMux(cfg config.Config,
 
 		// Public routes
 		r.Group(func(r chi.Router) {
-			r.Post("/account/register", userHandler.SignUp())
+			r.Post("/account/register", userHandler.Register())
 			r.Get("/account/activate", userHandler.Activate())
 			r.Post("/account/login", userHandler.Login(jwtService))
 			r.Post("/account/logout", userHandler.Logout())

@@ -2,12 +2,9 @@ FROM golang:1.13 AS buildenv
 
 LABEL maintainer="Murali Mohan Rath <murali@mmrath.com>"
 
-ARG APP
 ARG VERSION
 ARG GIT_COMMIT
 
-
-ENV APP=${APP}
 ENV VERSION=${VERSION}
 ENV GIT_COMMIT=${GIT_COMMIT}
 
@@ -28,6 +25,6 @@ RUN go mod verify
 # Copy the source code into the container.
 COPY go/pkg pkg
 COPY go/apps apps
-COPY scripts scripts
+COPY go/build.sh build.sh
 
-RUN scripts/go-build.sh
+RUN build.sh

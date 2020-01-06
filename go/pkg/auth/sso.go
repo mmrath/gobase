@@ -4,7 +4,7 @@ import (
 	"crypto/rsa"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/mmrath/gobase/go/pkg/error_util"
+	"github.com/mmrath/gobase/go/pkg/errutil"
 	"github.com/rs/zerolog/log"
 	"io/ioutil"
 	"net/http"
@@ -26,7 +26,7 @@ func NewSsoMiddleware(cfg SsoClientConfig) (*ssoMiddleware, error) {
 	key, err := ioutil.ReadFile(cfg.PubKeyPath)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to load jwt public key")
-		return nil, error_util.NewInternal(err, "failed to load jwt public key file")
+		return nil, errutil.Wrap(err, "failed to load jwt public key file")
 	}
 	parsedPubKey, err := jwt.ParseRSAPublicKeyFromPEM(key)
 
@@ -46,7 +46,7 @@ func (s *ssoMiddleware) SsoMiddleware(next http.Handler) http.Handler {
 		}
 		if err != nil {
 			log.Error().Err(err).Msg("error reading cookie")
-			error_util.RenderError(w, r, err)
+			errutil.RenderError(w, r, err)
 			return
 		}
 
@@ -54,7 +54,7 @@ func (s *ssoMiddleware) SsoMiddleware(next http.Handler) http.Handler {
 		err = jwt.SigningMethodRS512.Verify(strings.Join(parts[0:2], "."), parts[2], s.PubKey)
 		if err != nil {
 			log.Error().Err(err).Msg("error while verifying key")
-			error_util.RenderError(w, r, err)
+			errutil.RenderError(w, r, err)
 			return
 		}
 
@@ -67,7 +67,7 @@ func (s *ssoMiddleware) SsoMiddleware(next http.Handler) http.Handler {
 		if ok && token.Valid {
 			fmt.Printf("User: %v Roles: %v Tok_Expires: %v \n", claims.Email, claims.Roles, claims.StandardClaims.ExpiresAt)
 
-			next.ServeHTTP(w,r)
+			next.ServeHTTP(w, r)
 
 		} else {
 			log.Error().Msg("invalid token")

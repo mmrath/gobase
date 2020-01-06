@@ -3,12 +3,13 @@ import {AuthGuardService} from '../../core/auth/auth-guard.service';
 import {NgModule} from '@angular/core';
 import {ProfileComponent} from './profile/profile.component';
 import {ChangePasswordComponent} from './change-password/change-password.component';
+import {LoginComponent} from './login/login.component';
+import {RegisterComponent} from './register/register.component';
+import {ActivationInstructionComponent} from './activation-instruction/activation-instruction.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: ProfileComponent,
-    canActivate: [AuthGuardService],
     children: [
       {
         path: '',
@@ -18,13 +19,30 @@ const routes: Routes = [
       {
         path: 'profile',
         component: ProfileComponent,
+        canActivate: [AuthGuardService],
         data: {title: 'app.account.menu.profile'}
+      },
+      {
+        path: 'login',
+        component: LoginComponent,
+        data: {title: 'app.account.menu.login'}
+      },
+      {
+        path: 'register',
+        component: RegisterComponent,
+        data: {title: 'app.account.menu.register'}
       },
       {
         path: 'change-password',
         component: ChangePasswordComponent,
+        canActivate: [AuthGuardService],
         data: {title: 'app.account.menu.change-password'}
-      }
+      },
+      {
+        path: 'activation-instruction',
+        component: ActivationInstructionComponent,
+        data: {title: 'app.account.menu.activation-message'}
+      },
     ]
   }
 ];

@@ -10,6 +10,7 @@ import (
 	"github.com/mmrath/gobase/go/apps/clipo/internal/config"
 	"github.com/mmrath/gobase/go/pkg/auth"
 	"github.com/mmrath/gobase/go/pkg/email"
+	"github.com/rotisserie/eris"
 )
 
 // Injectors from wire.go:
@@ -18,7 +19,7 @@ func BuildServer(config2 config.Config, mailer email.Mailer) (*Server, error) {
 	notifier := NewNotifier(config2, mailer)
 	db, err := NewDB(config2)
 	if err != nil {
-		return nil, err
+		return nil, eris.Wrapf(err, "unable to create db connection")
 	}
 	service := account.NewService(notifier, db)
 	handler := account.NewHandler(service)
@@ -26,11 +27,11 @@ func BuildServer(config2 config.Config, mailer email.Mailer) (*Server, error) {
 	jwtService := auth.NewJWTService(jwtConfig)
 	mux, err := NewMux(config2, handler, jwtService)
 	if err != nil {
-		return nil, err
+		return nil, eris.Wrapf(err, "unable to create http router")
 	}
 	server, err := NewServer(config2, mux)
 	if err != nil {
-		return nil, err
+		return nil, eris.Wrapf(err, "unable to create server")
 	}
 	return server, nil
 }
@@ -41,6 +42,6 @@ func ProvideJWTConfig(config2 config.Config) auth.JWTConfig {
 	return config2.JWT
 }
 
-func ProvideSMTPConfig(config2  config.Config) email.SMTPConfig {
+func ProvideSMTPConfig(config2 config.Config) email.SMTPConfig {
 	return config2.SMTP
 }

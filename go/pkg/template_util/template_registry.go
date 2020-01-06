@@ -10,9 +10,7 @@ import (
 	"strings"
 
 	"github.com/rs/zerolog/log"
-
-	"github.com/mmrath/gobase/go/pkg/error_util"
-)
+	)
 
 type Registry struct {
 	templates *template.Template
@@ -35,7 +33,7 @@ func (t *Registry) Get(name string) *template.Template {
 func BuildRegistry(templateDir string) (*Registry, error) {
 	tmpl, err := findAndParseTemplates(templateDir, template.FuncMap{})
 	if err != nil {
-		return nil, error_util.NewInternal(err, "failed to load template")
+		return nil, errutil.Wrap(err, "failed to load template")
 	}
 	return &Registry{templates: tmpl}, nil
 }

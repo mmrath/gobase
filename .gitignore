@@ -6,6 +6,7 @@ bazel-*
 dist/
 /target/
 /build/
+/bin/
 **/*.rs.bk
 /.idea/
 *.iml
@@ -15,6 +16,8 @@ cmake-build-debug
 logs/
 log/
 bin/
+
+.cache
 
 **/target/**/*
 .DS_Store

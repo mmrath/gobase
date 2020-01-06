@@ -1,0 +1,39 @@
+<div class="login-wrapper d-flex justify-content-center" *ngIf="!submitSuccess">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Register</mat-card-title>
+    </mat-card-header>
+
+    <form class="login-form" [formGroup]="form" (ngSubmit)="register()">
+      <mat-card-content>
+        <mat-form-field class="w-100">
+          <input matInput placeholder="First Name" formControlName="firstName">
+          <mat-error appFieldError [control]="form.controls.firstName"></mat-error>
+        </mat-form-field>
+        <mat-form-field class="w-100" formFieldContainer>
+          <input matInput placeholder="Last Name" formControlName="lastName">
+        </mat-form-field>
+        <mat-form-field class="w-100" formFieldContainer>
+          <input matInput placeholder="Email" formControlName="email">
+          <mat-error appFieldError [control]="form.controls.email"></mat-error>
+        </mat-form-field>
+        <mat-form-field class="w-100" formFieldContainer>
+          <input matInput type="password" placeholder="Password" formControlName="password">
+          <mat-error appFieldError [control]="form.controls.password"></mat-error>
+        </mat-form-field>
+      </mat-card-content>
+      <button
+        mat-stroked-button
+        color="accent"
+        class="w-100">Register</button>
+      <div class="mt-2">
+        <p>
+          Already have an account? <a routerLink="/account/login" class="">Login</a>
+        </p>
+      </div>
+    </form>
+  </mat-card>
+</div>
+<div *ngIf="submitSuccess">
+  Account registered successfully. Please check your account and activate.
+</div>

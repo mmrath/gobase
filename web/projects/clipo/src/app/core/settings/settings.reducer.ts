@@ -16,7 +16,7 @@ export const initialState: SettingsState = {
   theme: 'DEFAULT-THEME',
   autoNightMode: false,
   nightTheme: NIGHT_MODE_THEME,
-  stickyHeader: true,
+  stickyHeader: false,
   pageAnimations: true,
   pageAnimationsDisabled: false,
   elementsAnimations: true,

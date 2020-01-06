@@ -3,7 +3,6 @@ package cmd
 import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-	"github.com/mmrath/gobase/go/apps/uaa/internal/account"
 	"github.com/mmrath/gobase/go/apps/uaa/internal/auth"
 	"github.com/mmrath/gobase/go/apps/uaa/internal/config"
 	"github.com/mmrath/gobase/go/apps/uaa/internal/static"
@@ -12,7 +11,7 @@ import (
 	"time"
 )
 
-func BuildHttpServer(cfg *config.Config, sso *auth.Service, accountHandler *account.Handler) (*http.Server, error){
+func BuildHttpServer(cfg *config.Config, sso *auth.Service) (*http.Server, error) {
 	r := chi.NewRouter()
 
 	r.Use(middleware.Recoverer)
@@ -41,7 +40,6 @@ func BuildHttpServer(cfg *config.Config, sso *auth.Service, accountHandler *acco
 		files, _ = static.WalkDirs("web", true)
 		log.Info().Interface("web files", files).Msg("all")
 
-
 		r.Get("/sso", auth.SsoGetHandler(static.HTTP))
 		r.Post("/sso", auth.SsoPostHandler(sso))
 		r.Post("/token", auth.TokenHandler(sso))
@@ -49,10 +47,6 @@ func BuildHttpServer(cfg *config.Config, sso *auth.Service, accountHandler *acco
 
 		r.Group(func(r chi.Router) {
 
-			r.Post("/account/sign-up", accountHandler.SignUp())
-			r.Get("/account/activate", accountHandler.Activate())
-			r.Post("/account/reset-password/init", accountHandler.InitPasswordReset())
-			r.Post("/account/reset-password/finish", accountHandler.ResetPassword())
 		})
 
 		r.Get("/*", http.FileServer(static.HTTP).ServeHTTP)
@@ -64,5 +58,5 @@ func BuildHttpServer(cfg *config.Config, sso *auth.Service, accountHandler *acco
 		Addr:    cfg.Web.Port,
 		Handler: r,
 	}
-	return &srv,nil
+	return &srv, nil
 }

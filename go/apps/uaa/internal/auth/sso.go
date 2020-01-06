@@ -42,7 +42,6 @@ func NewSSO(cfg config.AuthConfig) (*Service, error) {
 
 }
 
-
 func (m *Service) Auth(username string, password string) (User, []string, error) {
 	if "foo@bar.com" == username && "password" == password {
 		return User{UID: "123213", Email: username}, []string{"g1", "g2"}, nil
