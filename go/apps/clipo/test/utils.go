@@ -26,3 +26,10 @@ func (m *MockMailer) PopLastMessage() *email.Message {
 	msg, m.messages = m.messages[len(m.messages)-1], m.messages[:len(m.messages)-1]
 	return msg
 }
+
+
+type MailMessage struct {
+	To []string
+	Subject []string
+	Body string
+}

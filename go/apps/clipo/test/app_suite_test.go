@@ -1,62 +1,58 @@
 package test
 
 import (
-	"context"
-	"github.com/mmrath/gobase/go/apps/clipo/cmd"
-	"github.com/mmrath/gobase/go/pkg/db"
+	"database/sql"
+	"fmt"
+	"github.com/mmrath/gobase/go/pkg/email"
 	"log"
-	"net/http/httptest"
-	"path/filepath"
-	"runtime"
+	"os"
 	"time"
 
-	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
 
 type TestSuite struct {
 	suite.Suite
-	db     *db.DB
-	mailer *MockMailer
-	server *httptest.Server
-	cfg    cmd.Config
+	ClipoURL    string
+	db          *sql.DB
+	EmailClient interface {
+		GetLatestEmail(emailId string) *email.Message
+	}
 }
 
 // SetupSuite setup at the beginning of test
 func (s *TestSuite) SetupSuite() {
+	db, err := sql.Open("postgres", os.Getenv("DB_URL"))
 
-	_, file, _, _ := runtime.Caller(0)
-
-	root := filepath.Dir(filepath.Dir(file))
-	configRoot := filepath.Join(root, "resources")
-
-	cfg := cmd.LoadConfig(configRoot, "test")
-
-	mailer, err := NewMockMailer()
-	require.NoError(s.T(), err)
-	s.mailer = mailer
-	db, err := db.Open(cfg.DB)
-	require.NoError(s.T(), err)
+	if err != nil {
+		fmt.Printf("Failed to connect to DB %v", err)
+		panic(err)
+	}
 
 	s.db = db
-	s.cfg = cfg
+	s.ClipoURL = os.Getenv("CLIPO_URL")
+	mailURL := os.Getenv("EMAIL_URL")
 
-	server, err := cmd.BuildServer(cfg, mailer)
-	require.NoError(s.T(), err)
-	s.server = httptest.NewServer(server.Handler)
+	if s.ClipoURL == "" {
+		panic("CLIPO_URL is not set")
+	}
+
+	if mailURL == "" {
+		panic("EMAIL_URL is not set")
+	}
+
+	s.EmailClient = NewTestEmailClient(mailURL)
 }
 
 // TearDownSuite teardown at the end of test
 func (s *TestSuite) TearDownSuite() {
-	defer s.server.Close()
 }
 
 func (s *TestSuite) SetupTest() {
-	cleanDB(s.db)
-	createTestUser(s.db)
+	//Task before each case is run
 }
 
-func cleanDB(db *db.DB) {
+func cleanDB(db *sql.DB) {
 	defer timeTrack(time.Now(), "truncate tables")
 	stmts := []string{
 		"TRUNCATE TABLE role_permission CASCADE",
@@ -81,7 +77,7 @@ func cleanDB(db *db.DB) {
 	executeStmts(db, stmts)
 }
 
-func createTestUser(db *db.DB) {
+func createTestUser(db *sql.DB) {
 	defer timeTrack(time.Now(), "create test user")
 	stmts := []string{
 		`INSERT INTO public.user_account(
@@ -91,33 +87,26 @@ func createTestUser(db *db.DB) {
 	executeStmts(db, stmts)
 }
 
-func executeStmts(gormdb *db.DB, stmts []string) {
-	_ = gormdb.RunInTx(context.Background(), func(tx *db.Tx) error {
-		for _, stmt := range stmts {
-			err := tx.Exec(stmt).Error
-			if err != nil {
-				log.Printf("Error executing statement %s", stmt)
-				tx.Rollback()
-				panic(err)
-			}
-		}
-		return nil
-	})
-}
-
-func execStmt(gormdb *db.DB, stmt string, values ...interface{}) error {
-	err := gormdb.RunInTx(context.Background(), func(tx *db.Tx) error {
-		err := tx.Exec(stmt, values).Error
+func executeStmts(db *sql.DB, stmts []string) {
+	for _, stmt := range stmts {
+		_, err := db.Exec(stmt)
 		if err != nil {
 			log.Printf("Error executing statement %s", stmt)
-			return err
+			panic(err)
 		}
-		return nil
-	})
+	}
+}
+
+func execStmt(db *sql.DB, stmt string, values ...interface{}) error {
+	_, err := db.Exec(stmt, values)
 	return err
 }
 
 func timeTrack(start time.Time, name string) {
 	elapsed := time.Since(start)
 	log.Printf("%s took %s", name, elapsed)
+}
+
+func (s *TestSuite) PopLastMessage(email string) MailMessage {
+	return MailMessage{}
 }

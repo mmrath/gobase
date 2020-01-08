@@ -2,7 +2,7 @@ package test
 
 import (
 	"bytes"
-	"github.com/mmrath/gobase/go/pkg/auth"
+	"crypto/rsa"
 	"github.com/mmrath/gobase/go/pkg/crypto"
 	"log"
 	"net/http"
@@ -26,7 +26,7 @@ func TestAccountSuite(t *testing.T) {
 }
 
 func (s *AccountTestSuite) TestPing() {
-	resp, err := http.Get(s.server.URL + "/ping")
+	resp, err := http.Get(s.ClipoURL + "/ping")
 	require.NoError(s.T(), err)
 	require.Equal(s.T(), 200, resp.StatusCode)
 
@@ -38,7 +38,7 @@ func (s *AccountTestSuite) TestPing() {
 }
 
 func (s *AccountTestSuite) TestSignUpActivateAndLogin() {
-	he := httpexpect.New(s.T(), s.server.URL)
+	he := httpexpect.New(s.T(), s.ClipoURL)
 	testEmail := "test@example.com"
 	testPassword := "Secret123"
 	registerRequest := map[string]interface{}{
@@ -53,7 +53,7 @@ func (s *AccountTestSuite) TestSignUpActivateAndLogin() {
 		Status(http.StatusOK)
 
 	// Login should throw an error now
-	msg := s.mailer.PopLastMessage()
+	msg := s.EmailClient.GetLatestEmail(testEmail)
 	require.NotNil(s.T(), msg)
 	require.Equal(s.T(), "Activate your account", msg.Subject)
 	require.Equal(s.T(), registerRequest["email"], msg.To[0].Email)
@@ -77,8 +77,10 @@ func (s *AccountTestSuite) TestSignUpActivateAndLogin() {
 	resp.Status(http.StatusOK)
 	token := resp.Header("Authorization").Match("Bearer (.*)").Raw()[1]
 
-	jwtService := auth.NewJWTService(s.cfg.JWT)
-	jwtToken, err := jwtService.Decode(token)
+	var jwtPublicKey *rsa.PublicKey
+	jwtToken, err := jwt.Parse(token, func(token *jwt.Token) (i interface{}, err error) {
+		return jwtPublicKey,nil
+	})
 	require.NoError(s.T(), err)
 	err = jwtToken.Claims.Valid()
 	require.NoError(s.T(), err)
@@ -88,7 +90,7 @@ func (s *AccountTestSuite) TestSignUpActivateAndLogin() {
 }
 
 func (s *AccountTestSuite) TestSignUpWithInvalidEmail() {
-	he := httpexpect.New(s.T(), s.server.URL)
+	he := httpexpect.New(s.T(), s.ClipoURL)
 	signupRequest := map[string]interface{}{
 		"firstName": "Murali",
 		"lastName":  "Rath",
@@ -102,7 +104,7 @@ func (s *AccountTestSuite) TestSignUpWithInvalidEmail() {
 }
 
 func (s *AccountTestSuite) TestSignUpWithDuplicateEmail() {
-	he := httpexpect.New(s.T(), s.server.URL)
+	he := httpexpect.New(s.T(), s.ClipoURL)
 	signupRequest := map[string]interface{}{
 		"firstName": "Murali",
 		"lastName":  "Rath",
@@ -121,7 +123,7 @@ func (s *AccountTestSuite) TestSignUpWithDuplicateEmail() {
 }
 
 func (s *AccountTestSuite) TestSignUpWithInvalidPassword() {
-	he := httpexpect.New(s.T(), s.server.URL)
+	he := httpexpect.New(s.T(), s.ClipoURL)
 	signupRequest := map[string]interface{}{
 		"firstName": "Murali",
 		"lastName":  "Rath",
@@ -137,7 +139,7 @@ func (s *AccountTestSuite) TestSignUpWithInvalidPassword() {
 }
 
 func (s *AccountTestSuite) TestSignUpWithLongPassword() {
-	he := httpexpect.New(s.T(), s.server.URL)
+	he := httpexpect.New(s.T(), s.ClipoURL)
 	signupRequest := map[string]interface{}{
 		"firstName": "Murali",
 		"lastName":  "Rath",
@@ -150,7 +152,7 @@ func (s *AccountTestSuite) TestSignUpWithLongPassword() {
 }
 
 func (s *AccountTestSuite) TestSignUpWithTooLongPassword() {
-	he := httpexpect.New(s.T(), s.server.URL)
+	he := httpexpect.New(s.T(), s.ClipoURL)
 	signupRequest := map[string]interface{}{
 		"firstName": "Murali",
 		"lastName":  "Rath",
@@ -165,7 +167,7 @@ func (s *AccountTestSuite) TestSignUpWithTooLongPassword() {
 }
 
 func (s *AccountTestSuite) TestActivateWithWrongKey() {
-	he := httpexpect.New(s.T(), s.server.URL)
+	he := httpexpect.New(s.T(), s.ClipoURL)
 	resp := he.GET("/api/account/activate").
 		WithQuery("key", "wrong-key").
 		Expect().
@@ -175,7 +177,7 @@ func (s *AccountTestSuite) TestActivateWithWrongKey() {
 
 func (s *AccountTestSuite) TestResetPassword() {
 	testEmail := "testuser@localhost"
-	he := httpexpect.New(s.T(), s.server.URL)
+	he := httpexpect.New(s.T(), s.ClipoURL)
 	initResetRequest := map[string]interface{}{
 		"email": testEmail,
 	}
@@ -184,10 +186,10 @@ func (s *AccountTestSuite) TestResetPassword() {
 	resp.Status(http.StatusOK)
 
 	// Login should throw an error now
-	msg := s.mailer.PopLastMessage()
+	msg := s.EmailClient.GetLatestEmail(testEmail)
 	require.NotNil(s.T(), msg)
 	require.Equal(s.T(), "Reset password", msg.Subject)
-	require.Equal(s.T(), initResetRequest["email"], msg.To[0].Email)
+	require.Equal(s.T(), initResetRequest["email"], msg.To[0])
 
 	re := regexp.MustCompile("/account/reset-password\\?key=([0-9a-f\\-]+)")
 	key := re.FindStringSubmatch(msg.Html)[1]
@@ -205,11 +207,14 @@ func (s *AccountTestSuite) TestResetPassword() {
 	resp = he.POST("/api/account/login").
 		WithJSON(model.LoginRequest{Email: testEmail, Password: "Secret123"}).
 		Expect()
+
 	resp.Status(http.StatusOK)
 	token := resp.Header("Authorization").Match("Bearer (.*)").Raw()[1]
 
-	jwtService := auth.NewJWTService(s.cfg.JWT)
-	jwtToken, err := jwtService.Decode(token)
+	var jwtPublicKey *rsa.PublicKey
+	jwtToken, err := jwt.Parse(token, func(token *jwt.Token) (i interface{}, err error) {
+		return jwtPublicKey,nil
+	})
 	require.NoError(s.T(), err)
 	err = jwtToken.Claims.Valid()
 	require.NoError(s.T(), err)
@@ -221,7 +226,7 @@ func (s *AccountTestSuite) TestResetPassword() {
 
 func (s *AccountTestSuite) TestWithWrongUsername() {
 	testEmail := "none@gobase.mmrath.com"
-	he := httpexpect.New(s.T(), s.server.URL)
+	he := httpexpect.New(s.T(), s.ClipoURL)
 
 	resp := he.POST("/api/account/login").
 		WithJSON(model.LoginRequest{Email: testEmail, Password: "Secret123"}).
@@ -236,7 +241,7 @@ func (s *AccountTestSuite) TestWithWrongPassword() {
 
 	s.createUser(testEmail, "Secret123")
 
-	he := httpexpect.New(s.T(), s.server.URL)
+	he := httpexpect.New(s.T(), s.ClipoURL)
 
 	resp := he.POST("/api/account/login").
 		WithJSON(model.LoginRequest{Email: testEmail, Password: "incorrectPassword"}).
@@ -251,7 +256,7 @@ func (s *AccountTestSuite) TestChangePassword() {
 	password := "Secret123"
 	newPassword := "NewSecret123"
 	s.createUser(testEmail, "Secret123")
-	he := httpexpect.New(s.T(), s.server.URL)
+	he := httpexpect.New(s.T(), s.ClipoURL)
 
 	resp := he.POST("/api/account/login").
 		WithJSON(model.LoginRequest{Email: testEmail, Password: password}).

@@ -2,7 +2,11 @@ package auth
 
 import (
 	"context"
+	"crypto/rsa"
+	"github.com/mmrath/gobase/go/pkg/errutil"
+	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -15,10 +19,11 @@ type userIdKeyType int
 var userIdKey userIdKeyType
 
 type JWTConfig struct {
-	Secret         string        `mapstructure:"secret" yaml:"secret"`
-	ExpiryDuration time.Duration `envconfig:"default=30m" mapstructure:"expiryDuration" yaml:"expiryDuration"`
-	CookieName     string        `envconfig:"default=AUTH_TOKEN" mapstructure:"cookieName" yaml:"cookieName"`
-	PubKeyPath     string        `envconfig:"optional" mapstructure:"pubKeyPath" yaml:"pubKeyPath"`
+	CookieName            string        `default:"jwt" split_words:"true"`
+	CookieDomain          string        `split_words:"true"`
+	TokenValidityDuration time.Duration `default:"7d" split_words:"true"`
+	PrivateKeyPath        string        `split_words:"true"`
+	PublicKeyPath         string        `split_words:"true"`
 }
 
 type JWTService interface {
@@ -35,19 +40,59 @@ type Principal interface {
 }
 
 type jwtService struct {
-	config    JWTConfig
-	tokenAuth *jwtauth.JWTAuth
+	cookieName            string
+	cookieDomain          string
+	tokenValidityDuration time.Duration
+	privateKey            *rsa.PrivateKey
+	publicKey             *rsa.PublicKey
+	jwtAuth               *jwtauth.JWTAuth
 }
 
-func NewJWTService(config JWTConfig) JWTService {
-	return &jwtService{config: config, tokenAuth: jwtauth.New("HS256", []byte(config.Secret), nil)}
+func NewJWTService(config JWTConfig) (JWTService, error) {
+
+	privateKeyData, err := ioutil.ReadFile(config.PrivateKeyPath)
+	if err != nil {
+		return nil, errutil.Wrap(err, "failed to read jwt private key")
+	}
+	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM(privateKeyData)
+	if err != nil {
+		return nil, errutil.Wrap(err, "jwt rsa private key is invalid")
+	}
+
+	publicKeyData, err := ioutil.ReadFile(config.PublicKeyPath)
+	if err != nil {
+		return nil, errutil.Wrap(err, "failed to read jwt public key")
+	}
+
+	publicKey, err := jwt.ParseRSAPublicKeyFromPEM(publicKeyData)
+	if err != nil {
+		return nil, errutil.Wrap(err, "jwt rsa public  key is invalid")
+	}
+
+	return &jwtService{
+		cookieName:            config.CookieName,
+		cookieDomain:          config.CookieDomain,
+		tokenValidityDuration: config.TokenValidityDuration,
+		privateKey:            privateKey,
+		publicKey:             publicKey,
+		jwtAuth:               jwtauth.New("RS512", privateKey, publicKey)}, nil
 }
 func (s *jwtService) Verifier() func(http.Handler) http.Handler {
-	return jwtauth.Verifier(s.tokenAuth)
+	return jwtauth.Verifier(s.jwtAuth)
 }
 
 func (s *jwtService) Decode(tokenString string) (t *jwt.Token, err error) {
-	return s.tokenAuth.Decode(tokenString)
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+			return nil, errutil.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+		return s.publicKey, nil
+	})
+
+	if err != nil {
+		return nil, errutil.Wrap(err, "failed to parse jwt token")
+	}
+	return token,nil
 }
 
 func UserIdFromContext(ctx context.Context) int64 {
@@ -68,7 +113,7 @@ type Claims struct {
 func (s *jwtService) NewToken(user Principal) (string, error) {
 	now := time.Now()
 	iat := now.Unix()
-	exp := now.Add(s.config.ExpiryDuration).Unix()
+	exp := now.Add(s.tokenValidityDuration).Unix()
 
 	claims := &Claims{
 		UserId: user.GetId(),
@@ -80,9 +125,12 @@ func (s *jwtService) NewToken(user Principal) (string, error) {
 			Subject:   user.GetEmail(),
 		},
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte(s.config.Secret))
-	return tokenString, err
+	token := jwt.NewWithClaims(jwt.SigningMethodRS512, claims)
+	tokenString, err := token.SignedString(s.privateKey)
+	if err != nil {
+		return "", errutil.Wrap(err, "failed to sign jwt token")
+	}
+	return tokenString, nil
 }
 
 func (s *jwtService) Authenticator(next http.Handler) http.Handler {
@@ -111,4 +159,20 @@ func (s *jwtService) Authenticator(next http.Handler) http.Handler {
 		// Token is authenticated, pass it through
 		next.ServeHTTP(w, req)
 	})
+}
+
+
+func fromAuthHeader(r *http.Request) (string, error) {
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		return "", nil // No error, just no token
+	}
+
+	// TODO: Make this a bit more robust, parsing-wise
+	authHeaderParts := strings.Fields(authHeader)
+	if len(authHeaderParts) != 2 || strings.ToLower(authHeaderParts[0]) != "bearer" {
+		return "", errutil.New("Authorization header format must be Bearer {token}")
+	}
+
+	return authHeaderParts[1], nil
 }

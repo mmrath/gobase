@@ -75,12 +75,13 @@ services:
     volumes:
       - .:/root:cached
 
-  mailhog:
-    image: mailhog/mailhog:latest
+  mail:
+    image: inbucket/inbucket:latest
     restart: always
     ports:
-      - 1025:1025
-      - 8025:8025
+      - 1100:1100
+      - 8025:9000
+      - 2500:2500
 
 volumes:
   pg_data:
