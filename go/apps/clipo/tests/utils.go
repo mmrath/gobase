@@ -1,4 +1,4 @@
-package test
+package tests
 
 import (
 	"github.com/mmrath/gobase/go/pkg/email"

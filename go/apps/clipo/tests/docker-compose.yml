@@ -1,29 +1,6 @@
 version: "3"
 
 services:
-  clipo-web:
-    image: node:lts
-    command: sh -c "yarn && yarn start clipo --proxy-config proxy.conf.js"
-    environment:
-      - NODE_ENV=development
-      - API_PROXY=http://clipo:9010
-    ports:
-      - "8010:4200"
-    working_dir: /root/web
-    volumes:
-      - ./web:/root/web:cached
-
-  admin-web:
-    image: node:lts
-    command: sh -c "yarn && yarn start admin --proxy-config proxy.conf.js"
-    environment:
-      - NODE_ENV=development
-    ports:
-      - "8020:4200"
-    working_dir: /root/web
-    volumes:
-      - ./web:/root/web:cached
-
   clipo:
     image: golang:latest
     command: sh -c "./build-and-run.sh clipo"
@@ -54,8 +31,6 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
       - DATABASE_HOST=${DB_HOST}
-    volumes:
-      - pg_data:/var/lib/postgresql/data
 
   db-migration:
     image: golang:latest
@@ -83,5 +58,3 @@ services:
       - 8025:9000
       - 2500:2500
 
-volumes:
-  pg_data:

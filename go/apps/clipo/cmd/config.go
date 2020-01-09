@@ -5,7 +5,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func LoadConfig(profiles ...string) config.Config {
+func LoadConfig() config.Config {
 	cfg := config.Config{
 		Web: config.WebConfig{
 			Port: ":9010",

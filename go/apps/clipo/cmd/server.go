@@ -24,10 +24,6 @@ func NewDB(cfg config.Config) (*db.DB, error) {
 	return db.Open(cfg.DB)
 }
 
-func NewMailer(cfg config.Config) (email.Mailer, error) {
-	return email.NewMailer(cfg.SMTP)
-}
-
 func NewNotifier(cfg config.Config, mailer email.Mailer) account.Notifier {
 	return account.NewNotifier(cfg.Web.URL, mailer)
 }
