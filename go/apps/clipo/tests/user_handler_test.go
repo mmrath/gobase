@@ -3,6 +3,7 @@ package tests
 import (
 	"bytes"
 	"crypto/rsa"
+	"fmt"
 	"github.com/mmrath/gobase/go/pkg/crypto"
 	"log"
 	"net/http"
@@ -10,8 +11,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/brianvoe/gofakeit"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/gavv/httpexpect"
+	"github.com/gavv/httpexpect/v2"
 	"github.com/mmrath/gobase/go/pkg/model"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -39,20 +41,20 @@ func (s *AccountTestSuite) TestPing() {
 
 func (s *AccountTestSuite) TestSignUpActivateAndLogin() {
 	he := httpexpect.New(s.T(), s.ClipoURL)
-	testEmail := "test@example.com"
-	testPassword := "Secret123"
+	testEmail := gofakeit.Email()
+	testPassword := gofakeit.Password(true, true, true, true, true, 8)
 	registerRequest := map[string]interface{}{
-		"firstName": "Murali",
-		"lastName":  "Rath",
+		"firstName": gofakeit.FirstName(),
+		"lastName":  gofakeit.LastName(),
 		"email":     testEmail,
 		"password":  testPassword,
 	}
+	fmt.Printf("registering with data %v\n", registerRequest)
 	he.POST("/api/account/register").
 		WithJSON(registerRequest).
 		Expect().
 		Status(http.StatusOK)
 
-	// Login should throw an error now
 	msg := s.EmailClient.GetLatestEmail(testEmail)
 	require.NotNil(s.T(), msg)
 	require.Equal(s.T(), "Activate your account", msg.Subject)
@@ -79,7 +81,7 @@ func (s *AccountTestSuite) TestSignUpActivateAndLogin() {
 
 	var jwtPublicKey *rsa.PublicKey
 	jwtToken, err := jwt.Parse(token, func(token *jwt.Token) (i interface{}, err error) {
-		return jwtPublicKey,nil
+		return jwtPublicKey, nil
 	})
 	require.NoError(s.T(), err)
 	err = jwtToken.Claims.Valid()
@@ -92,10 +94,10 @@ func (s *AccountTestSuite) TestSignUpActivateAndLogin() {
 func (s *AccountTestSuite) TestSignUpWithInvalidEmail() {
 	he := httpexpect.New(s.T(), s.ClipoURL)
 	signupRequest := map[string]interface{}{
-		"firstName": "Murali",
-		"lastName":  "Rath",
-		"email":     "test234",
-		"password":  "Secret123",
+		"firstName": gofakeit.FirstName(),
+		"lastName":  gofakeit.LastName(),
+		"email":     "invalid_email",
+		"password":  gofakeit.Password(true, true, true, true, true, 8),
 	}
 	resp := he.POST("/api/account/register").WithJSON(signupRequest).Expect()
 	resp.Status(http.StatusBadRequest)
@@ -106,10 +108,10 @@ func (s *AccountTestSuite) TestSignUpWithInvalidEmail() {
 func (s *AccountTestSuite) TestSignUpWithDuplicateEmail() {
 	he := httpexpect.New(s.T(), s.ClipoURL)
 	signupRequest := map[string]interface{}{
-		"firstName": "Murali",
-		"lastName":  "Rath",
-		"email":     "test@example.com",
-		"password":  "Secret123",
+		"firstName": gofakeit.FirstName(),
+		"lastName":  gofakeit.LastName(),
+		"email":     gofakeit.Email(),
+		"password":  gofakeit.Password(true,true,true,true,true,8),
 	}
 	resp := he.POST("/api/account/register").WithJSON(signupRequest).Expect()
 	resp.Status(http.StatusOK)
@@ -127,8 +129,8 @@ func (s *AccountTestSuite) TestSignUpWithInvalidPassword() {
 	signupRequest := map[string]interface{}{
 		"firstName": "Murali",
 		"lastName":  "Rath",
-		"email":     "test@example.com",
-		"password":  "123", /// too short
+		"email":     gofakeit.Email(),
+		"password":  gofakeit.Password(true,true,true,true,false,5), /// too short
 	}
 	// 2nd Request
 	resp := he.POST("/api/account/register").WithJSON(signupRequest).Expect()
@@ -143,8 +145,8 @@ func (s *AccountTestSuite) TestSignUpWithLongPassword() {
 	signupRequest := map[string]interface{}{
 		"firstName": "Murali",
 		"lastName":  "Rath",
-		"email":     "test@example.com",
-		"password":  "12345678901234567890123456789012",
+		"email":     gofakeit.Email(),
+		"password":  gofakeit.Password(true,true,true,true,true,20),
 	}
 	// 2nd Request
 	resp := he.POST("/api/account/register").WithJSON(signupRequest).Expect()
@@ -156,8 +158,8 @@ func (s *AccountTestSuite) TestSignUpWithTooLongPassword() {
 	signupRequest := map[string]interface{}{
 		"firstName": "Murali",
 		"lastName":  "Rath",
-		"email":     "test@example.com",
-		"password":  "12345678901234567890123456789012232",
+		"email":     gofakeit.Email(),
+		"password":  gofakeit.Password(true,true,true,true,true,32),
 	}
 	// 2nd Request
 	resp := he.POST("/api/account/register").WithJSON(signupRequest).Expect()
@@ -176,7 +178,7 @@ func (s *AccountTestSuite) TestActivateWithWrongKey() {
 }
 
 func (s *AccountTestSuite) TestResetPassword() {
-	testEmail := "testuser@localhost"
+	testEmail := gofakeit.Email()
 	he := httpexpect.New(s.T(), s.ClipoURL)
 	initResetRequest := map[string]interface{}{
 		"email": testEmail,
@@ -213,7 +215,7 @@ func (s *AccountTestSuite) TestResetPassword() {
 
 	var jwtPublicKey *rsa.PublicKey
 	jwtToken, err := jwt.Parse(token, func(token *jwt.Token) (i interface{}, err error) {
-		return jwtPublicKey,nil
+		return jwtPublicKey, nil
 	})
 	require.NoError(s.T(), err)
 	err = jwtToken.Claims.Valid()
@@ -225,7 +227,7 @@ func (s *AccountTestSuite) TestResetPassword() {
 }
 
 func (s *AccountTestSuite) TestWithWrongUsername() {
-	testEmail := "none@gobase.mmrath.com"
+	testEmail := gofakeit.Email()
 	he := httpexpect.New(s.T(), s.ClipoURL)
 
 	resp := he.POST("/api/account/login").
@@ -237,9 +239,10 @@ func (s *AccountTestSuite) TestWithWrongUsername() {
 }
 
 func (s *AccountTestSuite) TestWithWrongPassword() {
-	testEmail := "none@gobase.mmrath.com"
-
-	s.createUser(testEmail, "Secret123")
+	testEmail := gofakeit.Email()
+	password := gofakeit.Password(true,true,true,true,true,8)
+	s.createUser(testEmail, password)
+	defer s.deleteUser(testEmail)
 
 	he := httpexpect.New(s.T(), s.ClipoURL)
 
@@ -248,26 +251,32 @@ func (s *AccountTestSuite) TestWithWrongPassword() {
 		Expect()
 	resp.Status(http.StatusUnauthorized)
 	_ = resp.Header("Authorization").NotMatch("Bearer (.*)")
-	resp.JSON().Path("$.details.cause").Equal("invalid email or password")
+	resp.Text().Contains("invalid email or password")
 }
 
 func (s *AccountTestSuite) TestChangePassword() {
-	testEmail := "testuser1@localhost"
-	password := "Secret123"
-	newPassword := "NewSecret123"
-	s.createUser(testEmail, "Secret123")
+	testEmail := gofakeit.Email()
+	password := gofakeit.Password(true,true,true,true,true,8)
+	newPassword := gofakeit.Password(true,true,true,true,true,10)
+	s.createUser(testEmail, password)
+	defer s.deleteUser(testEmail)
+
 	he := httpexpect.New(s.T(), s.ClipoURL)
 
 	resp := he.POST("/api/account/login").
 		WithJSON(model.LoginRequest{Email: testEmail, Password: password}).
 		Expect()
 	resp.Status(http.StatusOK)
+
+	fmt.Printf("Cookies %v", resp.Cookies().Iter())
+	jwtCookie := resp.Cookie("jwt").Value().Raw()
 	token := resp.Header("Authorization").Match("Bearer (.*)").Raw()[1]
 	require.NotNil(s.T(), token)
 
 	resp = he.POST("/api/account/change-password").
 		WithJSON(model.ChangePasswordRequest{CurrentPassword: password, NewPassword: newPassword}).
 		WithHeader("Authorization", "Bearer "+token).
+		WithCookie("jwt", jwtCookie).
 		Expect()
 	resp.Status(http.StatusOK)
 
@@ -276,7 +285,7 @@ func (s *AccountTestSuite) TestChangePassword() {
 		WithJSON(model.LoginRequest{Email: testEmail, Password: password}).
 		Expect()
 	resp.Status(http.StatusUnauthorized)
-	resp.JSON().Path("$.details.cause").Equal("invalid email or password")
+	resp.Text().Contains("invalid email or password")
 
 	// Try with the new password
 	resp = he.POST("/api/account/login").
@@ -291,26 +300,29 @@ func (s *AccountTestSuite) TestChangePassword() {
 func (s *AccountTestSuite) createUser(email string, password string) {
 	stmts := []string{
 		`INSERT INTO public.user_account(
-	first_name, last_name, email, phone_number, active, created_at, created_by, updated_at, updated_by, version)
-	VALUES ('Test', 'Test', ?, NULL, true, current_timestamp, 'test', current_timestamp, 'test', 1) RETURNING ID`,
+	first_name, last_name, email, phone_number, active, updated_at, updated_by, version)
+	VALUES ('Test', 'Test', $1, NULL, true, current_timestamp, 'test', 1) RETURNING ID`,
 		`INSERT INTO public.user_credential(
 	id, password_hash, expires_at, invalid_attempts, locked, activation_key, activation_key_expires_at, activated, reset_key, reset_key_expires_at, reset_at, updated_at, version)
-	SELECT id, ?, ?, 0, false, null, null, true, NULL, NULL, NULL, current_timestamp, 1 FROM user_account where email = ?`,
+	SELECT id, $1, $2, 0, false, null, null, true, NULL, NULL, NULL, current_timestamp, 1 FROM user_account where email = $3`,
 	}
 
-	err := execStmt(s.db, stmts[0], email)
-	if err != nil {
-		log.Printf("Error executing statement %s", stmts[0])
-		panic(err)
-	}
+	mustExecStmt(s.db, stmts[0], email)
 	passwordHash, err := crypto.HashPassword(crypto.SHA256([]byte(password)))
 	if err != nil {
 		log.Printf("Error hasing password")
 		panic(err)
 	}
-	err = execStmt(s.db, stmts[1], passwordHash, time.Now().Add(time.Second*1200), email)
-	if err != nil {
-		log.Printf("Error creating credentials")
-		panic(err)
+	mustExecStmt(s.db, stmts[1], passwordHash, time.Now().Add(time.Second*1200), email)
+}
+
+func (s *AccountTestSuite) deleteUser(email string) {
+	stmts := []string{
+		`DELETE FROM user_credential WHERE id = (SELECT id FROM user_account where email = $1)`,
+		`DELETE FROM user_account WHERE email = $1`,
 	}
+
+	mustExecStmt(s.db, stmts[0], email)
+	mustExecStmt(s.db, stmts[1], email)
+
 }

@@ -81,11 +81,11 @@ FORCE:
 .PHONY: test testrace vet fmt lint testall
 
 generate_certs:
-	@mkdir -p dist/ssl_certs
+	@mkdir -p dist/jwt_certs
 	@mkdir -p dist/key_pair
 	@openssl req \
-         -newkey rsa:2048 -nodes -keyout dist/ssl_certs/ssl_private.key \
-         -x509 -days 365 -out dist/ssl_certs/ssl_public.crt \
+         -newkey rsa:2048 -nodes -keyout dist/jwt_certs/private.key \
+         -x509 -days 365 -out dist/jwt_certs/public.crt \
          -subj "/C=AU/ST=NSW/L=Sydney/O=Sample SSL Certificate/CN=localhost"
 	@openssl req \
          -newkey rsa:2048 -nodes -keyout dist/key_pair/sso_private.key \

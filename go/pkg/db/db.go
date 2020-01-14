@@ -28,6 +28,8 @@ func Open(cfg Config) (*DB, error) {
 	log.Info().Msg("trying to connect to db")
 	db, err := gorm.Open("postgres", cfg.URL())
 
+	db.SingularTable(true)
+
 	if err != nil {
 		return nil, eris.Wrapf(err, "failed to open connection")
 	}

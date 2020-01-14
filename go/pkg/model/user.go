@@ -18,7 +18,7 @@ type User struct {
 }
 
 func (User) TableName() string {
-	return "app_user"
+	return "user_account"
 }
 
 func (u *User) GetName() string {
@@ -88,6 +88,10 @@ func (s *RegisterAccountRequest) Validate() error {
 }
 
 type userDao struct {
+}
+
+func NewUserDao() UserDao {
+	return &userDao{}
 }
 
 type UserDao interface {

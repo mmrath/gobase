@@ -9,7 +9,7 @@ import (
 
 type Config struct {
 	DB           db.Config
-	MigrationDir string
+	MigrationDir string `split_words:"true" required:"true"`
 }
 
 func LoadConfig() Config {

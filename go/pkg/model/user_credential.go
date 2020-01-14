@@ -104,7 +104,7 @@ func (dao *userCredentialDao) ResetPassword(tx *db.Tx, id int64, newPassword str
 }
 
 func (dao *userCredentialDao) ChangePassword(tx *db.Tx, id int64, newPassword string) error {
-	userCred := UserCredential{ID: id, PasswordHash: newPassword}
+	userCred := UserCredential{ID: id}
 	err := tx.Model(&userCred).
 		Updates(map[string]interface{}{
 			"password_hash":    newPassword,

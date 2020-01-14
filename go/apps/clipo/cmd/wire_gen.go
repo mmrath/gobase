@@ -2,14 +2,13 @@ package cmd
 
 import (
 	"github.com/mmrath/gobase/go/apps/clipo/internal/account"
-	"github.com/mmrath/gobase/go/apps/clipo/internal/config"
 	"github.com/mmrath/gobase/go/pkg/auth"
 	"github.com/mmrath/gobase/go/pkg/email"
 	"github.com/mmrath/gobase/go/pkg/errutil"
 )
 
-func BuildServer(config2 config.Config) (*Server, error) {
-
+func BuildServer() (*Server, error) {
+	config2 := LoadConfig()
 	mailer, err := email.NewMailer(config2.SMTP)
 	if err != nil {
 		return nil, errutil.Wrapf(err, "failed to build mailer")

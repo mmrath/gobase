@@ -1,6 +1,7 @@
 package errutil
 
 import (
+	"errors"
 	"fmt"
 	"github.com/go-chi/render"
 	validation "github.com/go-ozzo/ozzo-validation"
@@ -59,7 +60,7 @@ func NewFieldError(fieldErrors ...FieldError) error {
 
 func RenderError(w http.ResponseWriter, r *http.Request, err error) {
 
-	if  e, ok := err.(validation.Errors); ok  {
+	if e, ok := err.(validation.Errors); ok {
 		var result []FieldError
 		for k, v := range e {
 			result = append(result, FieldError{Field: k, Message: v.Error()})
@@ -68,8 +69,15 @@ func RenderError(w http.ResponseWriter, r *http.Request, err error) {
 		render.JSON(w, r, result)
 		return
 	}
+
+	if errors.Is(err, Unauthorized) {
+		render.Status(r, http.StatusUnauthorized)
+		render.PlainText(w, r, err.Error())
+		return
+	}
+
 	log.Error().Err(err).Send()
 	render.Status(r, 500)
-	render.PlainText(w,r,err.Error())
+	render.PlainText(w, r, err.Error())
 	return
 }

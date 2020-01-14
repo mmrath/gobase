@@ -26,7 +26,12 @@ type Service struct {
 }
 
 func NewService(notifier Notifier, db *db.DB) *Service {
-	return &Service{notifier: notifier, db: db}
+	return &Service{
+		notifier:          notifier,
+		db:                db,
+		userCredentialDao: model.NewUserCredentialDao(),
+		userDao:           model.NewUserDao(),
+	}
 }
 
 func (s *Service) Activate(token string) error {
@@ -70,11 +75,12 @@ func (s *Service) Login(login model.LoginRequest) (user model.User, err error) {
 		return
 	}
 
+	invalidCredentialMsg := "invalid email or password"
 	err = s.db.RunInTx(context.Background(), func(tx *db.Tx) error {
 		user, err = s.userDao.FindByEmail(tx, login.Email)
 		if err != nil {
 			if db.IsNoDataFound(err) {
-				return errutil.NewUnauthorized("invalid email or password")
+				return errutil.NewUnauthorized(invalidCredentialMsg)
 			}
 			return err
 		}
@@ -86,7 +92,7 @@ func (s *Service) Login(login model.LoginRequest) (user model.User, err error) {
 		uc, err := s.userCredentialDao.Get(tx, user.ID)
 		if err != nil {
 			if db.IsNoDataFound(err) {
-				return errutil.NewUnauthorized("invalid email or password")
+				return errutil.NewUnauthorized(invalidCredentialMsg)
 			}
 			return err
 		}
@@ -110,28 +116,28 @@ func (s *Service) Login(login model.LoginRequest) (user model.User, err error) {
 			if uc.InvalidAttempts >= 3 {
 				err := s.userCredentialDao.IncrementInvalidAttempts(tx, user.ID, true)
 				if err != nil {
-					return err
+					return errutil.Wrapf(err, "failed to lock and increment invalid attempts")
 				}
 			} else {
 				err := s.userCredentialDao.IncrementInvalidAttempts(tx, user.ID, false)
 				if err != nil {
-					return err
+					return errutil.Wrapf(err, "failed to increment invalid attempts")
 				}
 			}
-			return errutil.NewUnauthorized("invalid email or password")
+			return errutil.NewUnauthorized(invalidCredentialMsg)
 		}
 
 		if uc.InvalidAttempts > 0 {
 			err := s.userCredentialDao.ResetInvalidAttempts(tx, user.ID)
 			if err != nil {
+				// allow user to login
 				log.Error().Err(err).Msg("failed resetting invalid attempts")
 			}
 		}
 		return nil
 	})
-
 	if err != nil {
-		return
+		log.Error().Err(err).Send()
 	}
 	return
 }
@@ -141,32 +147,34 @@ func (s *Service) ChangePassword(ctx context.Context, data model.ChangePasswordR
 	id := auth.UserIdFromContext(ctx)
 
 	err := s.db.RunInTx(context.Background(), func(tx *db.Tx) error {
+
 		uc, err := s.userCredentialDao.Get(tx, id)
+		log.Info().Interface("user_credential", uc).Msg("credential found")
 
 		if err != nil {
 			if db.IsNoDataFound(err) {
 				return errutil.NewBadRequest("password cannot be changed as user does not exist")
 			}
-			return err
+			return errutil.Wrapf(err, "failed to retrieve user credential for %d", id)
 		}
 
 		currentPasswordSha := crypto.SHA256([]byte(data.CurrentPassword))
 		matched, err := crypto.CheckPassword(currentPasswordSha, uc.PasswordHash)
 
 		if err != nil {
-			return err
+			return errutil.Wrapf(err, "failed to validate password")
 		}
 
 		if !matched {
 			if uc.InvalidAttempts >= 3 {
 				err := s.userCredentialDao.IncrementInvalidAttempts(tx, id, true)
 				if err != nil {
-					return err
+					return errutil.Wrapf(err, "failed to lock user")
 				}
 			} else {
 				err := s.userCredentialDao.IncrementInvalidAttempts(tx, id, false)
 				if err != nil {
-					return err
+					return errutil.Wrapf(err, "failed to update invalid attempts")
 				}
 			}
 			return errutil.NewUnauthorized("invalid current password")
@@ -273,15 +281,14 @@ func (s *Service) Register(signUpRequest model.RegisterAccountRequest) (*model.U
 	}
 
 	newUser := model.User{
-		AuditDetails: model.AuditDetails{CreatedBy: "SIGNUP"},
+		AuditDetails: model.AuditDetails{UpdatedBy: "SIGNUP"},
 		FirstName:    signUpRequest.FirstName,
 		LastName:     signUpRequest.LastName,
 		Email:        strings.ToLower(signUpRequest.Email),
 		Active:       true,
 	}
 
-	newUser.CreatedBy = "SIGNUP"
-	newUser.UpdatedBy = newUser.CreatedBy
+	newUser.UpdatedBy = "SIGNUP"
 
 	passwordHash, err := crypto.HashPassword(crypto.SHA256([]byte(signUpRequest.Password)))
 	if err != nil {

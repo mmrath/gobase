@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 if [ -z "$1" ]; then
     echo "ERROR Must provide application name(clipo, admin) as argument"
@@ -12,6 +12,9 @@ fi
 
 
 APP=$1
-go get github.com/cespare/reflex
 
-reflex -s -r "^(apps/${APP}|pkg)" -- sh -c "./build.sh ${APP} && ./bin/${APP}"
+go install -mod=vendor github.com/cespare/reflex
+
+reflex -s -r "^(apps/${APP}|pkg)" -- sh -c "./build.sh ${APP} && ${GOPATH}/bin/${APP}"
+
+

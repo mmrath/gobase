@@ -2,8 +2,10 @@ package auth
 
 import (
 	"context"
+	"crypto/rand"
 	"crypto/rsa"
 	"github.com/mmrath/gobase/go/pkg/errutil"
+	"github.com/rs/zerolog/log"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -21,7 +23,7 @@ var userIdKey userIdKeyType
 type JWTConfig struct {
 	CookieName            string        `default:"jwt" split_words:"true"`
 	CookieDomain          string        `split_words:"true"`
-	TokenValidityDuration time.Duration `default:"7d" split_words:"true"`
+	TokenValidityDuration time.Duration `default:"240h" split_words:"true"`
 	PrivateKeyPath        string        `split_words:"true"`
 	PublicKeyPath         string        `split_words:"true"`
 }
@@ -50,23 +52,35 @@ type jwtService struct {
 
 func NewJWTService(config JWTConfig) (JWTService, error) {
 
-	privateKeyData, err := ioutil.ReadFile(config.PrivateKeyPath)
-	if err != nil {
-		return nil, errutil.Wrap(err, "failed to read jwt private key")
-	}
-	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM(privateKeyData)
-	if err != nil {
-		return nil, errutil.Wrap(err, "jwt rsa private key is invalid")
-	}
+	var privateKey *rsa.PrivateKey
+	var publicKey *rsa.PublicKey
 
-	publicKeyData, err := ioutil.ReadFile(config.PublicKeyPath)
-	if err != nil {
-		return nil, errutil.Wrap(err, "failed to read jwt public key")
-	}
+	if config.PublicKeyPath != "" && config.PrivateKeyPath != "" {
+		privateKeyData, err := ioutil.ReadFile(config.PrivateKeyPath)
+		if err != nil {
+			return nil, errutil.Wrap(err, "failed to read jwt private key")
+		}
+		privateKey, err = jwt.ParseRSAPrivateKeyFromPEM(privateKeyData)
+		if err != nil {
+			return nil, errutil.Wrap(err, "jwt rsa private key is invalid")
+		}
 
-	publicKey, err := jwt.ParseRSAPublicKeyFromPEM(publicKeyData)
-	if err != nil {
-		return nil, errutil.Wrap(err, "jwt rsa public  key is invalid")
+		publicKeyData, err := ioutil.ReadFile(config.PublicKeyPath)
+		if err != nil {
+			return nil, errutil.Wrap(err, "failed to read jwt public key")
+		}
+
+		publicKey, err = jwt.ParseRSAPublicKeyFromPEM(publicKeyData)
+		if err != nil {
+			return nil, errutil.Wrap(err, "jwt rsa public  key is invalid")
+		}
+	} else {
+		key, err := rsa.GenerateKey(rand.Reader, 2048)
+		if err != nil {
+			return nil, errutil.Wrap(err, "failed to generate key pair")
+		}
+		privateKey = key
+		publicKey = &key.PublicKey
 	}
 
 	return &jwtService{
@@ -92,7 +106,7 @@ func (s *jwtService) Decode(tokenString string) (t *jwt.Token, err error) {
 	if err != nil {
 		return nil, errutil.Wrap(err, "failed to parse jwt token")
 	}
-	return token,nil
+	return token, nil
 }
 
 func UserIdFromContext(ctx context.Context) int64 {
@@ -138,11 +152,13 @@ func (s *jwtService) Authenticator(next http.Handler) http.Handler {
 		token, claims, err := jwtauth.FromContext(r.Context())
 
 		if err != nil {
-			http.Error(w, http.StatusText(401), 401)
+			log.Error().Err(err).Send()
+			http.Error(w, http.StatusText(500), 500)
 			return
 		}
 
 		if token == nil || !token.Valid {
+			log.Error().Msg("token is not valid")
 			http.Error(w, http.StatusText(401), 401)
 			return
 		}
@@ -160,7 +176,6 @@ func (s *jwtService) Authenticator(next http.Handler) http.Handler {
 		next.ServeHTTP(w, req)
 	})
 }
-
 
 func fromAuthHeader(r *http.Request) (string, error) {
 	authHeader := r.Header.Get("Authorization")

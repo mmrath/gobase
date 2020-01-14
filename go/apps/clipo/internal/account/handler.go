@@ -12,7 +12,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var AuthTokenCookieName = "Token"
+var AuthTokenCookieName = "jwt"
 
 type Handler struct {
 	Service *Service
@@ -42,8 +42,6 @@ func (h *Handler) Login(service auth.JWTService) http.HandlerFunc {
 				errutil.RenderError(w, r, err)
 				return
 			} else {
-				render.Status(r, http.StatusOK)
-
 				http.SetCookie(w, &http.Cookie{
 					Name:       AuthTokenCookieName,
 					Value:      token,
@@ -52,7 +50,10 @@ func (h *Handler) Login(service auth.JWTService) http.HandlerFunc {
 					HttpOnly:   true,
 				})
 
-				w.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token))
+				w.Header().Add("Authorization", fmt.Sprintf("Bearer %s", token))
+				w.WriteHeader(http.StatusOK)
+
+				//render.PlainText(w, r, "")
 				return
 			}
 		}
@@ -179,8 +180,8 @@ func (h *Handler) ChangePassword() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data := model.ChangePasswordRequest{}
 
-		if err := render.DecodeJSON(r.Body, data); err != nil {
-			render.JSON(w, r, err)
+		if err := render.DecodeJSON(r.Body, &data); err != nil {
+			errutil.RenderError(w, r, err)
 			return
 		}
 
@@ -191,7 +192,9 @@ func (h *Handler) ChangePassword() http.HandlerFunc {
 			errutil.RenderError(w, r, err)
 			return
 		} else {
+			log.Info().Msg("password changed successfully")
 			render.Status(r, http.StatusOK)
+			render.PlainText(w,r, "Password changed successfully")
 			return
 		}
 	}

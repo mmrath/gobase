@@ -3,6 +3,7 @@ package tests
 import (
 	"database/sql"
 	"fmt"
+	"github.com/brianvoe/gofakeit"
 	"github.com/mmrath/gobase/go/pkg/email"
 	"log"
 	"os"
@@ -22,7 +23,22 @@ type TestSuite struct {
 
 // SetupSuite setup at the beginning of test
 func (s *TestSuite) SetupSuite() {
-	db, err := sql.Open("postgres", os.Getenv("DB_URL"))
+	// for randomness
+	gofakeit.Seed(time.Now().UnixNano())
+
+	portPrefix := os.Getenv("ENV_PORT_PREFIX")
+
+	if portPrefix == "" {
+		fmt.Println("ENV_PORT_PREFIX is not set")
+		panic("ENV_PORT_PREFIX is not set")
+	}
+
+	dbURL := os.Getenv("DB_URL")
+
+	if dbURL == "" {
+		dbURL = fmt.Sprintf("postgres://app_user:password12@localhost:%s32/appdb?sslmode=disable", portPrefix)
+	}
+	db, err := sql.Open("postgres", dbURL)
 
 	if err != nil {
 		fmt.Printf("Failed to connect to DB %v", err)
@@ -30,17 +46,11 @@ func (s *TestSuite) SetupSuite() {
 	}
 
 	s.db = db
-	s.ClipoURL = os.Getenv("CLIPO_URL")
-	mailURL := os.Getenv("EMAIL_URL")
 
-	if s.ClipoURL == "" {
-		panic("CLIPO_URL is not set")
-	}
+	clipoURL := fmt.Sprintf("http://localhost:%s10", portPrefix)
+	mailURL := fmt.Sprintf("http://localhost:%s12", portPrefix)
 
-	if mailURL == "" {
-		panic("EMAIL_URL is not set")
-	}
-
+	s.ClipoURL = clipoURL
 	s.EmailClient = NewTestEmailClient(mailURL)
 }
 
@@ -49,7 +59,7 @@ func (s *TestSuite) TearDownSuite() {
 }
 
 func (s *TestSuite) SetupTest() {
-	//Task before each case is run
+	// cleanDB(s.db)
 }
 
 func cleanDB(db *sql.DB) {
@@ -97,9 +107,12 @@ func executeStmts(db *sql.DB, stmts []string) {
 	}
 }
 
-func execStmt(db *sql.DB, stmt string, values ...interface{}) error {
-	_, err := db.Exec(stmt, values)
-	return err
+func mustExecStmt(db *sql.DB, stmt string, values ...interface{}) {
+	_, err := db.Exec(stmt, values...)
+	if err != nil {
+		log.Printf("Error executing statement %s, args %v", stmt, values)
+		panic(err)
+	}
 }
 
 func timeTrack(start time.Time, name string) {

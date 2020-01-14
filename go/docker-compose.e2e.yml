@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  clipo-e2e:
+    image: golang:latest
+    command: sh -c "../scripts/wait-for-it.sh clipo:9010 -t 120 -- go test -mod=vendor ./apps/clipo/..."
+    environment:
+      - CLIPO_URL=http://clipo:9010
+      - DB_URL=postgres://${DB_USERNAME}:${DB_PASSWORD}@db:5432/${DB_NAME}?sslmode=${DB_SSLMODE}
+      - EMAIL_URL=http://mail:9000
+    working_dir: /root/go
+    volumes:
+      - ..:/root
+
+volumes:
+  go_modules:

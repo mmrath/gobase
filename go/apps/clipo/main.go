@@ -15,10 +15,7 @@ func main() {
 		fmt.Println(pair)
 	}
 
-	cfg := cmd.LoadConfig()
-
-
-	server, err := cmd.BuildServer(cfg)
+	server, err := cmd.BuildServer()
 	if err != nil {
 		fmt.Printf("Exiting  %v", err)
 		os.Exit(1)

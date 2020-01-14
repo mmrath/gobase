@@ -1,5 +1,4 @@
-#!/bin/sh
-
+#!/usr/bin/env bash
 
 if [ -z "$1" ]; then
     echo "ERROR Must provide application name(clipo, admin) as argument"
@@ -27,7 +26,7 @@ echo "Building application ${APP}"
 BUILD_TIME=$(date -u '+%Y-%m-%d %H:%M:%S')
 GO_LD_FLAGS="-X github.com/mmrath/gobase/go/pkg/version.Version=$VERSION -X github.com/mmrath/gobase/go/pkg/version.GitCommit=$GIT_COMMIT -X 'github.com/mmrath/gobase/go/pkg/version.BuildTime=$BUILD_TIME'"
 
-go build -mod=readonly -ldflags "${GO_LD_FLAGS}" -a -o "./bin/${APP}" "./apps/${APP}"
+go install -mod=vendor -ldflags "${GO_LD_FLAGS}" "./apps/${APP}"
 
 retval=$?
 if [ $retval -ne 0 ]; then
