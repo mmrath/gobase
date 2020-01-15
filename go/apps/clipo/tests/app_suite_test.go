@@ -4,8 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/brianvoe/gofakeit"
+	"github.com/mmrath/gobase/go/apps/clipo/cmd"
 	"github.com/mmrath/gobase/go/pkg/email"
 	"log"
+	"net/http/httptest"
 	"os"
 	"time"
 
@@ -14,6 +16,8 @@ import (
 
 type TestSuite struct {
 	suite.Suite
+	app         *cmd.App
+	server      *httptest.Server
 	ClipoURL    string
 	db          *sql.DB
 	EmailClient interface {
@@ -25,13 +29,23 @@ type TestSuite struct {
 func (s *TestSuite) SetupSuite() {
 	// for randomness
 	gofakeit.Seed(time.Now().UnixNano())
-
 	portPrefix := os.Getenv("ENV_PORT_PREFIX")
 
 	if portPrefix == "" {
 		fmt.Println("ENV_PORT_PREFIX is not set")
 		panic("ENV_PORT_PREFIX is not set")
 	}
+
+	os.Setenv("DB_HOST", "localhost")
+	os.Setenv("DB_PORT", fmt.Sprintf("%s32", portPrefix))
+	os.Setenv("DB_USERNAME", "app_user")
+	os.Setenv("DB_PASSWORD", "password")
+	os.Setenv("DB_NAME", "appdb")
+	os.Setenv("DB_SSLMODE", "disable")
+
+	os.Setenv("SMTP_HOST", "localhost")
+	os.Setenv("SMTP_PORT", fmt.Sprintf("%s13", portPrefix))
+	os.Setenv("SMTP_FROM", "test@localhost")
 
 	dbURL := os.Getenv("DB_URL")
 
@@ -47,15 +61,25 @@ func (s *TestSuite) SetupSuite() {
 
 	s.db = db
 
-	clipoURL := fmt.Sprintf("http://localhost:%s10", portPrefix)
+	app, err := cmd.BuildApp()
+
+	if err != nil {
+		panic(fmt.Errorf("failed to create server %w", err))
+	}
+	server := httptest.NewServer(app.Handler)
+
+	clipoURL := server.URL
 	mailURL := fmt.Sprintf("http://localhost:%s12", portPrefix)
 
+	s.app = app
+	s.server = server
 	s.ClipoURL = clipoURL
 	s.EmailClient = NewTestEmailClient(mailURL)
 }
 
 // TearDownSuite teardown at the end of test
 func (s *TestSuite) TearDownSuite() {
+	s.server.Close()
 }
 
 func (s *TestSuite) SetupTest() {

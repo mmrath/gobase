@@ -7,7 +7,7 @@ import (
 	"github.com/mmrath/gobase/go/pkg/errutil"
 )
 
-func BuildServer() (*Server, error) {
+func BuildApp() (*App, error) {
 	config2 := LoadConfig()
 	mailer, err := email.NewMailer(config2.SMTP)
 	if err != nil {
@@ -28,7 +28,7 @@ func BuildServer() (*Server, error) {
 	if err != nil {
 		return nil, errutil.Wrapf(err, "unable to create http router")
 	}
-	server, err := NewServer(config2, mux)
+	server, err := NewApp(config2, mux)
 	if err != nil {
 		return nil, errutil.Wrapf(err, "unable to create server")
 	}

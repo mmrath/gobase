@@ -15,8 +15,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// Server provides an http.Server.
-type Server struct {
+// App provides an http.App.
+type App struct {
 	*http.Server
 }
 
@@ -28,8 +28,8 @@ func NewNotifier(cfg config.Config, mailer email.Mailer) account.Notifier {
 	return account.NewNotifier(cfg.Web.URL, mailer)
 }
 
-// NewServer creates and configures an APIServer serving all application routes.
-func NewServer(cfg config.Config, mux *chi.Mux) (*Server, error) {
+// NewApp creates and configures an APIServer serving all application routes.
+func NewApp(cfg config.Config, mux *chi.Mux) (*App, error) {
 	var addr string
 	port := cfg.Web.Port
 
@@ -44,11 +44,11 @@ func NewServer(cfg config.Config, mux *chi.Mux) (*Server, error) {
 		Handler: mux,
 	}
 
-	return &Server{&srv}, nil
+	return &App{&srv}, nil
 }
 
-// Start runs ListenAndServe on the http.Server with graceful shutdown.
-func (srv *Server) Start() {
+// Start runs ListenAndServe on the http.App with graceful shutdown.
+func (srv *App) Start() {
 	log.Print("starting server...")
 	go func() {
 		if err := srv.ListenAndServe(); err != http.ErrServerClosed {

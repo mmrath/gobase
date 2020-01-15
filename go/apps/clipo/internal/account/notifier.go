@@ -2,6 +2,8 @@ package account
 
 import (
 	"fmt"
+	"github.com/mmrath/gobase/go/apps/clipo/internal/template_util"
+	"github.com/mmrath/gobase/go/pkg/errutil"
 	"html/template"
 
 	"github.com/mmrath/gobase/go/pkg/email"
@@ -14,13 +16,14 @@ type Notifier interface {
 	NotifyPasswordResetInit(user model.User, token string) error
 }
 
-func NewNotifier(baseUrl string, mailer email.Mailer) Notifier {
-	return &notifier{baseUrl: baseUrl, sender: mailer}
+func NewNotifier(baseUrl string, mailer email.Mailer, registry *template_util.Registry) Notifier {
+	return &notifier{baseUrl: baseUrl, sender: mailer, templateRegistry: registry}
 }
 
 type notifier struct {
-	sender  email.Mailer
-	baseUrl string
+	sender           email.Mailer
+	baseUrl          string
+	templateRegistry *template_util.Registry
 }
 
 func (e *notifier) NotifyPasswordChange(user model.User) error {
@@ -56,17 +59,22 @@ func (e *notifier) NotifyActivation(user model.User, token string) error {
 	from := email.NewAddress("", "")
 	to := []email.Address{email.NewAddress(user.GetName(), user.GetEmail())}
 	subject := "Activate your account"
-	acTmpl := "accountActivation"
 
-	msg, err := email.NewMessage(from, to, subject, acTmpl, &data)
+	htmlBody, err := e.templateRegistry.RenderToString("templates/email/auth/account_activation.gohtml", data)
 
 	if err != nil {
-		return err
+		return errutil.Wrapf(err, "failed to render email")
+	}
+
+	msg, err := email.NewMessage(from, to, subject, htmlBody)
+
+	if err != nil {
+		return errutil.Wrapf(err, "failed to create email message")
 	}
 
 	err = e.sender.Send(msg)
 	if err != nil {
-		return err
+		return errutil.Wrapf(err, "failed to send email")
 	}
 	return nil
 }

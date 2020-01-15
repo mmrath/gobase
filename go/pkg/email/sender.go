@@ -2,7 +2,6 @@
 package email
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/go-mail/mail"
 	"github.com/hashicorp/errwrap"
@@ -89,27 +88,22 @@ type Message struct {
 	From     Address
 	To       []Address
 	Subject  string
-	Template string
-	Data     interface{}
 	Html     string
 	Text     string
 }
 
-func NewMessage(from Address, to []Address, subject string, template string, data interface{}) (*Message, error) {
-	msg := Message{From: from, To: to, Subject: subject, Template: template, Data: data}
+func NewHtmlMessage(from Address, to []Address, subject string, htmlBody string) (*Message, error) {
+	msg := Message{From: from, To: to, Subject: subject, Html: htmlBody}
 	if err := msg.parse(); err != nil {
 		return nil, err
 	}
 	return &msg, nil
 }
 
-// parse parses the corrsponding Template and content
+// parse parses the corresponding Template and content
 func (m *Message) parse() error {
-	buf := new(bytes.Buffer)
-	if err := templates.ExecuteTemplate(buf, m.Template, m.Data); err != nil {
-		return err
-	}
-	prem, err := premailer.NewPremailerFromString(buf.String(), premailer.NewOptions())
+
+	prem, err := premailer.NewPremailerFromString(m.Html, premailer.NewOptions())
 	if err != nil {
 		return err
 	}

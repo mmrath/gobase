@@ -1,3 +1,5 @@
+//go:generate go run github.com/go-bindata/go-bindata/go-bindata -o internal/generated/assets.go -pkg generated -prefix "./resources/" "./resources/templates/..."
+
 package main
 
 import (
@@ -15,10 +17,10 @@ func main() {
 		fmt.Println(pair)
 	}
 
-	server, err := cmd.BuildServer()
+	app, err := cmd.BuildApp()
 	if err != nil {
 		fmt.Printf("Exiting  %v", err)
 		os.Exit(1)
 	}
-	server.Start()
+	app.Start()
 }
