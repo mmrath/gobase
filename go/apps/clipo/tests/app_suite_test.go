@@ -39,7 +39,7 @@ func (s *TestSuite) SetupSuite() {
 	os.Setenv("DB_HOST", "localhost")
 	os.Setenv("DB_PORT", fmt.Sprintf("%s32", portPrefix))
 	os.Setenv("DB_USERNAME", "app_user")
-	os.Setenv("DB_PASSWORD", "password")
+	os.Setenv("DB_PASSWORD", "password12")
 	os.Setenv("DB_NAME", "appdb")
 	os.Setenv("DB_SSLMODE", "disable")
 

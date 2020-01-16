@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"github.com/mmrath/gobase/go/apps/clipo/internal/config"
+	"github.com/mmrath/gobase/go/apps/clipo/internal/template_util"
 	"github.com/mmrath/gobase/go/pkg/db"
 	"net/http"
 	"os"
@@ -24,8 +25,8 @@ func NewDB(cfg config.Config) (*db.DB, error) {
 	return db.Open(cfg.DB)
 }
 
-func NewNotifier(cfg config.Config, mailer email.Mailer) account.Notifier {
-	return account.NewNotifier(cfg.Web.URL, mailer)
+func NewNotifier(cfg config.Config, mailer email.Mailer, registry *template_util.Registry) account.Notifier {
+	return account.NewNotifier(cfg.Web.URL, mailer, registry)
 }
 
 // NewApp creates and configures an APIServer serving all application routes.

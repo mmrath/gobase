@@ -21,15 +21,15 @@ func (User) TableName() string {
 	return "user_account"
 }
 
-func (u *User) GetName() string {
+func (u User) GetName() string {
 	return u.FirstName
 }
 
-func (u *User) GetEmail() string {
+func (u User) GetEmail() string {
 	return u.Email
 }
 
-func (u *User) GetId() int64 {
+func (u User) GetId() int64 {
 	return u.ID
 }
 

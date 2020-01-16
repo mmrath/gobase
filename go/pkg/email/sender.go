@@ -9,6 +9,7 @@ import (
 	"github.com/vanng822/go-premailer/premailer"
 	"html/template"
 	"log"
+	stdMail "net/mail"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -33,9 +34,6 @@ type mailer struct {
 
 // NewMailer returns a configured SMTP Mailer.
 func NewMailer(conf SMTPConfig) (Mailer, error) {
-	if err := LoadTemplates(conf.TemplatePath); err != nil {
-		return nil, errwrap.Wrapf("failed to load templates", err)
-	}
 
 	s := &mailer{
 		client: mail.NewDialer(conf.Host, conf.Port, conf.Username, conf.Password),
@@ -71,10 +69,10 @@ func (m *mailer) Send(email *Message) error {
 
 	addresses := make([]string, len(email.To))
 	for i := range addresses {
-		addresses[i] = msg.FormatAddress(email.To[i].Email, email.To[i].Name)
+		addresses[i] = msg.FormatAddress(email.To[i].Address, email.To[i].Name)
 	}
 
-	msg.SetAddressHeader("From", email.From.Email, email.From.Name)
+	msg.SetAddressHeader("From", email.From.Address, email.From.Name)
 	msg.SetHeader("To", addresses...)
 	msg.SetHeader("Subject", email.Subject)
 	msg.SetBody("Text/plain", email.Text)
@@ -121,17 +119,14 @@ func (m *Message) parse() error {
 	return nil
 }
 
-// Email struct holds email address and recipient name.
-type Address struct {
-	Name  string `yaml:"name"`
-	Email string `yaml:"email"`
-}
+// Address struct holds email address and recipient name.
+type Address = stdMail.Address
 
 // NewEmail returns an email address.
 func NewAddress(name string, address string) Address {
 	return Address{
-		Name:  name,
-		Email: address,
+		Name:    name,
+		Address: address,
 	}
 }
 

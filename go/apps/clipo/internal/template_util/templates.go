@@ -8,13 +8,6 @@ import (
 	"io"
 )
 
-var tmpl = make(map[string]*template.Template)
-
-func init() {
-	tmpl["index.html"] = template.Must(template.ParseFiles("index.html", "base.html"))
-	tmpl["other.html"] = template.Must(template.ParseFiles("other.html", "base.html"))
-}
-
 type Registry struct {
 	templateMap map[string]*template.Template
 }
@@ -34,17 +27,29 @@ func NewRegistry() (*Registry, error) {
 		return nil, errutil.Wrapf(err, "failed to parse %s", layoutFile)
 	}
 
-	file := "templates/email/auth/account_activation.gohtml"
-	fileData, err := generated.Asset(file)
-	if err != nil {
-		return nil, errutil.Wrapf(err, "unable to load %s", file)
+	files := []string{
+		"templates/email/auth/account_activation.gohtml",
+		"templates/email/auth/init_password_reset.gohtml",
 	}
 
-	templateMap[file], err = tmpl.Parse(string(fileData))
+	for _, file := range files {
+		fileData, err := generated.Asset(file)
+		if err != nil {
+			return nil, errutil.Wrapf(err, "unable to load %s", file)
+		}
 
-	if err != nil {
-		return nil, errutil.Wrapf(err, "failed to parse %s", file)
+		tmplClone, err := tmpl.Clone()
+
+		if err != nil {
+			return nil, errutil.Wrapf(err, "failed to clone template")
+		}
+		templateMap[file], err = tmplClone.Parse(string(fileData))
+
+		if err != nil {
+			return nil, errutil.Wrapf(err, "failed to parse %s", file)
+		}
 	}
+
 	return &Registry{templateMap: templateMap}, nil
 }
 
@@ -60,6 +65,7 @@ func (t *Registry) Render(w io.Writer, name string, data interface{}) error {
 	if err != nil {
 		return errutil.Wrapf(err, "failed to render template %s", name)
 	}
+	return nil
 }
 
 func (t *Registry) RenderToString(name string, data interface{}) (string, error) {
@@ -70,4 +76,5 @@ func (t *Registry) RenderToString(name string, data interface{}) (string, error)
 	if err != nil {
 		return "", errutil.Wrapf(err, "failed to render template to string %s", name)
 	}
+	return buf.String(), nil
 }

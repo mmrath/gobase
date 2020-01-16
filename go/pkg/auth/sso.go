@@ -79,7 +79,7 @@ func (s *ssoMiddleware) SsoMiddleware(next http.Handler) http.Handler {
 }
 
 type CustomClaims struct {
-	Email string   `json:"Email"`
+	Email string   `json:"Address"`
 	Roles []string `json:"Roles"`
 	jwt.StandardClaims
 }

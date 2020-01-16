@@ -34,9 +34,15 @@ func (e *notifier) NotifyPasswordChange(user model.User) error {
 	from := email.NewAddress("", "")
 	to := []email.Address{email.NewAddress(user.GetName(), user.GetEmail())}
 	subject := "Account password changed"
-	pcTmpl := "auth/password_changed.html"
+	pcTmpl := "templates/email/auth/password_changed.gohtml"
 
-	msg, err := email.NewMessage(from, to, subject, pcTmpl, &data)
+	htmlBody, err := e.templateRegistry.RenderToString(pcTmpl, data)
+
+	if err != nil {
+		return errutil.Wrapf(err, "failed to render email")
+	}
+
+	msg, err := email.NewHtmlMessage(from, to, subject, htmlBody)
 
 	err = e.sender.Send(msg)
 	if err != nil {
@@ -66,7 +72,7 @@ func (e *notifier) NotifyActivation(user model.User, token string) error {
 		return errutil.Wrapf(err, "failed to render email")
 	}
 
-	msg, err := email.NewMessage(from, to, subject, htmlBody)
+	msg, err := email.NewHtmlMessage(from, to, subject, htmlBody)
 
 	if err != nil {
 		return errutil.Wrapf(err, "failed to create email message")
@@ -89,12 +95,18 @@ func (e *notifier) NotifyPasswordResetInit(user model.User, token string) error 
 		User: user,
 	}
 
-	from := email.NewAddress("", "")
+	from := email.NewAddress("test", "test@localhost")
 	to := []email.Address{email.NewAddress(user.GetName(), user.GetEmail())}
 	subject := "Reset password"
-	passwordResetTmpl := "initPasswordReset"
+	passwordResetTmpl := "templates/email/auth/init_password_reset.gohtml"
 
-	msg, err := email.NewMessage(from, to, subject, passwordResetTmpl, &data)
+	htmlBody, err := e.templateRegistry.RenderToString(passwordResetTmpl, data)
+
+	if err != nil {
+		return errutil.Wrapf(err, "failed to render email")
+	}
+
+	msg, err := email.NewHtmlMessage(from, to, subject, htmlBody)
 
 	if err != nil {
 		return err

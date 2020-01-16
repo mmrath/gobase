@@ -58,7 +58,7 @@ func (s *AccountTestSuite) TestSignUpActivateAndLogin() {
 	msg := s.EmailClient.GetLatestEmail(testEmail)
 	require.NotNil(s.T(), msg)
 	require.Equal(s.T(), "Activate your account", msg.Subject)
-	require.Equal(s.T(), registerRequest["email"], msg.To[0].Email)
+	require.Equal(s.T(), registerRequest["email"], msg.To[0].Address)
 
 	resp := he.POST("/api/account/login").
 		WithJSON(model.LoginRequest{Email: testEmail, Password: testPassword}).
@@ -111,7 +111,7 @@ func (s *AccountTestSuite) TestSignUpWithDuplicateEmail() {
 		"firstName": gofakeit.FirstName(),
 		"lastName":  gofakeit.LastName(),
 		"email":     gofakeit.Email(),
-		"password":  gofakeit.Password(true,true,true,true,true,8),
+		"password":  gofakeit.Password(true, true, true, true, true, 8),
 	}
 	resp := he.POST("/api/account/register").WithJSON(signupRequest).Expect()
 	resp.Status(http.StatusOK)
@@ -130,7 +130,7 @@ func (s *AccountTestSuite) TestSignUpWithInvalidPassword() {
 		"firstName": "Murali",
 		"lastName":  "Rath",
 		"email":     gofakeit.Email(),
-		"password":  gofakeit.Password(true,true,true,true,false,5), /// too short
+		"password":  gofakeit.Password(true, true, true, true, false, 5), /// too short
 	}
 	// 2nd Request
 	resp := he.POST("/api/account/register").WithJSON(signupRequest).Expect()
@@ -146,7 +146,7 @@ func (s *AccountTestSuite) TestSignUpWithLongPassword() {
 		"firstName": "Murali",
 		"lastName":  "Rath",
 		"email":     gofakeit.Email(),
-		"password":  gofakeit.Password(true,true,true,true,true,20),
+		"password":  gofakeit.Password(true, true, true, true, true, 20),
 	}
 	// 2nd Request
 	resp := he.POST("/api/account/register").WithJSON(signupRequest).Expect()
@@ -159,7 +159,7 @@ func (s *AccountTestSuite) TestSignUpWithTooLongPassword() {
 		"firstName": "Murali",
 		"lastName":  "Rath",
 		"email":     gofakeit.Email(),
-		"password":  gofakeit.Password(true,true,true,true,true,32),
+		"password":  gofakeit.Password(true, true, true, true, true, 32),
 	}
 	// 2nd Request
 	resp := he.POST("/api/account/register").WithJSON(signupRequest).Expect()
@@ -183,6 +183,7 @@ func (s *AccountTestSuite) TestResetPassword() {
 	initResetRequest := map[string]interface{}{
 		"email": testEmail,
 	}
+	s.createUser(testEmail, gofakeit.Person().LastName)
 	resp := he.POST("/api/account/reset-password/init").
 		WithJSON(initResetRequest).Expect()
 	resp.Status(http.StatusOK)
@@ -191,7 +192,7 @@ func (s *AccountTestSuite) TestResetPassword() {
 	msg := s.EmailClient.GetLatestEmail(testEmail)
 	require.NotNil(s.T(), msg)
 	require.Equal(s.T(), "Reset password", msg.Subject)
-	require.Equal(s.T(), initResetRequest["email"], msg.To[0])
+	require.Contains(s.T(), msg.To[0].Address, initResetRequest["email"], )
 
 	re := regexp.MustCompile("/account/reset-password\\?key=([0-9a-f\\-]+)")
 	key := re.FindStringSubmatch(msg.Html)[1]
@@ -217,6 +218,8 @@ func (s *AccountTestSuite) TestResetPassword() {
 	jwtToken, err := jwt.Parse(token, func(token *jwt.Token) (i interface{}, err error) {
 		return jwtPublicKey, nil
 	})
+
+
 	require.NoError(s.T(), err)
 	err = jwtToken.Claims.Valid()
 	require.NoError(s.T(), err)
@@ -240,7 +243,7 @@ func (s *AccountTestSuite) TestWithWrongUsername() {
 
 func (s *AccountTestSuite) TestWithWrongPassword() {
 	testEmail := gofakeit.Email()
-	password := gofakeit.Password(true,true,true,true,true,8)
+	password := gofakeit.Password(true, true, true, true, true, 8)
 	s.createUser(testEmail, password)
 	defer s.deleteUser(testEmail)
 
@@ -256,8 +259,8 @@ func (s *AccountTestSuite) TestWithWrongPassword() {
 
 func (s *AccountTestSuite) TestChangePassword() {
 	testEmail := gofakeit.Email()
-	password := gofakeit.Password(true,true,true,true,true,8)
-	newPassword := gofakeit.Password(true,true,true,true,true,10)
+	password := gofakeit.Password(true, true, true, true, true, 8)
+	newPassword := gofakeit.Password(true, true, true, true, true, 10)
 	s.createUser(testEmail, password)
 	defer s.deleteUser(testEmail)
 
