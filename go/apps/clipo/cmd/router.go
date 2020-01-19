@@ -51,6 +51,7 @@ func NewMux(cfg config.Config,
 			r.Use(jwtService.Authenticator)
 
 			r.Post("/account/change-password", userHandler.ChangePassword())
+
 			r.Get("/account", userHandler.Account())
 		})
 

@@ -1,83 +1,60 @@
 package errutil
 
 import (
-	"errors"
-	"fmt"
+	stdError "errors"
 	"github.com/go-chi/render"
-	validation "github.com/go-ozzo/ozzo-validation"
-	"github.com/rotisserie/eris"
+	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 	"net/http"
 )
-
-var NotFound = eris.New("not found")
-var Unauthorized = eris.New("unauthorized")
-var BadRequest = eris.New("bad request")
 
 type FieldError struct {
 	Field   string `json:"field,omitempty"`
 	Message string `json:"message,omitempty"`
 }
 
-type ValidationError struct {
-	FieldErrors []FieldError `json:"fieldErrors,omitempty"`
-}
-
 func New(msg string) error {
-	return eris.New(msg)
+	return errors.New(msg)
 }
 
 func Errorf(format string, args ...interface{}) error {
-	return eris.Errorf(format, args...)
+	return errors.Errorf(format, args...)
 }
 
 func Wrap(err error, msg string) error {
-	return eris.Wrap(err, msg)
+	return errors.Wrap(err, msg)
 }
 
 func Wrapf(err error, format string, args ...interface{}) error {
-	return eris.Wrapf(err, format, args...)
+	return errors.Wrapf(err, format, args...)
 }
 
 func Is(err, target error) bool {
-	return eris.Is(err, target)
+	return stdError.Is(err, target)
 }
 
 func Cause(err error) error {
-	return eris.Cause(err)
-}
-
-func NewUnauthorized(msg string) error {
-	return eris.Wrap(Unauthorized, msg)
-}
-func NewBadRequest(msg string) error {
-	return eris.Wrap(BadRequest, msg)
-}
-
-func NewFieldError(fieldErrors ...FieldError) error {
-	return eris.Wrap(BadRequest, fmt.Sprintf("%v", fieldErrors))
+	return errors.Cause(err)
 }
 
 func RenderError(w http.ResponseWriter, r *http.Request, err error) {
 
-	if e, ok := err.(validation.Errors); ok {
-		var result []FieldError
-		for k, v := range e {
-			result = append(result, FieldError{Field: k, Message: v.Error()})
+	var ce *clientError
+	if errors.As(err, &ce) {
+		if ce.Code == 0 {
+			log.Error().Err(err).Msg("error code was zero for client error. This will be sent as internal error")
+			render.Status(r, http.StatusInternalServerError)
+			return
 		}
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, result)
+		render.Status(r, ce.Code)
+		render.JSON(w, r, ce)
 		return
 	}
 
-	if errors.Is(err, Unauthorized) {
-		render.Status(r, http.StatusUnauthorized)
-		render.PlainText(w, r, err.Error())
-		return
-	}
+
 
 	log.Error().Err(err).Send()
 	render.Status(r, 500)
-	render.PlainText(w, r, err.Error())
+	render.PlainText(w, r, http.StatusText(http.StatusInternalServerError))
 	return
 }

@@ -62,7 +62,7 @@ func (e *notifier) NotifyActivation(user model.User, token string) error {
 		User: user,
 	}
 
-	from := email.NewAddress("", "")
+	from := email.NewAddress("test", "test@localhost.com")
 	to := []email.Address{email.NewAddress(user.GetName(), user.GetEmail())}
 	subject := "Activate your account"
 

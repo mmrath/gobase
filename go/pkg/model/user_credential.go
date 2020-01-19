@@ -50,7 +50,9 @@ func (dao *userCredentialDao) GetByActivationKey(tx *db.Tx, key string) (UserCre
 
 func (dao *userCredentialDao) Activate(tx *db.Tx, id int64) error {
 	userCred := UserCredential{ID: id, Activated: true}
-	return tx.Model(&userCred).Update("activated").Error
+	return tx.Model(&userCred).UpdateColumns(map[string]interface{}{
+		"activated": true,
+	}).Error
 }
 
 func (dao *userCredentialDao) Get(tx *db.Tx, id int64) (UserCredential, error) {

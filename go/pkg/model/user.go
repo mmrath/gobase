@@ -1,8 +1,6 @@
 package model
 
 import (
-	"github.com/go-ozzo/ozzo-validation/v3"
-	"github.com/go-ozzo/ozzo-validation/v3/is"
 	"github.com/mmrath/gobase/go/pkg/db"
 )
 
@@ -44,8 +42,8 @@ type ResetPasswordRequest struct {
 }
 
 type LoginRequest struct {
-	Email    string `json:"email,omitempty"`
-	Password string `json:"password,omitempty"`
+	Email    string `json:"email,omitempty" validate:"required,email"`
+	Password string `json:"password,omitempty" validate:"required,min=6,max=20"`
 }
 
 type CreateUserRequest struct {
@@ -57,34 +55,12 @@ type CreateUserRequest struct {
 	Roles       []int32 `json:"roles,omitempty"`
 }
 
-func (login *LoginRequest) Validate() error {
-	err := validation.ValidateStruct(login,
-		validation.Field(&login.Email, validation.Required, validation.Length(6, 32)),
-		validation.Field(&login.Password, validation.Required, validation.Length(6, 32)),
-	)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 type RegisterAccountRequest struct {
-	Password    string `json:"password"`
-	FirstName   string `json:"firstName"`
-	LastName    string `json:"lastName"`
-	Email       string `json:"email"`
+	Password    string `json:"password" validate:"required,min=6,max=20" valid:"length(6|20)"`
+	FirstName   string `json:"firstName" validate:"required,alpha,min=2,max=32"  valid:"alpha,length(2|32)"`
+	LastName    string `json:"lastName" validate:"required,alpha,max=32" valid:"alpha,length(1|32)"`
+	Email       string `json:"email" validate:"required,email,min=6,max=32" valid:"email,length(6|32)"`
 	PhoneNumber string `json:"phoneNumber"`
-}
-
-func (s *RegisterAccountRequest) Validate() error {
-	err := validation.ValidateStruct(s,
-		validation.Field(&s.FirstName, validation.Required, validation.Length(2, 32)),
-		validation.Field(&s.LastName, validation.Required, validation.Length(1, 32)),
-		validation.Field(&s.Email, validation.Required, is.Email, validation.Length(6, 32), is.Email),
-		validation.Field(&s.Password, validation.Required, validation.Length(6, 32)),
-		validation.Field(&s.PhoneNumber, is.E164), // International phone
-	)
-	return err
 }
 
 type userDao struct {

@@ -6,6 +6,7 @@ import (
 	"github.com/brianvoe/gofakeit"
 	"github.com/mmrath/gobase/go/apps/clipo/cmd"
 	"github.com/mmrath/gobase/go/pkg/email"
+	"github.com/mmrath/gobase/go/pkg/test_helper"
 	"log"
 	"net/http/httptest"
 	"os"
@@ -74,7 +75,7 @@ func (s *TestSuite) SetupSuite() {
 	s.app = app
 	s.server = server
 	s.ClipoURL = clipoURL
-	s.EmailClient = NewTestEmailClient(mailURL)
+	s.EmailClient = test_helper.NewEmailClient(mailURL)
 }
 
 // TearDownSuite teardown at the end of test
@@ -142,8 +143,4 @@ func mustExecStmt(db *sql.DB, stmt string, values ...interface{}) {
 func timeTrack(start time.Time, name string) {
 	elapsed := time.Since(start)
 	log.Printf("%s took %s", name, elapsed)
-}
-
-func (s *TestSuite) PopLastMessage(email string) MailMessage {
-	return MailMessage{}
 }

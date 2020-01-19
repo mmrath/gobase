@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/mmrath/gobase/go/pkg/db"
 	"github.com/mmrath/gobase/go/pkg/errutil"
+	"github.com/mmrath/gobase/go/pkg/validate"
 	"strings"
 	"time"
 
@@ -14,7 +15,6 @@ import (
 	"github.com/mmrath/gobase/go/pkg/model"
 	"github.com/rs/zerolog/log"
 
-	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/google/uuid"
 )
 
@@ -35,10 +35,7 @@ func NewService(notifier Notifier, db *db.DB) *Service {
 }
 
 func (s *Service) Activate(token string) error {
-	err := validation.Validate(token,
-		validation.Required,
-		validation.Length(4, 128),
-	)
+	err := validate.Field(token, "required,min=4,max=128")
 	if err != nil {
 		return err
 	}
@@ -50,9 +47,9 @@ func (s *Service) Activate(token string) error {
 		uc, err := s.userCredentialDao.GetByActivationKey(tx, tokenHash)
 		if err != nil {
 			if db.IsNoDataFound(err) {
-				return errutil.New("invalid activation token")
+				return errutil.NewBadRequest("invalid activation token")
 			}
-			return err
+			return errutil.Wrap(err, "error while trying get activation")
 		}
 		if !uc.Activated {
 			if uc.ActivationKeyExpiresAt.Before(time.Now()) {
@@ -70,9 +67,9 @@ func (s *Service) Activate(token string) error {
 }
 
 func (s *Service) Login(login model.LoginRequest) (user model.User, err error) {
-	err = login.Validate()
+	err = validate.Struct(login)
 	if err != nil {
-		return
+		return user, errutil.Wrap(err, "failed validation")
 	}
 
 	invalidCredentialMsg := "invalid email or password"
@@ -274,7 +271,7 @@ func (s *Service) ResetPassword(passwordResetRequest model.ResetPasswordRequest)
 func (s *Service) Register(signUpRequest model.RegisterAccountRequest) (*model.User, error) {
 
 	log.Debug().Interface("email", signUpRequest.Email).Msg("signing up user")
-	err := signUpRequest.Validate()
+	err := validate.Struct(signUpRequest)
 
 	if err != nil {
 		return nil, err
@@ -329,7 +326,6 @@ func (s *Service) Register(signUpRequest model.RegisterAccountRequest) (*model.U
 	err = s.notifier.NotifyActivation(newUser, activationToken)
 
 	if err != nil {
-		log.Error().Err(err).Msg("failed to send account activation email")
 		return nil, errutil.Wrap(err, "failed to send account activation email")
 	}
 
@@ -357,8 +353,7 @@ func (s *Service) checkForDuplicate(tx *db.Tx, input string, by string, fn func(
 		return errutil.Wrap(err, "defaultError while checking for duplicate email")
 	} else if exists {
 		log.Info().Str(by, input).Msgf("found user with same %s", by)
-		fieldError := errutil.FieldError{Field: "email", Message: "user already exists"}
-		return errutil.NewFieldError(fieldError)
+		return errutil.NewFieldError("email", "email already registered")
 	}
 	return nil
 }

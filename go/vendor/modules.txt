@@ -25,7 +25,7 @@ github.com/fsnotify/fsnotify
 github.com/gavv/httpexpect/v2
 # github.com/go-bindata/go-bindata v3.1.2+incompatible
 github.com/go-bindata/go-bindata
-# github.com/go-chi/chi v4.0.2+incompatible
+# github.com/go-chi/chi v4.0.3+incompatible
 github.com/go-chi/chi
 github.com/go-chi/chi/middleware
 # github.com/go-chi/cors v1.0.0
@@ -36,16 +36,15 @@ github.com/go-chi/jwtauth
 github.com/go-chi/render
 # github.com/go-mail/mail v2.3.1+incompatible
 github.com/go-mail/mail
-# github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
-github.com/go-ozzo/ozzo-validation
-# github.com/go-ozzo/ozzo-validation/v3 v3.8.1
-github.com/go-ozzo/ozzo-validation/v3
-github.com/go-ozzo/ozzo-validation/v3/is
 # github.com/go-playground/locales v0.13.0
 github.com/go-playground/locales
 github.com/go-playground/locales/currency
+github.com/go-playground/locales/en
 # github.com/go-playground/universal-translator v0.17.0
 github.com/go-playground/universal-translator
+# github.com/go-playground/validator/v10 v10.1.0
+github.com/go-playground/validator/v10
+github.com/go-playground/validator/v10/translations/en
 # github.com/golang-migrate/migrate/v4 v4.7.0
 github.com/golang-migrate/migrate/v4
 github.com/golang-migrate/migrate/v4/database
@@ -127,7 +126,7 @@ github.com/lib/pq/oid
 github.com/lib/pq/scram
 # github.com/magiconair/properties v1.8.1
 github.com/magiconair/properties
-# github.com/mattn/go-runewidth v0.0.7
+# github.com/mattn/go-runewidth v0.0.8
 github.com/mattn/go-runewidth
 # github.com/mitchellh/mapstructure v1.1.2
 github.com/mitchellh/mapstructure
@@ -137,11 +136,11 @@ github.com/ogier/pflag
 github.com/olekukonko/tablewriter
 # github.com/pelletier/go-toml v1.6.0
 github.com/pelletier/go-toml
-# github.com/pkg/errors v0.8.1
+# github.com/pkg/errors v0.9.1
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
-# github.com/rotisserie/eris v0.1.1
+# github.com/rotisserie/eris v0.2.0
 github.com/rotisserie/eris
 # github.com/rs/zerolog v1.17.2
 github.com/rs/zerolog
@@ -196,7 +195,7 @@ github.com/yudai/gojsondiff
 github.com/yudai/gojsondiff/formatter
 # github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82
 github.com/yudai/golcs
-# golang.org/x/crypto v0.0.0-20191227163750-53104e6ec876
+# golang.org/x/crypto v0.0.0-20200117160349-530e935923ad
 golang.org/x/crypto/argon2
 golang.org/x/crypto/blake2b
 # golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa
@@ -206,7 +205,7 @@ golang.org/x/net/html/atom
 golang.org/x/net/publicsuffix
 golang.org/x/net/webdav
 golang.org/x/net/webdav/internal/xml
-# golang.org/x/sys v0.0.0-20200113162924-86b910548bc1
+# golang.org/x/sys v0.0.0-20200117145432-59e60aa80a0c
 golang.org/x/sys/cpu
 golang.org/x/sys/unix
 # golang.org/x/text v0.3.2
@@ -214,8 +213,6 @@ golang.org/x/text/transform
 golang.org/x/text/unicode/norm
 # gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc
 gopkg.in/alexcesaro/quotedprintable.v3
-# gopkg.in/asaskevich/govalidator.v9 v9.0.0-20180315120708-ccb8e960c48f
-gopkg.in/asaskevich/govalidator.v9
 # gopkg.in/fsnotify.v1 v1.4.7
 gopkg.in/fsnotify.v1
 # gopkg.in/go-playground/validator.v9 v9.30.2

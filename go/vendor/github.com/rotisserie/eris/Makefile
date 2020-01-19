@@ -40,13 +40,22 @@ fmt:
 ## Lint with golangci-lint
 lint:
 	@echo Linting
-	@go get github.com/golangci/golangci-lint
-	@golangci-lint run ./... --deadline 5m
+	@golangci-lint run --no-config --issues-exit-code=0 --timeout=5m
 
 ## Run the tests
 test:
 	@echo Running tests
 	@go test -race -v .
+
+## Run the tests with coverage
+test-coverage:
+	@echo Running tests with coverage
+	@go test -short -coverprofile cover.out -covermode=atomic ${PKG_LIST}
+
+## Display test coverage
+display-coverage:
+	@echo Displaying test coverage
+	@go tool cover -html=cover.out
 
 ## Stage a release (usage: make release-tag VERSION={VERSION_TAG})
 release-tag: build fmt lint test
