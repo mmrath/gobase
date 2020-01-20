@@ -13,7 +13,7 @@ fi
 
 APP=$1
 
-go install -mod=vendor github.com/cespare/reflex
+go install github.com/cespare/reflex
 
 reflex -s -r "^(apps/${APP}|pkg)" -- sh -c "./build.sh ${APP} && ${GOPATH}/bin/${APP}"
 

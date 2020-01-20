@@ -26,7 +26,10 @@ echo "Building application ${APP}"
 BUILD_TIME=$(date -u '+%Y-%m-%d %H:%M:%S')
 GO_LD_FLAGS="-X github.com/mmrath/gobase/go/pkg/version.Version=$VERSION -X github.com/mmrath/gobase/go/pkg/version.GitCommit=$GIT_COMMIT -X 'github.com/mmrath/gobase/go/pkg/version.BuildTime=$BUILD_TIME'"
 
-go install -mod=vendor -ldflags "${GO_LD_FLAGS}" "./apps/${APP}"
+echo "Downloading go modules"
+go mod download
+echo "Downloaded go modules"
+go install -ldflags "${GO_LD_FLAGS}" "./apps/${APP}"
 
 retval=$?
 if [ $retval -ne 0 ]; then

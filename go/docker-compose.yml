@@ -24,11 +24,10 @@ services:
     working_dir: /root/go
     volumes:
       - ..:/root:cached
-      - go_modules:/go/pkg/mod
 
   db-migration:
     image: golang:latest
-    command: sh -c "../scripts/wait-for-it.sh db:5432 -t 10 -- go run -mod=vendor ./apps/db-migration"
+    command: sh -c "../scripts/wait-for-it.sh db:5432 -t 10 -- ./build.sh db-migration && ${GOPATH}/bin/db-migration"
     environment:
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
@@ -42,7 +41,6 @@ services:
     working_dir: /root/go
     volumes:
       - ..:/root:cached
-      - go_modules:/go/pkg/mod
 
   db:
     image: "postgres:12"
@@ -65,5 +63,3 @@ services:
       - ${ENV_PORT_PREFIX}12:9000
       - ${ENV_PORT_PREFIX}13:2500
 
-volumes:
-  go_modules:
