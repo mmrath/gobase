@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"github.com/google/wire"
+
 	"github.com/mmrath/gobase/go/apps/clipo/internal/account"
 	"github.com/mmrath/gobase/go/pkg/auth"
 	"github.com/mmrath/gobase/go/pkg/email"

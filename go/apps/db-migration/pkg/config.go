@@ -1,10 +1,12 @@
 package pkg
 
 import (
-	"github.com/kelseyhightower/envconfig"
-	"github.com/mmrath/gobase/go/pkg/db"
-	"github.com/rs/zerolog/log"
 	"os"
+
+	"github.com/kelseyhightower/envconfig"
+	"github.com/rs/zerolog/log"
+
+	"github.com/mmrath/gobase/go/pkg/db"
 )
 
 type Config struct {

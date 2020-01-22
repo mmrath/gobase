@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"fmt"
+
 	"github.com/mmrath/gobase/go/apps/db-migration/pkg"
 
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"

@@ -3,18 +3,20 @@ package tests
 import (
 	"bytes"
 	"fmt"
-	"github.com/mmrath/gobase/go/pkg/crypto"
 	"log"
 	"net/http"
 	"regexp"
 	"testing"
 	"time"
 
+	"github.com/mmrath/gobase/go/pkg/crypto"
+
 	"github.com/brianvoe/gofakeit"
 	"github.com/gavv/httpexpect/v2"
-	"github.com/mmrath/gobase/go/pkg/model"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/mmrath/gobase/go/pkg/model"
 )
 
 type AccountTestSuite struct {
@@ -64,9 +66,9 @@ func (s *AccountTestSuite) TestRegisterActivateAndLogin() {
 	resp.Status(http.StatusUnauthorized)
 	resp.JSON().Path("$.errors[0]").Equal("user is not activated")
 
-	re := regexp.MustCompile("/account/activate\\?key=([0-9a-f\\-]+)")
+	re := regexp.MustCompile(`/account/activate\?key=([0-9a-f\-]+)`)
 	key := re.FindStringSubmatch(msg.Html)[1]
-	resp = he.GET("/api/account/activate").
+	he.GET("/api/account/activate").
 		WithQuery("key", key).
 		Expect().
 		Status(http.StatusOK)
@@ -78,17 +80,17 @@ func (s *AccountTestSuite) TestRegisterActivateAndLogin() {
 	token := resp.Header("Authorization").Match("Bearer (.*)").Raw()[1]
 	require.NotNil(s.T(), token)
 	/*
-	var jwtPublicKey *rsa.PublicKey
-	jwtToken, err := jwt.Parse(token, func(token *jwt.Token) (i interface{}, err error) {
-		return jwtPublicKey, nil
-	})
-	require.NoError(s.T(), err)
-	err = jwtToken.Claims.Valid()
-	require.NoError(s.T(), err)
-	claims := jwtToken.Claims.(jwt.MapClaims)
-	require.NotNil(s.T(), claims["jti"])
-	require.Equal(s.T(), testEmail, claims["sub"])
-	 */
+		var jwtPublicKey *rsa.PublicKey
+		jwtToken, err := jwt.Parse(token, func(token *jwt.Token) (i interface{}, err error) {
+			return jwtPublicKey, nil
+		})
+		require.NoError(s.T(), err)
+		err = jwtToken.Claims.Valid()
+		require.NoError(s.T(), err)
+		claims := jwtToken.Claims.(jwt.MapClaims)
+		require.NotNil(s.T(), claims["jti"])
+		require.Equal(s.T(), testEmail, claims["sub"])
+	*/
 }
 
 func (s *AccountTestSuite) TestSignUpWithInvalidEmail() {
@@ -192,9 +194,9 @@ func (s *AccountTestSuite) TestResetPassword() {
 	msg := s.EmailClient.GetLatestEmail(testEmail)
 	require.NotNil(s.T(), msg)
 	require.Equal(s.T(), "Reset password", msg.Subject)
-	require.Contains(s.T(), msg.To[0].Address, initResetRequest["email"], )
+	require.Contains(s.T(), msg.To[0].Address, initResetRequest["email"])
 
-	re := regexp.MustCompile("/account/reset-password\\?key=([0-9a-f\\-]+)")
+	re := regexp.MustCompile(`/account/reset-password\?key=([0-9a-f\-]+)`)
 	key := re.FindStringSubmatch(msg.Html)[1]
 
 	resetRequest := map[string]interface{}{
@@ -213,22 +215,21 @@ func (s *AccountTestSuite) TestResetPassword() {
 
 	resp.Status(http.StatusOK)
 	/*
-	token := resp.Header("Authorization").Match("Bearer (.*)").Raw()[1]
+		token := resp.Header("Authorization").Match("Bearer (.*)").Raw()[1]
 
 
-	var jwtPublicKey *rsa.PublicKey
-	jwtToken, err := jwt.Parse(token, func(token *jwt.Token) (i interface{}, err error) {
-		return jwtPublicKey, nil
-	})
+		var jwtPublicKey *rsa.PublicKey
+		jwtToken, err := jwt.Parse(token, func(token *jwt.Token) (i interface{}, err error) {
+			return jwtPublicKey, nil
+		})
 
-	require.NoError(s.T(), err)
-	err = jwtToken.Claims.Valid()
-	require.NoError(s.T(), err)
-	claims := jwtToken.Claims.(jwt.MapClaims)
-	require.NotNil(s.T(), claims["jti"])
-	require.Equal(s.T(), testEmail, claims["sub"])
+		require.NoError(s.T(), err)
+		err = jwtToken.Claims.Valid()
+		require.NoError(s.T(), err)
+		claims := jwtToken.Claims.(jwt.MapClaims)
+		require.NotNil(s.T(), claims["jti"])
+		require.Equal(s.T(), testEmail, claims["sub"])
 	*/
-
 
 }
 
@@ -314,7 +315,12 @@ func (s *AccountTestSuite) createUser(email string, password string) {
 	}
 
 	mustExecStmt(s.db, stmts[0], email)
-	passwordHash, err := crypto.HashPassword(crypto.SHA256([]byte(password)))
+
+	passwordSha, err := crypto.SHA256([]byte(password))
+	if err != nil {
+		panic(err)
+	}
+	passwordHash, err := crypto.HashPassword(passwordSha)
 	if err != nil {
 		log.Printf("Error hasing password")
 		panic(err)

@@ -35,6 +35,9 @@ type RoleDao interface {
 type roleDao struct {
 }
 
+func NewRoleDao() RoleDao {
+	return &roleDao{}
+}
 func (dao *roleDao) Find(tx *db.Tx, id int32) (Role, error) {
 	role := Role{}
 	err := tx.First(&role, id).Error
@@ -87,7 +90,7 @@ func (dao *roleDao) createRolePermissions(tx *db.Tx, roleId int32, permissions [
 			Msg("failed to delete existing permissions of role")
 		return errutil.Wrap(err, "failed to delete existing permissions of role")
 	}
-	if permissions == nil || len(permissions) == 0 {
+	if len(permissions) == 0 {
 		return nil
 	}
 	rolePermissions := make([]RolePermission, len(permissions))

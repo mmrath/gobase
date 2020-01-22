@@ -2,10 +2,11 @@ package errutil
 
 import (
 	stdError "errors"
+	"net/http"
+
 	"github.com/go-chi/render"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
-	"net/http"
 )
 
 type FieldError struct {
@@ -51,10 +52,7 @@ func RenderError(w http.ResponseWriter, r *http.Request, err error) {
 		return
 	}
 
-
-
 	log.Error().Err(err).Send()
 	render.Status(r, 500)
 	render.PlainText(w, r, http.StatusText(http.StatusInternalServerError))
-	return
 }

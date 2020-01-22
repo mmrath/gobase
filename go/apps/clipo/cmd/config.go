@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"github.com/mmrath/gobase/go/apps/clipo/internal/config"
 	"github.com/rs/zerolog/log"
+
+	"github.com/mmrath/gobase/go/apps/clipo/internal/config"
 )
 
 func LoadConfig() config.Config {

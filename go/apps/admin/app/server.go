@@ -1,19 +1,23 @@
 package app
 
 import (
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
-	"github.com/go-chi/cors"
-	"github.com/go-chi/render"
-	"github.com/mmrath/gobase/go/apps/admin/internal/account"
 	"net/http"
 	"os"
 	"path"
 	"strings"
 	"time"
+
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/cors"
+	"github.com/go-chi/render"
+	"github.com/rs/zerolog/log"
+
+	"github.com/mmrath/gobase/go/apps/admin/internal/account"
+	"github.com/mmrath/gobase/go/apps/admin/internal/config"
 )
 
-func NewHttpServer(cfg *Config, handler http.Handler) *http.Server {
+func NewHttpServer(cfg *config.Config, handler http.Handler) *http.Server {
 	var addr string
 	port := cfg.Web.Port
 
@@ -31,7 +35,7 @@ func NewHttpServer(cfg *Config, handler http.Handler) *http.Server {
 	return &srv
 }
 
-func HttpRouter(webConfig WebConfig, roleHandler *account.RoleHandler) (http.Handler, error) {
+func HttpRouter(webConfig config.WebConfig, roleHandler *account.RoleHandler) (http.Handler, error) {
 	r := chi.NewRouter()
 
 	r.Use(middleware.Recoverer)
@@ -62,7 +66,10 @@ func HttpRouter(webConfig WebConfig, roleHandler *account.RoleHandler) (http.Han
 	})
 
 	r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("pong"))
+		_, err := w.Write([]byte("pong"))
+		if err != nil {
+			log.Error().Err(err).Msg("failed to reply to ping")
+		}
 	})
 
 	client := "./public"

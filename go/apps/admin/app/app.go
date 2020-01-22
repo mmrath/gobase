@@ -2,13 +2,15 @@ package app
 
 import (
 	"context"
-	"github.com/mmrath/gobase/go/apps/admin/internal/account"
-	"github.com/mmrath/gobase/go/pkg/config"
-	"github.com/mmrath/gobase/go/pkg/db"
-	"github.com/rs/zerolog/log"
 	"net/http"
 	"os"
 	"os/signal"
+
+	"github.com/rs/zerolog/log"
+
+	"github.com/mmrath/gobase/go/apps/admin/internal/account"
+	"github.com/mmrath/gobase/go/apps/admin/internal/config"
+	"github.com/mmrath/gobase/go/pkg/db"
 )
 
 type App struct {
@@ -16,8 +18,8 @@ type App struct {
 }
 
 func NewApp(profiles ...string) (*App, error) {
-	cfg := Config{}
-	err := config.LoadConfig(&cfg, "./resources", profiles...)
+	cfg := config.Config{}
+	err := config.LoadConfig(&cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +53,7 @@ func (srv *App) Start() {
 	}()
 	log.Info().Interface("address", srv.httpServer.Addr).Msg("server started")
 
-	quit := make(chan os.Signal)
+	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	sig := <-quit
 	log.Info().Interface("reason", sig).Msg("server shutting down")

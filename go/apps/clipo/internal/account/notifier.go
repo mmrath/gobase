@@ -2,9 +2,10 @@ package account
 
 import (
 	"fmt"
+	"html/template"
+
 	"github.com/mmrath/gobase/go/apps/clipo/internal/template_util"
 	"github.com/mmrath/gobase/go/pkg/errutil"
-	"html/template"
 
 	"github.com/mmrath/gobase/go/pkg/email"
 	"github.com/mmrath/gobase/go/pkg/model"
@@ -43,7 +44,9 @@ func (e *notifier) NotifyPasswordChange(user model.User) error {
 	}
 
 	msg, err := email.NewHtmlMessage(from, to, subject, htmlBody)
-
+	if err != nil {
+		return errutil.Wrap(err, "failed to build email message")
+	}
 	err = e.sender.Send(msg)
 	if err != nil {
 		return err

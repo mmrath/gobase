@@ -2,18 +2,20 @@ package cmd
 
 import (
 	"context"
-	"github.com/mmrath/gobase/go/apps/clipo/internal/config"
-	"github.com/mmrath/gobase/go/apps/clipo/internal/template_util"
-	"github.com/mmrath/gobase/go/pkg/db"
 	"net/http"
 	"os"
 	"os/signal"
 	"strings"
 
+	"github.com/mmrath/gobase/go/apps/clipo/internal/config"
+	"github.com/mmrath/gobase/go/apps/clipo/internal/template_util"
+	"github.com/mmrath/gobase/go/pkg/db"
+
 	"github.com/go-chi/chi"
+	"github.com/rs/zerolog/log"
+
 	"github.com/mmrath/gobase/go/apps/clipo/internal/account"
 	"github.com/mmrath/gobase/go/pkg/email"
-	"github.com/rs/zerolog/log"
 )
 
 // App provides an http.App.
@@ -58,7 +60,7 @@ func (srv *App) Start() {
 	}()
 	log.Printf("listening on %s\n", srv.Addr)
 
-	quit := make(chan os.Signal)
+	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	sig := <-quit
 	log.Print("shutting down server... reason:", sig)

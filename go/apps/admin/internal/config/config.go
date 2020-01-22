@@ -1,7 +1,10 @@
-package app
+package config
 
 import (
+	"github.com/kelseyhightower/envconfig"
+
 	"github.com/mmrath/gobase/go/pkg/db"
+	"github.com/mmrath/gobase/go/pkg/errutil"
 )
 
 type Config struct {
@@ -14,4 +17,9 @@ type WebConfig struct {
 	Port        string `yaml:"port"`
 	CorsEnabled bool   `yaml:"corsEnabled"`
 	TemplateDir string `yaml:"templateDir"`
+}
+
+func LoadConfig(cfg *Config) error {
+	err := envconfig.Process("", cfg)
+	return errutil.Wrap(err, "failed to load config")
 }

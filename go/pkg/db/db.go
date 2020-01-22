@@ -9,10 +9,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type txKeyType string
-
-var txKey txKeyType
-
 type Config struct {
 	Host     string
 	Port     int `default:"5432"`

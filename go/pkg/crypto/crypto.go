@@ -7,9 +7,12 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
+	"strings"
+
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/argon2"
-	"strings"
+
+	"github.com/mmrath/gobase/go/pkg/errutil"
 )
 
 var (
@@ -71,7 +74,7 @@ func CheckPassword(password, encodedHash string) (match bool, err error) {
 	// hash.
 	p, salt, hash, err := decodeHash(encodedHash)
 	if err != nil {
-		return false, err
+		return false, errutil.Wrap(err, "failed to decode hash")
 	}
 
 	// Derive the key from the other password using the same parameters.
@@ -122,8 +125,11 @@ func decodeHash(encodedHash string) (p *params, salt, hash []byte, err error) {
 	return p, salt, hash, nil
 }
 
-func SHA256(data []byte) string {
+func SHA256(data []byte) (string, error) {
 	sha256Hash := sha256.New()
-	sha256Hash.Write(data)
-	return hex.EncodeToString(sha256Hash.Sum(nil))
+	_, err := sha256Hash.Write(data)
+	if err != nil {
+		return "", errutil.Wrap(err, "failed to compute sha 256 sum")
+	}
+	return hex.EncodeToString(sha256Hash.Sum(nil)), nil
 }

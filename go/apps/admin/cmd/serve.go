@@ -2,10 +2,12 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/mmrath/gobase/go/apps/admin/app"
+	"os"
+
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
-	"os"
+
+	"github.com/mmrath/gobase/go/apps/admin/app"
 )
 
 func commandServe() *cobra.Command {

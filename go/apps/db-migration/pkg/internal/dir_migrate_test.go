@@ -69,7 +69,12 @@ func TestOpenWithRelativePath(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.Chdir(wd) // rescue working dir after we are done
+	defer func() {
+		err := os.Chdir(wd)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}() // rescue working dir after we are done
 
 	if err := os.Chdir(tmpDir); err != nil {
 		t.Fatal(err)
@@ -157,7 +162,11 @@ func TestClose(t *testing.T) {
 }
 
 func mustWriteFile(t testing.TB, dir, mpath string, file string, body string) {
-	os.Mkdir(path.Join(dir, mpath), 0777)
+	err := os.Mkdir(path.Join(dir, mpath), 0777)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	if err := ioutil.WriteFile(path.Join(dir, mpath, file), []byte(body), 06444); err != nil {
 		t.Fatal(err)
 	}
@@ -183,7 +192,10 @@ func BenchmarkOpen(b *testing.B) {
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		f := &File{}
-		f.Open("file://" + dir)
+		_, err := f.Open("file://" + dir)
+		if err != nil {
+			b.Fatal(err)
+		}
 	}
 	b.StopTimer()
 }

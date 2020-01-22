@@ -2,11 +2,11 @@ package config
 
 import (
 	"github.com/kelseyhightower/envconfig"
+
 	"github.com/mmrath/gobase/go/pkg/auth"
 	"github.com/mmrath/gobase/go/pkg/db"
 	"github.com/mmrath/gobase/go/pkg/email"
-
-	"os"
+	"github.com/mmrath/gobase/go/pkg/errutil"
 )
 
 type Config struct {
@@ -24,22 +24,6 @@ type WebConfig struct {
 }
 
 func LoadConfig(cfg *Config) error {
-	envconfig.Process("", cfg)
-	return nil
-}
-
-func fileExists(filename string) bool {
-	info, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return !info.IsDir()
-}
-
-func dirExists(dirName string) bool {
-	info, err := os.Stat(dirName)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return info.IsDir()
+	err := envconfig.Process("", cfg)
+	return errutil.Wrap(err, "failed to load config")
 }

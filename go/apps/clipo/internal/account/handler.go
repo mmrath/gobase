@@ -2,14 +2,16 @@ package account
 
 import (
 	"fmt"
-	"github.com/mmrath/gobase/go/pkg/errutil"
 	"net/http"
+
+	"github.com/mmrath/gobase/go/pkg/errutil"
 
 	"github.com/go-chi/jwtauth"
 	"github.com/go-chi/render"
+	"github.com/rs/zerolog/log"
+
 	"github.com/mmrath/gobase/go/pkg/auth"
 	"github.com/mmrath/gobase/go/pkg/model"
-	"github.com/rs/zerolog/log"
 )
 
 var AuthTokenCookieName = "jwt"
@@ -117,14 +119,12 @@ func (h *Handler) Activate() http.HandlerFunc {
 func (h *Handler) GetProfile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		render.Status(r, http.StatusNotImplemented)
-		return
 	}
 }
 
 func (h *Handler) UpdateProfile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		render.Status(r, http.StatusNotImplemented)
-		return
 	}
 }
 
@@ -194,7 +194,7 @@ func (h *Handler) ChangePassword() http.HandlerFunc {
 		} else {
 			log.Info().Msg("password changed successfully")
 			render.Status(r, http.StatusOK)
-			render.PlainText(w,r, "Password changed successfully")
+			render.PlainText(w, r, "Password changed successfully")
 			return
 		}
 	}
@@ -210,6 +210,5 @@ func (h *Handler) Account() http.HandlerFunc {
 
 		render.Status(r, http.StatusOK)
 		w.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token.Raw))
-		return
 	}
 }

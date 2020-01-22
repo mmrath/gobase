@@ -3,14 +3,16 @@ package tests
 import (
 	"database/sql"
 	"fmt"
-	"github.com/brianvoe/gofakeit"
-	"github.com/mmrath/gobase/go/apps/clipo/cmd"
-	"github.com/mmrath/gobase/go/pkg/email"
-	"github.com/mmrath/gobase/go/pkg/test_helper"
 	"log"
 	"net/http/httptest"
 	"os"
 	"time"
+
+	"github.com/brianvoe/gofakeit"
+
+	"github.com/mmrath/gobase/go/apps/clipo/cmd"
+	"github.com/mmrath/gobase/go/pkg/email"
+	"github.com/mmrath/gobase/go/pkg/test_helper"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -81,6 +83,7 @@ func (s *TestSuite) SetupSuite() {
 // TearDownSuite teardown at the end of test
 func (s *TestSuite) TearDownSuite() {
 	s.server.Close()
+	cleanDB(s.db)
 }
 
 func (s *TestSuite) SetupTest() {
@@ -99,25 +102,9 @@ func cleanDB(db *sql.DB) {
 		"TRUNCATE TABLE user_credential CASCADE",
 		"TRUNCATE TABLE permission CASCADE",
 		"TRUNCATE TABLE user_account CASCADE",
-		"TRUNCATE TABLE country CASCADE",
-		"TRUNCATE TABLE currency CASCADE",
-		"TRUNCATE TABLE timezone CASCADE",
-		"TRUNCATE TABLE datetime_format CASCADE",
-		"TRUNCATE TABLE date_format CASCADE",
-		"TRUNCATE TABLE language CASCADE",
 		"TRUNCATE TABLE notification CASCADE",
 		"TRUNCATE TABLE notification_recipient CASCADE",
 		"TRUNCATE TABLE notification_attachment CASCADE",
-	}
-	executeStmts(db, stmts)
-}
-
-func createTestUser(db *sql.DB) {
-	defer timeTrack(time.Now(), "create test user")
-	stmts := []string{
-		`INSERT INTO public.user_account(
-	id, first_name, last_name, email, phone_number, active, created_at, created_by, updated_at, updated_by, version)
-	VALUES (1, 'Test', 'Test', 'testuser@localhost', NULL, true, current_timestamp, 'test', current_timestamp, 'test', 1)`,
 	}
 	executeStmts(db, stmts)
 }

@@ -3,6 +3,7 @@ package account
 import (
 	"context"
 	"fmt"
+
 	"github.com/mmrath/gobase/go/pkg/db"
 	"github.com/mmrath/gobase/go/pkg/errutil"
 	"github.com/mmrath/gobase/go/pkg/model"
@@ -52,6 +53,7 @@ func (s *roleService) Update(ctx context.Context, roleAndPermission *model.RoleA
 
 func NewRoleService(db *db.DB) RoleService {
 	return &roleService{
-		db: db,
+		db:      db,
+		roleDao: model.NewRoleDao(),
 	}
 }

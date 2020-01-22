@@ -2,8 +2,11 @@ package test_helper
 
 import (
 	"fmt"
+
 	"github.com/inbucket/inbucket/pkg/rest/client"
 	"github.com/mmrath/gobase/go/pkg/email"
+	"github.com/mmrath/gobase/go/pkg/errutil"
+
 	"net/mail"
 )
 
@@ -28,14 +31,16 @@ func (c *TestEmailClient) GetLatestEmail(emailId string) *email.Message {
 	for _, h := range headers {
 		msg, err := h.GetMessage()
 		if err != nil {
-			return nil
+			panic(errutil.Wrap(err, "failed to load test emails"))
 		}
-		return &email.Message{
-			To:      toAddress(h.To...),
-			From:    email.Address{Address: h.From},
-			Subject: h.Subject,
-			Html:    msg.Body.HTML,
-			Text:    msg.Body.Text,
+		if msg != nil {
+			return &email.Message{
+				To:      toAddress(h.To...),
+				From:    email.Address{Address: h.From},
+				Subject: h.Subject,
+				Html:    msg.Body.HTML,
+				Text:    msg.Body.Text,
+			}
 		}
 	}
 	return nil

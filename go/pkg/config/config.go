@@ -1,13 +1,12 @@
 package config
 
 import (
-	"os"
+	"github.com/kelseyhightower/envconfig"
+
+	"github.com/mmrath/gobase/go/pkg/errutil"
 )
 
-func fileExists(filename string) bool {
-	info, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return !info.IsDir()
+func LoadConfig(cfg interface{}) error {
+	err := envconfig.Process("", cfg)
+	return errutil.Wrap(err, "failed to load config")
 }

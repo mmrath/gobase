@@ -2,11 +2,13 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/golang-migrate/migrate/v4"
 	"os"
 
-	"github.com/mmrath/gobase/go/apps/db-migration/pkg"
+	"github.com/golang-migrate/migrate/v4"
+
 	"github.com/spf13/cobra"
+
+	"github.com/mmrath/gobase/go/apps/db-migration/pkg"
 )
 
 // rootCmd represents the base command when called without any subcommands

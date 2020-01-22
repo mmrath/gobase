@@ -8,6 +8,7 @@ require (
 	github.com/andybalholm/cascadia v1.1.0 // indirect
 	github.com/brianvoe/gofakeit v3.18.0+incompatible
 	github.com/cespare/reflex v0.2.0
+	github.com/codegangsta/negroni v1.0.0 // indirect
 	github.com/creack/pty v1.1.9 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/docker/go-units v0.4.0 // indirect
@@ -23,15 +24,18 @@ require (
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
 	github.com/go-playground/validator/v10 v10.1.0
+	github.com/goji/httpauth v0.0.0-20160601135302-2da839ab0f4d // indirect
 	github.com/golang-migrate/migrate/v4 v4.7.0
 	github.com/google/go-cmp v0.3.1 // indirect
 	github.com/google/uuid v1.1.1
 	github.com/google/wire v0.4.0
 	github.com/gorilla/css v1.0.0 // indirect
+	github.com/gorilla/sessions v1.2.0 // indirect
 	github.com/hashicorp/errwrap v1.0.0
 	github.com/imkira/go-interpol v1.1.0 // indirect
 	github.com/inbucket/inbucket v2.0.0+incompatible
 	github.com/jaytaylor/html2text v0.0.0-20190408195923-01ec452cbe43
+	github.com/jhillyerd/enmime v0.7.0 // indirect
 	github.com/jhillyerd/inbucket v2.0.0+incompatible // indirect
 	github.com/jinzhu/gorm v1.9.12
 	github.com/jwilder/dockerize v0.6.1
@@ -43,6 +47,7 @@ require (
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.11 // indirect
 	github.com/mattn/go-runewidth v0.0.8 // indirect
+	github.com/microcosm-cc/bluemonday v1.0.2 // indirect
 	github.com/ogier/pflag v0.0.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.4 // indirect
 	github.com/pelletier/go-toml v1.6.0 // indirect
@@ -56,12 +61,13 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.5.0
-	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	github.com/stretchr/testify v1.4.0
 	github.com/unrolled/render v1.0.1
 	github.com/valyala/fasthttp v1.6.0 // indirect
 	github.com/vanng822/css v0.0.0-20190504095207-a21e860bcd04 // indirect
 	github.com/vanng822/go-premailer v0.0.0-20191214114701-be27abe028fe
+	github.com/vanng822/r2router v0.0.0-20150523112421-1023140a4f30 // indirect
+	github.com/vanng822/recovery v0.0.0-20150505072318-05bd745de2a9 // indirect
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
 	golang.org/x/crypto v0.0.0-20200117160349-530e935923ad
 	golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa

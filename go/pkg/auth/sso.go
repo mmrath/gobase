@@ -3,12 +3,13 @@ package auth
 import (
 	"crypto/rsa"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/mmrath/gobase/go/pkg/errutil"
-	"github.com/rs/zerolog/log"
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/mmrath/gobase/go/pkg/errutil"
+	"github.com/rs/zerolog/log"
 )
 
 type SsoClientConfig struct {
@@ -30,6 +31,9 @@ func NewSsoMiddleware(cfg SsoClientConfig) (*ssoMiddleware, error) {
 	}
 	parsedPubKey, err := jwt.ParseRSAPublicKeyFromPEM(key)
 
+	if err != nil {
+		return nil, errutil.Wrap(err, "failed to parse public key from pem")
+	}
 	return &ssoMiddleware{
 		PubKey:     parsedPubKey,
 		CookieName: cfg.CookieName,

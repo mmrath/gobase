@@ -4,16 +4,18 @@ import (
 	"context"
 	"crypto/sha256"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/mmrath/gobase/go/pkg/db"
 	"github.com/mmrath/gobase/go/pkg/errutil"
 	"github.com/mmrath/gobase/go/pkg/validate"
-	"strings"
-	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/mmrath/gobase/go/pkg/auth"
 	"github.com/mmrath/gobase/go/pkg/crypto"
 	"github.com/mmrath/gobase/go/pkg/model"
-	"github.com/rs/zerolog/log"
 
 	"github.com/google/uuid"
 )
@@ -91,7 +93,7 @@ func (s *Service) Login(login model.LoginRequest) (user model.User, err error) {
 			if db.IsNoDataFound(err) {
 				return errutil.NewUnauthorized(invalidCredentialMsg)
 			}
-			return err
+			return errutil.Wrap(err, "failed to get credentials from db")
 		}
 
 		if !uc.Activated {
@@ -102,11 +104,14 @@ func (s *Service) Login(login model.LoginRequest) (user model.User, err error) {
 			return errutil.NewUnauthorized("account is locked")
 		}
 
-		passwordSha := crypto.SHA256([]byte(login.Password))
+		passwordSha, err := crypto.SHA256([]byte(login.Password))
+		if err != nil {
+			return errutil.Wrap(err, "failed to compute sha checksum")
+		}
 		matched, err := crypto.CheckPassword(passwordSha, uc.PasswordHash)
 
 		if err != nil {
-			return err
+			return errutil.Wrap(err, "failed to check password")
 		}
 
 		if !matched {
@@ -155,11 +160,14 @@ func (s *Service) ChangePassword(ctx context.Context, data model.ChangePasswordR
 			return errutil.Wrapf(err, "failed to retrieve user credential for %d", id)
 		}
 
-		currentPasswordSha := crypto.SHA256([]byte(data.CurrentPassword))
+		currentPasswordSha, err := crypto.SHA256([]byte(data.CurrentPassword))
+		if err != nil {
+			return errutil.Wrap(err, "failed to compute sha checksum of password")
+		}
 		matched, err := crypto.CheckPassword(currentPasswordSha, uc.PasswordHash)
 
 		if err != nil {
-			return errutil.Wrapf(err, "failed to validate password")
+			return errutil.Wrap(err, "failed to validate password")
 		}
 
 		if !matched {
@@ -177,7 +185,12 @@ func (s *Service) ChangePassword(ctx context.Context, data model.ChangePasswordR
 			return errutil.NewUnauthorized("invalid current password")
 		}
 
-		newPasswordHash, err := crypto.HashPassword(crypto.SHA256([]byte(data.NewPassword)))
+		passwordSha, err := crypto.SHA256([]byte(data.NewPassword))
+		if err != nil {
+			return errutil.Wrap(err, "failed to compute sha checksum of password")
+		}
+
+		newPasswordHash, err := crypto.HashPassword(passwordSha)
 		if err != nil {
 			return errutil.Wrap(err, "failed to hash password")
 		}
@@ -256,7 +269,12 @@ func (s *Service) ResetPassword(passwordResetRequest model.ResetPasswordRequest)
 			return errutil.NewBadRequest("reset key is expired")
 		}
 
-		passwordHash, err := crypto.HashPassword(crypto.SHA256([]byte(passwordResetRequest.NewPassword)))
+		passwordSha, err := crypto.SHA256([]byte(passwordResetRequest.NewPassword))
+		if err != nil {
+			return errutil.Wrap(err, "failed to compute sha checksum of password")
+		}
+
+		passwordHash, err := crypto.HashPassword(passwordSha)
 		if err != nil {
 			return errutil.Wrap(err, "failed to hash password")
 		}
@@ -287,7 +305,12 @@ func (s *Service) Register(signUpRequest model.RegisterAccountRequest) (*model.U
 
 	newUser.UpdatedBy = "SIGNUP"
 
-	passwordHash, err := crypto.HashPassword(crypto.SHA256([]byte(signUpRequest.Password)))
+	passwordSha, err := crypto.SHA256([]byte(signUpRequest.Password))
+	if err != nil {
+		return nil, errutil.Wrap(err, "failed to compute sha checksum of password")
+	}
+
+	passwordHash, err := crypto.HashPassword(passwordSha)
 	if err != nil {
 		return nil, errutil.Wrap(err, "failed to hash password")
 	}

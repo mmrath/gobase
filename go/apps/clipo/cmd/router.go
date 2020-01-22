@@ -2,12 +2,15 @@
 package cmd
 
 import (
-	"github.com/mmrath/gobase/go/apps/clipo/internal/config"
 	"net/http"
 	"os"
 	"path"
 	"strings"
 	"time"
+
+	"github.com/rs/zerolog/log"
+
+	"github.com/mmrath/gobase/go/apps/clipo/internal/config"
 
 	"github.com/mmrath/gobase/go/apps/clipo/internal/account"
 	"github.com/mmrath/gobase/go/pkg/auth"
@@ -67,7 +70,10 @@ func NewMux(cfg config.Config,
 	})
 
 	r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("pong"))
+		_, err := w.Write([]byte("pong"))
+		if err != nil {
+			log.Error().Err(err).Msg("failed to reply to ping")
+		}
 	})
 
 	client := "./public"

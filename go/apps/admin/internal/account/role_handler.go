@@ -1,14 +1,16 @@
 package account
 
 import (
+	"net/http"
+
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
-	"github.com/mmrath/gobase/go/pkg/errutil"
-	"github.com/mmrath/gobase/go/pkg/model"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cast"
 	"gopkg.in/go-playground/validator.v9"
-	"net/http"
+
+	"github.com/mmrath/gobase/go/pkg/errutil"
+	"github.com/mmrath/gobase/go/pkg/model"
 )
 
 type RoleHandler struct {

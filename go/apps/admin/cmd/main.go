@@ -2,15 +2,20 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"os"
+
+	"github.com/rs/zerolog/log"
+	"github.com/spf13/cobra"
 )
 
 func commandRoot() *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use: "admin",
 		Run: func(cmd *cobra.Command, args []string) {
-			cmd.Help()
+			err := cmd.Help()
+			if err != nil {
+				log.Error().Err(err).Msg("failed to show help message")
+			}
 			os.Exit(2)
 		},
 	}

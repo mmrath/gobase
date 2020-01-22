@@ -3,10 +3,6 @@ package email
 
 import (
 	"fmt"
-	"github.com/go-mail/mail"
-	"github.com/hashicorp/errwrap"
-	"github.com/jaytaylor/html2text"
-	"github.com/vanng822/go-premailer/premailer"
 	"html/template"
 	"log"
 	stdMail "net/mail"
@@ -15,6 +11,11 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/go-mail/mail"
+	"github.com/hashicorp/errwrap"
+	"github.com/jaytaylor/html2text"
+	"github.com/vanng822/go-premailer/premailer"
 )
 
 var (
@@ -83,11 +84,11 @@ func (m *mailer) Send(email *Message) error {
 
 // message struct holds all parts of a specific email message.
 type Message struct {
-	From     Address
-	To       []Address
-	Subject  string
-	Html     string
-	Text     string
+	From    Address
+	To      []Address
+	Subject string
+	Html    string
+	Text    string
 }
 
 func NewHtmlMessage(from Address, to []Address, subject string, htmlBody string) (*Message, error) {
@@ -155,7 +156,7 @@ func formatAsDate(t time.Time) string {
 }
 
 func formatAsDuration(t time.Time) string {
-	dur := t.Sub(time.Now())
+	dur := time.Until(t)
 	hours := int(dur.Hours())
 	mins := int(dur.Minutes())
 

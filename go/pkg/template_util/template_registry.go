@@ -9,8 +9,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/mmrath/gobase/go/pkg/errutil"
+
 	"github.com/rs/zerolog/log"
-	)
+)
 
 type Registry struct {
 	templates *template.Template
@@ -56,7 +58,7 @@ func findAndParseTemplates(rootDir string, funcMap template.FuncMap) (*template.
 
 			name := path[pfx:]
 			t := root.New(name).Funcs(funcMap)
-			t, e2 = t.Parse(string(b))
+			_, e2 = t.Parse(string(b))
 			if e2 != nil {
 				return e2
 			}

@@ -2,10 +2,11 @@ package template_util
 
 import (
 	"bytes"
-	"github.com/mmrath/gobase/go/apps/clipo/internal/generated"
-	"github.com/mmrath/gobase/go/pkg/errutil"
 	"html/template"
 	"io"
+
+	"github.com/mmrath/gobase/go/apps/clipo/internal/generated"
+	"github.com/mmrath/gobase/go/pkg/errutil"
 )
 
 type Registry struct {

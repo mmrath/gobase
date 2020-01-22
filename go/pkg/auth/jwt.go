@@ -8,7 +8,6 @@ import (
 	"github.com/rs/zerolog/log"
 	"io/ioutil"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -175,19 +174,4 @@ func (s *jwtService) Authenticator(next http.Handler) http.Handler {
 		// Token is authenticated, pass it through
 		next.ServeHTTP(w, req)
 	})
-}
-
-func fromAuthHeader(r *http.Request) (string, error) {
-	authHeader := r.Header.Get("Authorization")
-	if authHeader == "" {
-		return "", nil // No error, just no token
-	}
-
-	// TODO: Make this a bit more robust, parsing-wise
-	authHeaderParts := strings.Fields(authHeader)
-	if len(authHeaderParts) != 2 || strings.ToLower(authHeaderParts[0]) != "bearer" {
-		return "", errutil.New("Authorization header format must be Bearer {token}")
-	}
-
-	return authHeaderParts[1], nil
 }

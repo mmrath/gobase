@@ -27,9 +27,8 @@ func (m *MockMailer) PopLastMessage() *email.Message {
 	return msg
 }
 
-
 type MailMessage struct {
-	To []string
+	To      []string
 	Subject []string
-	Body string
+	Body    string
 }
