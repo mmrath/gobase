@@ -174,12 +174,12 @@ func (s *Service) ChangePassword(ctx context.Context, data model.ChangePasswordR
 			if uc.InvalidAttempts >= 3 {
 				err := s.userCredentialDao.IncrementInvalidAttempts(tx, id, true)
 				if err != nil {
-					return errutil.Wrapf(err, "failed to lock user")
+					return errutil.Wrap(err, "failed to lock user")
 				}
 			} else {
 				err := s.userCredentialDao.IncrementInvalidAttempts(tx, id, false)
 				if err != nil {
-					return errutil.Wrapf(err, "failed to update invalid attempts")
+					return errutil.Wrap(err, "failed to update invalid attempts")
 				}
 			}
 			return errutil.NewUnauthorized("invalid current password")

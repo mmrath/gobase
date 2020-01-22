@@ -1,35 +1,33 @@
-package tests
+package test_helper
 
 import (
 	"database/sql"
 	"fmt"
 	"log"
+	"net/http"
 	"net/http/httptest"
 	"os"
 	"time"
 
 	"github.com/brianvoe/gofakeit"
 
-	"github.com/mmrath/gobase/go/apps/clipo/cmd"
 	"github.com/mmrath/gobase/go/pkg/email"
-	"github.com/mmrath/gobase/go/pkg/test_helper"
 
 	"github.com/stretchr/testify/suite"
 )
 
 type TestSuite struct {
 	suite.Suite
-	app         *cmd.App
+	Handler     http.Handler
 	server      *httptest.Server
-	ClipoURL    string
-	db          *sql.DB
+	AppURL      string
+	DB          *sql.DB
 	EmailClient interface {
 		GetLatestEmail(emailId string) *email.Message
 	}
 }
 
-// SetupSuite setup at the beginning of test
-func (s *TestSuite) SetupSuite() {
+func (s *TestSuite) SetTestEnv() {
 	// for randomness
 	gofakeit.Seed(time.Now().UnixNano())
 	portPrefix := os.Getenv("E2E_TEST_PORT_PREFIX")
@@ -54,7 +52,14 @@ func (s *TestSuite) SetupSuite() {
 
 	if dbURL == "" {
 		dbURL = fmt.Sprintf("postgres://app_user:password12@localhost:%s32/appdb?sslmode=disable", portPrefix)
+		os.Setenv("DB_URL", dbURL)
 	}
+}
+
+// SetupSuite setup at the beginning of test
+func (s *TestSuite) SetupSuite() {
+	portPrefix := os.Getenv("E2E_TEST_PORT_PREFIX")
+	dbURL := os.Getenv("DB_URL")
 	db, err := sql.Open("postgres", dbURL)
 
 	if err != nil {
@@ -62,32 +67,24 @@ func (s *TestSuite) SetupSuite() {
 		panic(err)
 	}
 
-	s.db = db
-
-	app, err := cmd.BuildApp()
-
-	if err != nil {
-		panic(fmt.Errorf("failed to create server %w", err))
-	}
-	server := httptest.NewServer(app.Handler)
-
-	clipoURL := server.URL
+	s.DB = db
+	server := httptest.NewServer(s.Handler)
+	appURL := server.URL
 	mailURL := fmt.Sprintf("http://localhost:%s12", portPrefix)
 
-	s.app = app
 	s.server = server
-	s.ClipoURL = clipoURL
-	s.EmailClient = test_helper.NewEmailClient(mailURL)
+	s.AppURL = appURL
+	s.EmailClient = NewEmailClient(mailURL)
 }
 
 // TearDownSuite teardown at the end of test
 func (s *TestSuite) TearDownSuite() {
 	s.server.Close()
-	cleanDB(s.db)
+	cleanDB(s.DB)
 }
 
 func (s *TestSuite) SetupTest() {
-	// cleanDB(s.db)
+	// cleanDB(s.DB)
 }
 
 func cleanDB(db *sql.DB) {

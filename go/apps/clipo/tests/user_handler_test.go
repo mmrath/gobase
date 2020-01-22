@@ -9,7 +9,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/mmrath/gobase/go/apps/clipo/cmd"
 	"github.com/mmrath/gobase/go/pkg/crypto"
+	"github.com/mmrath/gobase/go/pkg/test_helper"
 
 	"github.com/brianvoe/gofakeit"
 	"github.com/gavv/httpexpect/v2"
@@ -20,7 +22,17 @@ import (
 )
 
 type AccountTestSuite struct {
-	TestSuite
+	test_helper.TestSuite
+}
+
+func (s *AccountTestSuite) SetupSuite() {
+	s.TestSuite.SetTestEnv()
+	app, err := cmd.BuildApp()
+	if err != nil {
+		panic(err)
+	}
+	s.Handler = app.Handler
+	s.TestSuite.SetupSuite()
 }
 
 func TestAccountSuite(t *testing.T) {
@@ -28,7 +40,7 @@ func TestAccountSuite(t *testing.T) {
 }
 
 func (s *AccountTestSuite) TestPing() {
-	resp, err := http.Get(s.ClipoURL + "/ping")
+	resp, err := http.Get(s.AppURL + "/ping")
 	require.NoError(s.T(), err)
 	require.Equal(s.T(), 200, resp.StatusCode)
 
@@ -40,7 +52,7 @@ func (s *AccountTestSuite) TestPing() {
 }
 
 func (s *AccountTestSuite) TestRegisterActivateAndLogin() {
-	he := httpexpect.New(s.T(), s.ClipoURL)
+	he := httpexpect.New(s.T(), s.AppURL)
 	testEmail := gofakeit.Email()
 	testPassword := gofakeit.Password(true, true, true, true, true, 8)
 	registerRequest := map[string]interface{}{
@@ -94,7 +106,7 @@ func (s *AccountTestSuite) TestRegisterActivateAndLogin() {
 }
 
 func (s *AccountTestSuite) TestSignUpWithInvalidEmail() {
-	he := httpexpect.New(s.T(), s.ClipoURL)
+	he := httpexpect.New(s.T(), s.AppURL)
 	signupRequest := map[string]interface{}{
 		"firstName": gofakeit.FirstName(),
 		"lastName":  gofakeit.LastName(),
@@ -108,7 +120,7 @@ func (s *AccountTestSuite) TestSignUpWithInvalidEmail() {
 }
 
 func (s *AccountTestSuite) TestSignUpWithDuplicateEmail() {
-	he := httpexpect.New(s.T(), s.ClipoURL)
+	he := httpexpect.New(s.T(), s.AppURL)
 	signupRequest := map[string]interface{}{
 		"firstName": gofakeit.FirstName(),
 		"lastName":  gofakeit.LastName(),
@@ -127,7 +139,7 @@ func (s *AccountTestSuite) TestSignUpWithDuplicateEmail() {
 }
 
 func (s *AccountTestSuite) TestSignUpWithInvalidPassword() {
-	he := httpexpect.New(s.T(), s.ClipoURL)
+	he := httpexpect.New(s.T(), s.AppURL)
 	signupRequest := map[string]interface{}{
 		"firstName": "Murali",
 		"lastName":  "Rath",
@@ -143,7 +155,7 @@ func (s *AccountTestSuite) TestSignUpWithInvalidPassword() {
 }
 
 func (s *AccountTestSuite) TestSignUpWithLongPassword() {
-	he := httpexpect.New(s.T(), s.ClipoURL)
+	he := httpexpect.New(s.T(), s.AppURL)
 	signupRequest := map[string]interface{}{
 		"firstName": "Murali",
 		"lastName":  "Rath",
@@ -156,7 +168,7 @@ func (s *AccountTestSuite) TestSignUpWithLongPassword() {
 }
 
 func (s *AccountTestSuite) TestSignUpWithTooLongPassword() {
-	he := httpexpect.New(s.T(), s.ClipoURL)
+	he := httpexpect.New(s.T(), s.AppURL)
 	signupRequest := map[string]interface{}{
 		"firstName": "Murali",
 		"lastName":  "Rath",
@@ -171,7 +183,7 @@ func (s *AccountTestSuite) TestSignUpWithTooLongPassword() {
 }
 
 func (s *AccountTestSuite) TestActivateWithWrongKey() {
-	he := httpexpect.New(s.T(), s.ClipoURL)
+	he := httpexpect.New(s.T(), s.AppURL)
 	resp := he.GET("/api/account/activate").
 		WithQuery("key", "wrong-key").
 		Expect().
@@ -181,7 +193,7 @@ func (s *AccountTestSuite) TestActivateWithWrongKey() {
 
 func (s *AccountTestSuite) TestResetPassword() {
 	testEmail := gofakeit.Email()
-	he := httpexpect.New(s.T(), s.ClipoURL)
+	he := httpexpect.New(s.T(), s.AppURL)
 	initResetRequest := map[string]interface{}{
 		"email": testEmail,
 	}
@@ -235,7 +247,7 @@ func (s *AccountTestSuite) TestResetPassword() {
 
 func (s *AccountTestSuite) TestWithWrongUsername() {
 	testEmail := gofakeit.Email()
-	he := httpexpect.New(s.T(), s.ClipoURL)
+	he := httpexpect.New(s.T(), s.AppURL)
 
 	resp := he.POST("/api/account/login").
 		WithJSON(model.LoginRequest{Email: testEmail, Password: "Secret123"}).
@@ -251,7 +263,7 @@ func (s *AccountTestSuite) TestWithWrongPassword() {
 	s.createUser(testEmail, password)
 	defer s.deleteUser(testEmail)
 
-	he := httpexpect.New(s.T(), s.ClipoURL)
+	he := httpexpect.New(s.T(), s.AppURL)
 
 	resp := he.POST("/api/account/login").
 		WithJSON(model.LoginRequest{Email: testEmail, Password: "incorrectPassword"}).
@@ -268,7 +280,7 @@ func (s *AccountTestSuite) TestChangePassword() {
 	s.createUser(testEmail, password)
 	defer s.deleteUser(testEmail)
 
-	he := httpexpect.New(s.T(), s.ClipoURL)
+	he := httpexpect.New(s.T(), s.AppURL)
 
 	resp := he.POST("/api/account/login").
 		WithJSON(model.LoginRequest{Email: testEmail, Password: password}).
@@ -314,7 +326,7 @@ func (s *AccountTestSuite) createUser(email string, password string) {
 	SELECT id, $1, $2, 0, false, null, null, true, NULL, NULL, NULL, current_timestamp, 1 FROM user_account where email = $3`,
 	}
 
-	mustExecStmt(s.db, stmts[0], email)
+	mustExecStmt(s.DB, stmts[0], email)
 
 	passwordSha, err := crypto.SHA256([]byte(password))
 	if err != nil {
@@ -325,7 +337,7 @@ func (s *AccountTestSuite) createUser(email string, password string) {
 		log.Printf("Error hasing password")
 		panic(err)
 	}
-	mustExecStmt(s.db, stmts[1], passwordHash, time.Now().Add(time.Second*1200), email)
+	mustExecStmt(s.DB, stmts[1], passwordHash, time.Now().Add(time.Second*1200), email)
 }
 
 func (s *AccountTestSuite) deleteUser(email string) {
@@ -334,7 +346,7 @@ func (s *AccountTestSuite) deleteUser(email string) {
 		`DELETE FROM user_account WHERE email = $1`,
 	}
 
-	mustExecStmt(s.db, stmts[0], email)
-	mustExecStmt(s.db, stmts[1], email)
+	mustExecStmt(s.DB, stmts[0], email)
+	mustExecStmt(s.DB, stmts[1], email)
 
 }

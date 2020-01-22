@@ -82,3 +82,9 @@ $(GOLANGCILINT):
 	@mkdir -p $(GOBIN)
 	@curl -fsSL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin v$(GOLANGCILINT_VERSION)
 
+.PHONY: go
+go:
+	@$(GO) $(CMD)
+
+
+
