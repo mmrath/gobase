@@ -37,28 +37,28 @@ func (h *Handler) Login(service auth.JWTService) http.HandlerFunc {
 		if err != nil {
 			errutil.RenderError(w, r, err)
 			return
-		} else {
-			var token string
-			token, err = service.NewToken(&user)
-			if err != nil {
-				errutil.RenderError(w, r, err)
-				return
-			} else {
-				http.SetCookie(w, &http.Cookie{
-					Name:       AuthTokenCookieName,
-					Value:      token,
-					Path:       "/",
-					RawExpires: "0",
-					HttpOnly:   true,
-				})
-
-				w.Header().Add("Authorization", fmt.Sprintf("Bearer %s", token))
-				w.WriteHeader(http.StatusOK)
-
-				//render.PlainText(w, r, "")
-				return
-			}
 		}
+
+		var token string
+		token, err = service.NewToken(&user)
+
+		if err != nil {
+			errutil.RenderError(w, r, err)
+			return
+		}
+
+		http.SetCookie(w, &http.Cookie{
+			Name:       AuthTokenCookieName,
+			Value:      token,
+			Path:       "/",
+			RawExpires: "0",
+			HttpOnly:   true,
+		})
+
+		w.Header().Add("Authorization", fmt.Sprintf("Bearer %s", token))
+		w.WriteHeader(http.StatusOK)
+		return
+
 	}
 }
 
@@ -92,11 +92,11 @@ func (h *Handler) Register() http.HandlerFunc {
 			log.Error().Err(err).Msg("error during sign up")
 			errutil.RenderError(w, r, err)
 			return
-		} else {
-			render.Status(r, http.StatusOK)
-			render.JSON(w, r, &user)
-			return
 		}
+
+		render.Status(r, http.StatusOK)
+		render.JSON(w, r, &user)
+		return
 	}
 }
 
@@ -108,11 +108,11 @@ func (h *Handler) Activate() http.HandlerFunc {
 		if err != nil {
 			errutil.RenderError(w, r, err)
 			return
-		} else {
-			render.Status(r, http.StatusOK)
-			render.PlainText(w, r, http.StatusText(http.StatusOK))
-			return
 		}
+
+		render.Status(r, http.StatusOK)
+		render.PlainText(w, r, http.StatusText(http.StatusOK))
+		return
 	}
 }
 
@@ -146,10 +146,10 @@ func (h *Handler) InitPasswordReset() http.HandlerFunc {
 			log.Error().Err(err).Msg("defaultError initiating password reset")
 			errutil.RenderError(w, r, err)
 			return
-		} else {
-			render.Status(r, http.StatusOK)
-			return
 		}
+
+		render.Status(r, http.StatusOK)
+		return
 	}
 }
 
@@ -169,10 +169,10 @@ func (h *Handler) ResetPassword() http.HandlerFunc {
 			log.Error().Err(err).Msg("error initiating password reset")
 			errutil.RenderError(w, r, err)
 			return
-		} else {
-			render.Status(r, http.StatusOK)
-			return
 		}
+
+		render.Status(r, http.StatusOK)
+		return
 	}
 }
 
@@ -191,12 +191,12 @@ func (h *Handler) ChangePassword() http.HandlerFunc {
 			log.Error().Err(err).Msg("error changing password")
 			errutil.RenderError(w, r, err)
 			return
-		} else {
-			log.Info().Msg("password changed successfully")
-			render.Status(r, http.StatusOK)
-			render.PlainText(w, r, "Password changed successfully")
-			return
 		}
+
+		log.Info().Msg("password changed successfully")
+		render.Status(r, http.StatusOK)
+		render.PlainText(w, r, "Password changed successfully")
+		return
 	}
 }
 

@@ -30,6 +30,7 @@ func (s *service) RegisterRoutes(r chi.Router) {
 func (s *service) healthCheck(w http.ResponseWriter, r *http.Request) {
 	statuses := make(map[string]interface{})
 	result := true
+
 	for _, checker := range s.checkers {
 		ok := checker.Check()
 		if !ok {
@@ -38,6 +39,7 @@ func (s *service) healthCheck(w http.ResponseWriter, r *http.Request) {
 			statuses[checker.Name()] = struct{ healthy bool }{true}
 		}
 	}
+
 	render.JSON(w, r, map[string]interface{}{
 		"healthy": result,
 		"data":    statuses,

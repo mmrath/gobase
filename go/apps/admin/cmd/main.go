@@ -21,6 +21,7 @@ func commandRoot() *cobra.Command {
 	}
 	rootCmd.AddCommand(commandServe())
 	rootCmd.AddCommand(commandVersion())
+
 	return rootCmd
 }
 

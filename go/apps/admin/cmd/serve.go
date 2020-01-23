@@ -25,12 +25,16 @@ func commandServe() *cobra.Command {
 	}
 }
 
-func serve(command *cobra.Command, args []string) error {
+func serve(_ *cobra.Command, args []string) error {
 	log.Info().Strs("arguments", args).Msg("starting application")
+
 	app, err := app.NewApp()
+
 	if err != nil {
 		return err
 	}
+
 	app.Start()
+
 	return nil
 }

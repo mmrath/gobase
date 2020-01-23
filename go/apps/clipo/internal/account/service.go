@@ -146,7 +146,7 @@ func (s *Service) Login(login model.LoginRequest) (user model.User, err error) {
 
 func (s *Service) ChangePassword(ctx context.Context, data model.ChangePasswordRequest) error {
 
-	id := auth.UserIdFromContext(ctx)
+	id := auth.UserIDFromContext(ctx)
 
 	err := s.db.RunInTx(context.Background(), func(tx *db.Tx) error {
 
@@ -229,13 +229,11 @@ func (s *Service) InitiatePasswordReset(email string) error {
 				}
 				err = s.userCredentialDao.Insert(tx, &cred)
 				return err
-			} else {
-				return err
 			}
-		} else {
-			err = s.userCredentialDao.UpdateResetKey(tx, user.ID, resetTokenSha, expiresAt)
 			return err
 		}
+		err = s.userCredentialDao.UpdateResetKey(tx, user.ID, resetTokenSha, expiresAt)
+		return err
 	})
 
 	if err != nil {
@@ -357,7 +355,7 @@ func (s *Service) Register(signUpRequest model.RegisterAccountRequest) (*model.U
 }
 
 func (s *Service) GetProfile(ctx context.Context) (user model.User, err error) {
-	id := auth.UserIdFromContext(ctx)
+	id := auth.UserIDFromContext(ctx)
 
 	err = s.db.RunInTx(context.Background(), func(tx *db.Tx) error {
 		user, err = s.userDao.Find(tx, id)

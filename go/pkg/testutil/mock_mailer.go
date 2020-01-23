@@ -1,4 +1,4 @@
-package test_helper
+package testutil
 
 import (
 	"github.com/mmrath/gobase/go/pkg/email"

@@ -33,7 +33,6 @@ func NewMux(cfg config.Config,
 	r.Use(middleware.RealIP)
 	r.Use(middleware.DefaultCompress)
 	r.Use(middleware.Timeout(10 * time.Second))
-	//r.Use(log.NewStructuredLogger(logger))
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 
 	// use CORS middleware if client is not served by this api, e.g. from other domain or CDN

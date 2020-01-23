@@ -33,13 +33,13 @@ func NewApp(profiles ...string) (*App, error) {
 	roleService := account.NewRoleService(db)
 	roleHandler := account.NewRoleHandler(roleService)
 
-	httpHandler, err := HttpRouter(cfg.Web, roleHandler)
+	httpHandler, err := NewHTTPRouter(cfg.Web, roleHandler)
 
 	if err != nil {
 		return nil, err
 	}
 
-	httpServer := NewHttpServer(&cfg, httpHandler)
+	httpServer := NewHTTPServer(&cfg, httpHandler)
 	return &App{httpServer: httpServer}, nil
 }
 

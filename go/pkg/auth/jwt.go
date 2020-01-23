@@ -4,20 +4,22 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/rsa"
-	"github.com/mmrath/gobase/go/pkg/errutil"
-	"github.com/rs/zerolog/log"
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	"github.com/rs/zerolog/log"
+
+	"github.com/mmrath/gobase/go/pkg/errutil"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/jwtauth"
 	"github.com/google/uuid"
 )
 
-type userIdKeyType int
+type userIDKeyType int
 
-var userIdKey userIdKeyType
+var userIDKey userIDKeyType
 
 type JWTConfig struct {
 	CookieName            string        `default:"jwt" split_words:"true"`
@@ -37,7 +39,7 @@ type JWTService interface {
 type Principal interface {
 	GetName() string
 	GetEmail() string
-	GetId() int64
+	GetID() int64
 }
 
 type jwtService struct {
@@ -108,18 +110,18 @@ func (s *jwtService) Decode(tokenString string) (t *jwt.Token, err error) {
 	return token, nil
 }
 
-func UserIdFromContext(ctx context.Context) int64 {
-	id := ctx.Value(userIdKey).(int64)
+func UserIDFromContext(ctx context.Context) int64 {
+	id := ctx.Value(userIDKey).(int64)
 	return id
 }
 
 func NewAuthContext(ctx context.Context, userId int64) context.Context {
-	ctx = context.WithValue(ctx, userIdKey, userId)
+	ctx = context.WithValue(ctx, userIDKey, userId)
 	return ctx
 }
 
 type Claims struct {
-	UserId int64 `json:"userId"`
+	UserID int64 `json:"userId"`
 	jwt.StandardClaims
 }
 
@@ -129,7 +131,7 @@ func (s *jwtService) NewToken(user Principal) (string, error) {
 	exp := now.Add(s.tokenValidityDuration).Unix()
 
 	claims := &Claims{
-		UserId: user.GetId(),
+		UserID: user.GetID(),
 		StandardClaims: jwt.StandardClaims{
 			// In JWT, the expiry time is expressed as unix milliseconds
 			ExpiresAt: exp,
@@ -162,14 +164,14 @@ func (s *jwtService) Authenticator(next http.Handler) http.Handler {
 			return
 		}
 
-		userId, ok := claims["userId"]
+		userID, ok := claims["userID"]
 
 		if !ok {
 			http.Error(w, http.StatusText(401), 401)
 			return
 		}
 
-		req := r.WithContext(NewAuthContext(r.Context(), int64(userId.(float64))))
+		req := r.WithContext(NewAuthContext(r.Context(), int64(userID.(float64))))
 
 		// Token is authenticated, pass it through
 		next.ServeHTTP(w, req)

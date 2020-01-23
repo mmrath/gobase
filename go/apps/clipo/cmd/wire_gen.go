@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/mmrath/gobase/go/apps/clipo/internal/account"
-	"github.com/mmrath/gobase/go/apps/clipo/internal/template_util"
+	"github.com/mmrath/gobase/go/apps/clipo/internal/templateutil"
 	"github.com/mmrath/gobase/go/pkg/auth"
 	"github.com/mmrath/gobase/go/pkg/email"
 	"github.com/mmrath/gobase/go/pkg/errutil"
@@ -14,7 +14,7 @@ func BuildApp() (*App, error) {
 	if err != nil {
 		return nil, errutil.Wrapf(err, "failed to build mailer")
 	}
-	templateReg, err := template_util.NewRegistry()
+	templateReg, err := templateutil.NewRegistry()
 
 	if err != nil {
 		return nil, errutil.Wrapf(err, "failed to build template registry")

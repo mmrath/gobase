@@ -17,7 +17,7 @@ import (
 	"github.com/mmrath/gobase/go/apps/admin/internal/config"
 )
 
-func NewHttpServer(cfg *config.Config, handler http.Handler) *http.Server {
+func NewHTTPServer(cfg *config.Config, handler http.Handler) *http.Server {
 	var addr string
 	port := cfg.Web.Port
 
@@ -35,7 +35,7 @@ func NewHttpServer(cfg *config.Config, handler http.Handler) *http.Server {
 	return &srv
 }
 
-func HttpRouter(webConfig config.WebConfig, roleHandler *account.RoleHandler) (http.Handler, error) {
+func NewHTTPRouter(webConfig config.WebConfig, roleHandler *account.RoleHandler) (http.Handler, error) {
 	r := chi.NewRouter()
 
 	r.Use(middleware.Recoverer)
@@ -43,7 +43,6 @@ func HttpRouter(webConfig config.WebConfig, roleHandler *account.RoleHandler) (h
 	r.Use(middleware.RealIP)
 	r.Use(middleware.DefaultCompress)
 	r.Use(middleware.Timeout(10 * time.Second))
-	//r.Use(log.NewStructuredLogger(logger))
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 
 	// use CORS middleware if client is not served by this api, e.g. from other domain or CDN

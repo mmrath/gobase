@@ -1,4 +1,4 @@
-package test_helper
+package testutil
 
 import (
 	"database/sql"
@@ -23,7 +23,7 @@ type TestSuite struct {
 	AppURL      string
 	DB          *sql.DB
 	EmailClient interface {
-		GetLatestEmail(emailId string) *email.Message
+		GetLatestEmail(emailID string) *email.Message
 	}
 }
 

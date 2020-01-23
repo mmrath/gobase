@@ -1,8 +1,9 @@
 package model
 
 import (
-	"github.com/mmrath/gobase/go/pkg/db"
 	"strings"
+
+	"github.com/mmrath/gobase/go/pkg/db"
 )
 
 type Permission struct {
@@ -13,7 +14,7 @@ type Permission struct {
 }
 
 type PermissionDao interface {
-	FindById(tx *db.Tx, id int32) (Permission, error)
+	FindByID(tx *db.Tx, id int32) (Permission, error)
 	FindAllByApplication(tx *db.Tx, app string) ([]Permission, error)
 	FindAll(tx *db.Tx) ([]Permission, error)
 }
@@ -21,7 +22,7 @@ type PermissionDao interface {
 type permissionDao struct {
 }
 
-func (p permissionDao) FindById(tx *db.Tx, id int32) (perm Permission, err error) {
+func (p permissionDao) FindByID(tx *db.Tx, id int32) (perm Permission, err error) {
 	err = tx.Find(&perm, id).Error
 	return
 }

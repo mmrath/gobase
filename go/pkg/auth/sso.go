@@ -8,8 +8,9 @@ import (
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/mmrath/gobase/go/pkg/errutil"
 	"github.com/rs/zerolog/log"
+
+	"github.com/mmrath/gobase/go/pkg/errutil"
 )
 
 type SsoClientConfig struct {
@@ -23,7 +24,7 @@ type ssoMiddleware struct {
 	URL        string
 }
 
-func NewSsoMiddleware(cfg SsoClientConfig) (*ssoMiddleware, error) {
+func NewSsoMiddleware(cfg SsoClientConfig) (func(handler http.Handler) http.Handler, error) {
 	key, err := ioutil.ReadFile(cfg.PubKeyPath)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to load jwt public key")
@@ -34,10 +35,10 @@ func NewSsoMiddleware(cfg SsoClientConfig) (*ssoMiddleware, error) {
 	if err != nil {
 		return nil, errutil.Wrap(err, "failed to parse public key from pem")
 	}
-	return &ssoMiddleware{
+	return ssoMiddleware{
 		PubKey:     parsedPubKey,
 		CookieName: cfg.CookieName,
-	}, nil
+	}.SsoMiddleware, nil
 }
 
 func (s *ssoMiddleware) SsoMiddleware(next http.Handler) http.Handler {
@@ -45,7 +46,7 @@ func (s *ssoMiddleware) SsoMiddleware(next http.Handler) http.Handler {
 
 		c, err := r.Cookie(s.CookieName)
 		if err == http.ErrNoCookie {
-			http.Redirect(w, r, "https://127.0.0.1:8081/sso?s_url=https://127.0.0.1:8082/cookie", 301)
+			http.Redirect(w, r, "https://127.0.0.1:8081/sso?s_url=https://127.0.0.1:8082/cookie", http.StatusMovedPermanently)
 			return
 		}
 		if err != nil {

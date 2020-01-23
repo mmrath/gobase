@@ -1,21 +1,21 @@
-package test_helper
+package testutil
 
 import (
 	"fmt"
+	"net/mail"
 
 	"github.com/inbucket/inbucket/pkg/rest/client"
+
 	"github.com/mmrath/gobase/go/pkg/email"
 	"github.com/mmrath/gobase/go/pkg/errutil"
-
-	"net/mail"
 )
 
 type TestEmailClient struct {
 	client *client.Client
 }
 
-func NewEmailClient(mailApi string) *TestEmailClient {
-	c, err := client.New(mailApi)
+func NewEmailClient(mailAPI string) *TestEmailClient {
+	c, err := client.New(mailAPI)
 	if err != nil {
 		fmt.Println("failed to create test email client")
 		panic(err)
@@ -23,8 +23,8 @@ func NewEmailClient(mailApi string) *TestEmailClient {
 	return &TestEmailClient{client: c}
 }
 
-func (c *TestEmailClient) GetLatestEmail(emailId string) *email.Message {
-	headers, err := c.client.ListMailbox(emailId)
+func (c *TestEmailClient) GetLatestEmail(emailID string) *email.Message {
+	headers, err := c.client.ListMailbox(emailID)
 	if err != nil {
 		return nil
 	}
@@ -38,7 +38,7 @@ func (c *TestEmailClient) GetLatestEmail(emailId string) *email.Message {
 				To:      toAddress(h.To...),
 				From:    email.Address{Address: h.From},
 				Subject: h.Subject,
-				Html:    msg.Body.HTML,
+				HTML:    msg.Body.HTML,
 				Text:    msg.Body.Text,
 			}
 		}

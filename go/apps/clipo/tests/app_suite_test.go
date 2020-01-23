@@ -12,7 +12,7 @@ import (
 
 	"github.com/mmrath/gobase/go/apps/clipo/cmd"
 	"github.com/mmrath/gobase/go/pkg/email"
-	"github.com/mmrath/gobase/go/pkg/test_helper"
+	"github.com/mmrath/gobase/go/pkg/testutil"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -24,7 +24,7 @@ type TestSuite struct {
 	ClipoURL    string
 	db          *sql.DB
 	EmailClient interface {
-		GetLatestEmail(emailId string) *email.Message
+		GetLatestEmail(emailID string) *email.Message
 	}
 }
 
@@ -77,7 +77,7 @@ func (s *TestSuite) SetupSuite() {
 	s.app = app
 	s.server = server
 	s.ClipoURL = clipoURL
-	s.EmailClient = test_helper.NewEmailClient(mailURL)
+	s.EmailClient = testutil.NewEmailClient(mailURL)
 }
 
 // TearDownSuite teardown at the end of test

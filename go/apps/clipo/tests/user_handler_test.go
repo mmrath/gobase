@@ -9,20 +9,20 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mmrath/gobase/go/apps/clipo/cmd"
-	"github.com/mmrath/gobase/go/pkg/crypto"
-	"github.com/mmrath/gobase/go/pkg/test_helper"
-
 	"github.com/brianvoe/gofakeit"
 	"github.com/gavv/httpexpect/v2"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/mmrath/gobase/go/apps/clipo/cmd"
+	"github.com/mmrath/gobase/go/pkg/crypto"
+	"github.com/mmrath/gobase/go/pkg/testutil"
+
 	"github.com/mmrath/gobase/go/pkg/model"
 )
 
 type AccountTestSuite struct {
-	test_helper.TestSuite
+	testutil.TestSuite
 }
 
 func (s *AccountTestSuite) SetupSuite() {
@@ -79,7 +79,7 @@ func (s *AccountTestSuite) TestRegisterActivateAndLogin() {
 	resp.JSON().Path("$.errors[0]").Equal("user is not activated")
 
 	re := regexp.MustCompile(`/account/activate\?key=([0-9a-f\-]+)`)
-	key := re.FindStringSubmatch(msg.Html)[1]
+	key := re.FindStringSubmatch(msg.HTML)[1]
 	he.GET("/api/account/activate").
 		WithQuery("key", key).
 		Expect().
@@ -91,18 +91,6 @@ func (s *AccountTestSuite) TestRegisterActivateAndLogin() {
 	resp.Status(http.StatusOK)
 	token := resp.Header("Authorization").Match("Bearer (.*)").Raw()[1]
 	require.NotNil(s.T(), token)
-	/*
-		var jwtPublicKey *rsa.PublicKey
-		jwtToken, err := jwt.Parse(token, func(token *jwt.Token) (i interface{}, err error) {
-			return jwtPublicKey, nil
-		})
-		require.NoError(s.T(), err)
-		err = jwtToken.Claims.Valid()
-		require.NoError(s.T(), err)
-		claims := jwtToken.Claims.(jwt.MapClaims)
-		require.NotNil(s.T(), claims["jti"])
-		require.Equal(s.T(), testEmail, claims["sub"])
-	*/
 }
 
 func (s *AccountTestSuite) TestSignUpWithInvalidEmail() {
@@ -209,7 +197,7 @@ func (s *AccountTestSuite) TestResetPassword() {
 	require.Contains(s.T(), msg.To[0].Address, initResetRequest["email"])
 
 	re := regexp.MustCompile(`/account/reset-password\?key=([0-9a-f\-]+)`)
-	key := re.FindStringSubmatch(msg.Html)[1]
+	key := re.FindStringSubmatch(msg.HTML)[1]
 
 	resetRequest := map[string]interface{}{
 		"resetToken":  key,
@@ -226,23 +214,6 @@ func (s *AccountTestSuite) TestResetPassword() {
 		Expect()
 
 	resp.Status(http.StatusOK)
-	/*
-		token := resp.Header("Authorization").Match("Bearer (.*)").Raw()[1]
-
-
-		var jwtPublicKey *rsa.PublicKey
-		jwtToken, err := jwt.Parse(token, func(token *jwt.Token) (i interface{}, err error) {
-			return jwtPublicKey, nil
-		})
-
-		require.NoError(s.T(), err)
-		err = jwtToken.Claims.Valid()
-		require.NoError(s.T(), err)
-		claims := jwtToken.Claims.(jwt.MapClaims)
-		require.NotNil(s.T(), claims["jti"])
-		require.Equal(s.T(), testEmail, claims["sub"])
-	*/
-
 }
 
 func (s *AccountTestSuite) TestWithWrongUsername() {
@@ -322,8 +293,10 @@ func (s *AccountTestSuite) createUser(email string, password string) {
 	first_name, last_name, email, phone_number, active, updated_at, updated_by, version)
 	VALUES ('Test', 'Test', $1, NULL, true, current_timestamp, 'test', 1) RETURNING ID`,
 		`INSERT INTO public.user_credential(
-	id, password_hash, expires_at, invalid_attempts, locked, activation_key, activation_key_expires_at, activated, reset_key, reset_key_expires_at, reset_at, updated_at, version)
-	SELECT id, $1, $2, 0, false, null, null, true, NULL, NULL, NULL, current_timestamp, 1 FROM user_account where email = $3`,
+	id, password_hash, expires_at, invalid_attempts, locked, activation_key, activation_key_expires_at, activated, 
+reset_key, reset_key_expires_at, reset_at, updated_at, version)
+	SELECT id, $1, $2, 0, false, null, null, true, NULL, NULL, NULL, current_timestamp, 1 FROM 
+user_account where email = $3`,
 	}
 
 	mustExecStmt(s.DB, stmts[0], email)

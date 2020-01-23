@@ -16,11 +16,16 @@ endif
 export VERSION
 
 
-GOBASE := $(shell pwd)
-GOPATH := $(GOBASE)/.build
-GOBIN := $(GOPATH)/bin
+GO_PROJ_BASE := $(shell pwd)
+GOPATH ?= $(GO_PROJ_BASE)/.build
+export GOPATH
 
-GO := GOPATH=$(GOPATH) GOBIN=$(GOBIN) go
+GO_PROJ_BIN := $(GO_PROJ_BASE)/bin
+GOBIN := $(GO_PROJ_BIN)
+
+#Helps us keep project specific tool binaries
+
+GO := GOBIN=$(GOBIN) go
 
 OS := $(if $(GOOS),$(GOOS),$(shell go env GOOS))
 ARCH := $(if $(GOARCH),$(GOARCH),$(shell go env GOARCH))
@@ -52,7 +57,7 @@ build-all: tools generate format lint build
 
 build: generate
 	@echo "Building version $(VERSION)"
-	@$(GO) build $(GO_LDFLAGS) -o $(GOBIN) ./apps/...
+	@$(GO) build $(GO_LDFLAGS) -o $(GO_PROJ_BIN) ./apps/...
 
 .PHONY: lint
 lint: $(GOLANGCILINT)
@@ -79,8 +84,7 @@ tools: $(GOLANGCILINT)
 	@$(GO) install github.com/go-bindata/go-bindata/...
 
 $(GOLANGCILINT):
-	@mkdir -p $(GOBIN)
-	@curl -fsSL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin v$(GOLANGCILINT_VERSION)
+	@curl -fsSL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOBIN) v$(GOLANGCILINT_VERSION)
 
 .PHONY: go
 go:

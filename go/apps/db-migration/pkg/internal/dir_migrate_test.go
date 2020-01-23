@@ -103,7 +103,9 @@ func TestOpenWithRelativePath(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	_, err = d.First()
+
 	if err != nil {
 		t.Fatalf("expected first file in working dir %v for ./foo", tmpDir)
 	}
@@ -138,6 +140,7 @@ func TestOpenWithDuplicateVersion(t *testing.T) {
 
 	f := &File{}
 	_, err = f.Open("file://" + tmpDir)
+
 	if err == nil {
 		t.Fatal("expected err")
 	}
@@ -148,10 +151,13 @@ func TestClose(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	defer os.RemoveAll(tmpDir)
 
 	f := &File{}
+
 	d, err := f.Open("file://" + tmpDir)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -174,6 +180,7 @@ func mustWriteFile(t testing.TB, dir, mpath string, file string, body string) {
 
 func mustCreateBenchmarkDir(t *testing.B) (dir string) {
 	tmpDir, err := ioutil.TempDir("", "Benchmark")
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -190,6 +197,7 @@ func BenchmarkOpen(b *testing.B) {
 	dir := mustCreateBenchmarkDir(b)
 	defer os.RemoveAll(dir)
 	b.ResetTimer()
+
 	for n := 0; n < b.N; n++ {
 		f := &File{}
 		_, err := f.Open("file://" + dir)
@@ -197,6 +205,7 @@ func BenchmarkOpen(b *testing.B) {
 			b.Fatal(err)
 		}
 	}
+
 	b.StopTimer()
 }
 
@@ -204,9 +213,13 @@ func BenchmarkNext(b *testing.B) {
 	dir := mustCreateBenchmarkDir(b)
 	defer os.RemoveAll(dir)
 	f := &File{}
+
 	d, _ := f.Open("file://" + dir)
+
 	b.ResetTimer()
+
 	v, err := d.First()
+
 	for n := 0; n < b.N; n++ {
 		for !os.IsNotExist(err) {
 			v, err = d.Next(v)

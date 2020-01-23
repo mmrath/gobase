@@ -35,7 +35,6 @@ type mailer struct {
 
 // NewMailer returns a configured SMTP Mailer.
 func NewMailer(conf SMTPConfig) (Mailer, error) {
-
 	s := &mailer{
 		client: mail.NewDialer(conf.Host, conf.Port, conf.Username, conf.Password),
 		from:   conf.From,
@@ -77,7 +76,7 @@ func (m *mailer) Send(email *Message) error {
 	msg.SetHeader("To", addresses...)
 	msg.SetHeader("Subject", email.Subject)
 	msg.SetBody("Text/plain", email.Text)
-	msg.AddAlternative("Text/Html", email.Html)
+	msg.AddAlternative("Text/HTML", email.HTML)
 
 	return m.client.DialAndSend(msg)
 }
@@ -87,12 +86,12 @@ type Message struct {
 	From    Address
 	To      []Address
 	Subject string
-	Html    string
+	HTML    string
 	Text    string
 }
 
-func NewHtmlMessage(from Address, to []Address, subject string, htmlBody string) (*Message, error) {
-	msg := Message{From: from, To: to, Subject: subject, Html: htmlBody}
+func NewHTMLMessage(from Address, to []Address, subject string, htmlBody string) (*Message, error) {
+	msg := Message{From: from, To: to, Subject: subject, HTML: htmlBody}
 	if err := msg.parse(); err != nil {
 		return nil, err
 	}
@@ -102,7 +101,7 @@ func NewHtmlMessage(from Address, to []Address, subject string, htmlBody string)
 // parse parses the corresponding Template and content
 func (m *Message) parse() error {
 
-	prem, err := premailer.NewPremailerFromString(m.Html, premailer.NewOptions())
+	prem, err := premailer.NewPremailerFromString(m.HTML, premailer.NewOptions())
 	if err != nil {
 		return err
 	}
@@ -110,7 +109,7 @@ func (m *Message) parse() error {
 	if err != nil {
 		return err
 	}
-	m.Html = html
+	m.HTML = html
 
 	text, err := html2text.FromString(html, html2text.Options{PrettyTables: true})
 	if err != nil {

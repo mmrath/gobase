@@ -1,4 +1,5 @@
-//go:generate go run github.com/go-bindata/go-bindata/go-bindata -o internal/generated/assets.go -pkg generated -prefix "./resources/" "./resources/templates/..."
+//This needs installing tools locally to bin dir. Use `make tools`
+//go:generate go-bindata -o internal/generated/assets.go -pkg generated -prefix "./resources/" "./resources/templates/..."
 
 package main
 

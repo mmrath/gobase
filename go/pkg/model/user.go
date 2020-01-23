@@ -27,7 +27,7 @@ func (u User) GetEmail() string {
 	return u.Email
 }
 
-func (u User) GetId() int64 {
+func (u User) GetID() int64 {
 	return u.ID
 }
 

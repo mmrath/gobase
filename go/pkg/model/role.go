@@ -1,9 +1,10 @@
 package model
 
 import (
+	"github.com/rs/zerolog/log"
+
 	"github.com/mmrath/gobase/go/pkg/db"
 	"github.com/mmrath/gobase/go/pkg/errutil"
-	"github.com/rs/zerolog/log"
 )
 
 type Role struct {
@@ -26,7 +27,7 @@ type RoleAndPermission struct {
 
 type RoleDao interface {
 	Find(tx *db.Tx, id int32) (Role, error)
-	FindPermissionsByRoleId(tx *db.Tx, id int32) ([]int32, error)
+	FindPermissionsByRoleID(tx *db.Tx, id int32) ([]int32, error)
 	ExistsByName(tx *db.Tx, name string) (bool, error)
 	Create(tx *db.Tx, role *Role, permissions []int32) error
 	Update(tx *db.Tx, role *Role, permissions []int32) error
@@ -44,7 +45,7 @@ func (dao *roleDao) Find(tx *db.Tx, id int32) (Role, error) {
 	return role, err
 }
 
-func (dao *roleDao) FindPermissionsByRoleId(tx *db.Tx, id int32) ([]int32, error) {
+func (dao *roleDao) FindPermissionsByRoleID(tx *db.Tx, id int32) ([]int32, error) {
 	var permissions []int32
 	err := tx.Model(&RolePermission{}).
 		Where("role_id = ?", id).
@@ -81,11 +82,11 @@ func (dao *roleDao) Update(tx *db.Tx, role *Role, permissions []int32) error {
 	return dao.createRolePermissions(tx, role.ID, permissions)
 }
 
-func (dao *roleDao) createRolePermissions(tx *db.Tx, roleId int32, permissions []int32) error {
-	err := tx.Delete(&RolePermission{}, "role_id = ?", roleId).Error
+func (dao *roleDao) createRolePermissions(tx *db.Tx, roleID int32, permissions []int32) error {
+	err := tx.Delete(&RolePermission{}, "role_id = ?", roleID).Error
 	if err != nil {
 		log.Error().
-			Int32("roleId", roleId).
+			Int32("roleID", roleID).
 			Err(err).
 			Msg("failed to delete existing permissions of role")
 		return errutil.Wrap(err, "failed to delete existing permissions of role")
@@ -95,7 +96,7 @@ func (dao *roleDao) createRolePermissions(tx *db.Tx, roleId int32, permissions [
 	}
 	rolePermissions := make([]RolePermission, len(permissions))
 	for i, perm := range permissions {
-		rolePermissions[i].RoleID = roleId
+		rolePermissions[i].RoleID = roleID
 		rolePermissions[i].PermissionID = perm
 		err := tx.Create(rolePermissions).Error
 		if err != nil {

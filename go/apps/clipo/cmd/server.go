@@ -8,10 +8,9 @@ import (
 	"strings"
 
 	"github.com/mmrath/gobase/go/apps/clipo/internal/config"
-	"github.com/mmrath/gobase/go/apps/clipo/internal/template_util"
+	"github.com/mmrath/gobase/go/apps/clipo/internal/templateutil"
 	"github.com/mmrath/gobase/go/pkg/db"
 
-	"github.com/go-chi/chi"
 	"github.com/rs/zerolog/log"
 
 	"github.com/mmrath/gobase/go/apps/clipo/internal/account"
@@ -27,12 +26,12 @@ func NewDB(cfg config.Config) (*db.DB, error) {
 	return db.Open(cfg.DB)
 }
 
-func NewNotifier(cfg config.Config, mailer email.Mailer, registry *template_util.Registry) account.Notifier {
+func NewNotifier(cfg config.Config, mailer email.Mailer, registry *templateutil.Registry) account.Notifier {
 	return account.NewNotifier(cfg.Web.URL, mailer, registry)
 }
 
 // NewApp creates and configures an APIServer serving all application routes.
-func NewApp(cfg config.Config, mux *chi.Mux) (*App, error) {
+func NewApp(cfg config.Config, mux http.Handler) (*App, error) {
 	var addr string
 	port := cfg.Web.Port
 

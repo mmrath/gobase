@@ -3,10 +3,15 @@ package db
 import (
 	"context"
 	"fmt"
+
 	"github.com/jinzhu/gorm"
+
+	// this is required for loading postgres driver
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/rotisserie/eris"
 	"github.com/rs/zerolog/log"
+
+	"github.com/mmrath/gobase/go/pkg/errutil"
 )
 
 type Config struct {
@@ -22,6 +27,7 @@ type Config struct {
 // DBConn returns a postgres connection pool.
 func Open(cfg Config) (*DB, error) {
 	log.Info().Msg("trying to connect to db")
+
 	db, err := gorm.Open("postgres", cfg.URL())
 
 	db.SingularTable(true)
@@ -29,10 +35,13 @@ func Open(cfg Config) (*DB, error) {
 	if err != nil {
 		return nil, eris.Wrapf(err, "failed to open connection")
 	}
+
 	log.Info().Msg("successfully connected to db")
+
 	if cfg.Debug {
 		db = db.Debug()
 	}
+
 	return &DB{db}, nil
 }
 
@@ -51,8 +60,9 @@ func IsNoDataFound(err error) bool {
 func (db *DB) RunInTx(ctx context.Context, fn func(tx *Tx) error) error {
 	gormTx := db.gorm.BeginTx(ctx, nil)
 	if gormTx.Error != nil {
-		return eris.Wrapf(gormTx.Error, "failed to begin db transaction")
+		return errutil.Wrap(gormTx.Error, "failed to begin db transaction")
 	}
+
 	tx := &Tx{gormTx}
 
 	defer tx.cleanUp()
@@ -61,6 +71,7 @@ func (db *DB) RunInTx(ctx context.Context, fn func(tx *Tx) error) error {
 		_ = tx.Commit()
 		return err
 	}
+
 	return tx.Commit().Error
 }
 
@@ -71,6 +82,7 @@ type Tx struct {
 func (tx *Tx) cleanUp() {
 	if err := recover(); err != nil {
 		_ = tx.Rollback()
+
 		panic(err)
 	}
 }

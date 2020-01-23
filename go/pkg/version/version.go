@@ -3,8 +3,9 @@ package version
 import (
 	"flag"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"os"
+
+	"github.com/rs/zerolog/log"
 )
 
 var (
@@ -25,6 +26,7 @@ func PrintVersion() {
 			Str("GitCommit", GitCommit).
 			Str("BuildTime", BuildTime).Msg("build info")
 	}
+
 	versionFlag := flag.Bool("v", false, "Print the current version and exit")
 
 	flag.Parse()

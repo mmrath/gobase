@@ -35,11 +35,11 @@ func (h *UserHandler) FindUser(id int64) http.HandlerFunc {
 		if err != nil {
 			errutil.RenderError(w, r, err)
 			return
-		} else {
-			render.Status(r, http.StatusOK)
-			render.JSON(w, r, user)
-			return
 		}
+
+		render.Status(r, http.StatusOK)
+		render.JSON(w, r, user)
+		return
 	}
 }
 

@@ -1,4 +1,4 @@
-package template_util
+package templateutil
 
 import (
 	"html/template"
@@ -69,7 +69,7 @@ func findAndParseTemplates(rootDir string, funcMap template.FuncMap) (*template.
 	return root, err
 }
 
-func (t *Registry) RenderHttp(w http.ResponseWriter, templateName string, data interface{}) error {
+func (t *Registry) RenderHTTP(w http.ResponseWriter, templateName string, data interface{}) error {
 	err := t.Render(w, templateName, data)
 	return err
 }

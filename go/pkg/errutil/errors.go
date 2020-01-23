@@ -39,16 +39,18 @@ func Cause(err error) error {
 }
 
 func RenderError(w http.ResponseWriter, r *http.Request, err error) {
-
 	var ce *clientError
 	if errors.As(err, &ce) {
 		if ce.Code == 0 {
 			log.Error().Err(err).Msg("error code was zero for client error. This will be sent as internal error")
 			render.Status(r, http.StatusInternalServerError)
+
 			return
 		}
+
 		render.Status(r, ce.Code)
 		render.JSON(w, r, ce)
+
 		return
 	}
 

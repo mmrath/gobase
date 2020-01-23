@@ -17,9 +17,11 @@ type Config struct {
 func LoadConfig() Config {
 	cfg := Config{}
 	err := envconfig.Process("", &cfg)
+
 	if err != nil {
 		log.Error().Err(err).Msg("failed to load env config")
 		os.Exit(1)
 	}
+
 	return cfg
 }

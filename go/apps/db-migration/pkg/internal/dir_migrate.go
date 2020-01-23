@@ -104,11 +104,11 @@ func (f *File) Open(url string) (source.Driver, error) {
 				Raw:        filepath.Join(fi.Name(), "down.sql"),
 			}
 
-			_, err = nf.appendMigration(up)
+			err = nf.appendMigration(up)
 			if err != nil {
 				return nil, err
 			}
-			_, err = nf.appendMigration(down)
+			err = nf.appendMigration(down)
 			if err != nil {
 				return nil, err
 			}
@@ -118,13 +118,13 @@ func (f *File) Open(url string) (source.Driver, error) {
 	return nf, nil
 }
 
-func (f *File) appendMigration(m *source.Migration) (bool, error) {
+func (f *File) appendMigration(m *source.Migration) error {
 	if stat, err := os.Stat(path.Join(f.path, m.Raw)); err == nil && !stat.IsDir() {
 		if !f.migrations.Append(m) {
-			return false, fmt.Errorf("unable to parse file %v", m)
+			return fmt.Errorf("unable to parse file %v", m)
 		}
 	}
-	return true, nil
+	return nil
 }
 
 func (f *File) Close() error {
@@ -132,28 +132,31 @@ func (f *File) Close() error {
 	return nil
 }
 
-func (f *File) First() (version uint, err error) {
-	if v, ok := f.migrations.First(); !ok {
+func (f *File) First() (uint, error) {
+	v, ok := f.migrations.First()
+	if !ok {
 		return 0, &os.PathError{Op: "first", Path: f.path, Err: os.ErrNotExist}
-	} else {
-		return v, nil
 	}
+	return v, nil
+
 }
 
-func (f *File) Prev(version uint) (prevVersion uint, err error) {
-	if v, ok := f.migrations.Prev(version); !ok {
+func (f *File) Prev(version uint) (uint, error) {
+	v, ok := f.migrations.Prev(version)
+
+	if !ok {
 		return 0, &os.PathError{Op: fmt.Sprintf("prev for version %v", version), Path: f.path, Err: os.ErrNotExist}
-	} else {
-		return v, nil
 	}
+
+	return v, nil
 }
 
-func (f *File) Next(version uint) (nextVersion uint, err error) {
-	if v, ok := f.migrations.Next(version); !ok {
+func (f *File) Next(version uint) (uint, error) {
+	v, ok := f.migrations.Next(version)
+	if !ok {
 		return 0, &os.PathError{Op: fmt.Sprintf("next for version %v", version), Path: f.path, Err: os.ErrNotExist}
-	} else {
-		return v, nil
 	}
+	return v, nil
 }
 
 func (f *File) ReadUp(version uint) (r io.ReadCloser, identifier string, err error) {

@@ -1,9 +1,11 @@
 package model
 
 import (
-	"github.com/jinzhu/gorm"
-	"github.com/mmrath/gobase/go/pkg/db"
 	"time"
+
+	"github.com/jinzhu/gorm"
+
+	"github.com/mmrath/gobase/go/pkg/db"
 )
 
 type UserCredential struct {

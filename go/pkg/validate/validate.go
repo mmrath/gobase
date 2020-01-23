@@ -1,13 +1,15 @@
 package validate
 
 import (
+	"reflect"
+	"strings"
+
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	en_translations "github.com/go-playground/validator/v10/translations/en"
+
 	"github.com/mmrath/gobase/go/pkg/errutil"
-	"reflect"
-	"strings"
 )
 
 // use a single instance , it caches struct info
@@ -53,7 +55,7 @@ func Field(field interface{}, tag string) error {
 	return convertError(field, err)
 }
 
-func convertError(data interface{}, err error) error {
+func convertError(_ interface{}, err error) error {
 	if err != nil {
 
 		//Validation syntax is invalid

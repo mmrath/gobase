@@ -1,1 +1,1 @@
-package _go
+package root

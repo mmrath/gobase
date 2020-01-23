@@ -36,11 +36,11 @@ func (h *RoleHandler) FindRole() http.HandlerFunc {
 		if err != nil {
 			errutil.RenderError(w, r, err)
 			return
-		} else {
-			render.Status(r, http.StatusOK)
-			render.JSON(w, r, role)
-			return
 		}
+
+		render.Status(r, http.StatusOK)
+		render.JSON(w, r, role)
+		return
 	}
 }
 
@@ -59,11 +59,11 @@ func (h *RoleHandler) CreateRole() http.HandlerFunc {
 			log.Error().Err(err).Msg("error creating role")
 			errutil.RenderError(w, r, err)
 			return
-		} else {
-			render.Status(r, http.StatusOK)
-			render.JSON(w, r, role)
-			return
 		}
+
+		render.Status(r, http.StatusOK)
+		render.JSON(w, r, role)
+		return
 	}
 }
 
