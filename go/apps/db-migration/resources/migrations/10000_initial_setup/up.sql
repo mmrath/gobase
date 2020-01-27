@@ -40,7 +40,7 @@ CREATE TABLE user_account
 );
 
 CREATE UNIQUE INDEX user_account_uk_email ON user_account (lower(email));
-CREATE UNIQUE INDEX user_account_uk_phone_number ON user_account (lower(phone_number));
+CREATE UNIQUE INDEX user_account_uk_phone_number ON user_account (lower(phone_number)) WHERE phone_number IS NOT NULL;
 
 SELECT auto_manage_updated_at_and_version('user_account');
 SELECT audit.audit_table('user_account');

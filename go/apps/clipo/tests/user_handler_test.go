@@ -301,11 +301,7 @@ user_account where email = $3`,
 
 	mustExecStmt(s.DB, stmts[0], email)
 
-	passwordSha, err := crypto.SHA256([]byte(password))
-	if err != nil {
-		panic(err)
-	}
-	passwordHash, err := crypto.HashPassword(passwordSha)
+	passwordHash, err := crypto.HashPassword(password)
 	if err != nil {
 		log.Printf("Error hasing password")
 		panic(err)

@@ -5,7 +5,7 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-if [ "$1" != "clipo" ] && [ "$1" != "admin" ]; then
+if [ "$1" != "clipo" ] && [ "$1" != "admin" ] && [ "$1" != "db-migration" ]; then
   echo "ERROR Argument 1 must be in (clipo, admin)"
   exit 1
 fi

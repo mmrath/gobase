@@ -35,10 +35,10 @@ func NewSsoMiddleware(cfg SsoClientConfig) (func(handler http.Handler) http.Hand
 	if err != nil {
 		return nil, errutil.Wrap(err, "failed to parse public key from pem")
 	}
-	return ssoMiddleware{
+	return (&ssoMiddleware{
 		PubKey:     parsedPubKey,
 		CookieName: cfg.CookieName,
-	}.SsoMiddleware, nil
+	}).SsoMiddleware, nil
 }
 
 func (s *ssoMiddleware) SsoMiddleware(next http.Handler) http.Handler {

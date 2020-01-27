@@ -39,7 +39,6 @@ func (h *UserHandler) FindUser(id int64) http.HandlerFunc {
 
 		render.Status(r, http.StatusOK)
 		render.JSON(w, r, user)
-		return
 	}
 }
 

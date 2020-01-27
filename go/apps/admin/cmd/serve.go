@@ -6,8 +6,6 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
-
-	"github.com/mmrath/gobase/go/apps/admin/app"
 )
 
 func commandServe() *cobra.Command {
@@ -28,7 +26,7 @@ func commandServe() *cobra.Command {
 func serve(_ *cobra.Command, args []string) error {
 	log.Info().Strs("arguments", args).Msg("starting application")
 
-	app, err := app.NewApp()
+	app, err := NewApp()
 
 	if err != nil {
 		return err

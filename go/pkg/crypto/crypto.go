@@ -30,6 +30,11 @@ type params struct {
 
 func HashPassword(password string) (string, error) {
 
+	passwordSha, err := SHA256([]byte(password))
+	if err != nil {
+		return "", errutil.Wrap(err, "failed to compute sha checksum of password")
+	}
+
 	p := &params{
 		memory:      64 * 1024,
 		iterations:  3,
@@ -38,7 +43,7 @@ func HashPassword(password string) (string, error) {
 		keyLength:   32,
 	}
 
-	return generateFromPassword(password, p)
+	return generateFromPassword(passwordSha, p)
 }
 
 func GenerateRandomBytes(n uint32) ([]byte, error) {
@@ -64,12 +69,20 @@ func generateFromPassword(password string, p *params) (encodedHash string, err e
 	b64Hash := base64.RawStdEncoding.EncodeToString(hash)
 
 	// Return a string using the standard encoded hash representation.
-	encodedHash = fmt.Sprintf("$argon2id$v=%d$m=%d,t=%d,p=%d$%s$%s", argon2.Version, p.memory, p.iterations, p.parallelism, b64Salt, b64Hash)
+	encodedHash = fmt.Sprintf("$argon2id$v=%d$m=%d,t=%d,p=%d$%s$%s",
+		argon2.Version, p.memory, p.iterations, p.parallelism, b64Salt, b64Hash)
 
 	return encodedHash, nil
 }
 
 func CheckPassword(password, encodedHash string) (match bool, err error) {
+	var passwordSha string
+	passwordSha, err = SHA256([]byte(password))
+
+	if err != nil {
+		return false, errutil.Wrap(err, "failed to compute sha checksum")
+	}
+
 	// Extract the parameters, salt and derived key from the encoded password
 	// hash.
 	p, salt, hash, err := decodeHash(encodedHash)
@@ -78,7 +91,7 @@ func CheckPassword(password, encodedHash string) (match bool, err error) {
 	}
 
 	// Derive the key from the other password using the same parameters.
-	otherHash := argon2.IDKey([]byte(password), salt, p.iterations, p.memory, p.parallelism, p.keyLength)
+	otherHash := argon2.IDKey([]byte(passwordSha), salt, p.iterations, p.memory, p.parallelism, p.keyLength)
 
 	// Check that the contents of the hashed passwords are identical. Note
 	// that we are using the subtle.ConstantTimeCompare() function for this

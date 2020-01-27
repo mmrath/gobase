@@ -75,6 +75,26 @@ func (db *DB) RunInTx(ctx context.Context, fn func(tx *Tx) error) error {
 	return tx.Commit().Error
 }
 
+func (db *DB) BeginTx(ctx context.Context) (*Tx, error) {
+	gormTx := db.gorm.BeginTx(ctx, nil)
+	if gormTx.Error != nil {
+		return nil, errutil.Wrap(gormTx.Error, "failed to begin db transaction")
+	}
+	return &Tx{gormTx}, nil
+}
+
+func (tx *Tx) Close() {
+	if err := recover(); err != nil {
+		// Rollback in case of panic anywhere
+		_ = tx.Rollback()
+		panic(err)
+	}
+	err := tx.Commit().Error
+	if err != nil {
+		panic(err)
+	}
+}
+
 type Tx struct {
 	*gorm.DB
 }

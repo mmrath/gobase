@@ -32,7 +32,7 @@ func (h *Handler) Login(service auth.JWTService) http.HandlerFunc {
 			render.JSON(w, r, err)
 			return
 		}
-		user, err := h.Service.Login(data)
+		user, err := h.Service.Login(r.Context(), data)
 
 		if err != nil {
 			errutil.RenderError(w, r, err)
@@ -57,8 +57,6 @@ func (h *Handler) Login(service auth.JWTService) http.HandlerFunc {
 
 		w.Header().Add("Authorization", fmt.Sprintf("Bearer %s", token))
 		w.WriteHeader(http.StatusOK)
-		return
-
 	}
 }
 
@@ -96,7 +94,6 @@ func (h *Handler) Register() http.HandlerFunc {
 
 		render.Status(r, http.StatusOK)
 		render.JSON(w, r, &user)
-		return
 	}
 }
 
@@ -112,7 +109,6 @@ func (h *Handler) Activate() http.HandlerFunc {
 
 		render.Status(r, http.StatusOK)
 		render.PlainText(w, r, http.StatusText(http.StatusOK))
-		return
 	}
 }
 
@@ -149,7 +145,6 @@ func (h *Handler) InitPasswordReset() http.HandlerFunc {
 		}
 
 		render.Status(r, http.StatusOK)
-		return
 	}
 }
 
@@ -172,7 +167,6 @@ func (h *Handler) ResetPassword() http.HandlerFunc {
 		}
 
 		render.Status(r, http.StatusOK)
-		return
 	}
 }
 
@@ -196,7 +190,6 @@ func (h *Handler) ChangePassword() http.HandlerFunc {
 		log.Info().Msg("password changed successfully")
 		render.Status(r, http.StatusOK)
 		render.PlainText(w, r, "Password changed successfully")
-		return
 	}
 }
 

@@ -70,17 +70,17 @@ func TestOpenWithRelativePath(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer func() {
-		err := os.Chdir(wd)
+		err = os.Chdir(wd)
 		if err != nil {
 			t.Fatal(err)
 		}
 	}() // rescue working dir after we are done
 
-	if err := os.Chdir(tmpDir); err != nil {
+	if err = os.Chdir(tmpDir); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := os.Mkdir(filepath.Join(tmpDir, "foo"), os.ModePerm); err != nil {
+	if err = os.Mkdir(filepath.Join(tmpDir, "foo"), os.ModePerm); err != nil {
 		t.Fatal(err)
 	}
 
@@ -169,7 +169,7 @@ func TestClose(t *testing.T) {
 
 func mustWriteFile(t testing.TB, dir, mpath string, file string, body string) {
 	err := os.Mkdir(path.Join(dir, mpath), 0777)
-	if err != nil {
+	if err != nil && !os.IsExist(err) {
 		t.Fatal(err)
 	}
 

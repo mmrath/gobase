@@ -28,8 +28,8 @@ func (s *roleService) Find(ctx context.Context, id int32) (role *model.RoleAndPe
 	return role, err
 }
 
-func (s *roleService) Create(ctx context.Context, roleAndPermission *model.RoleAndPermission) (err error) {
-	err = s.db.RunInTx(ctx, func(tx *db.Tx) error {
+func (s *roleService) Create(ctx context.Context, roleAndPermission *model.RoleAndPermission) error {
+	err := s.db.RunInTx(ctx, func(tx *db.Tx) error {
 		exists, err := s.roleDao.ExistsByName(tx, roleAndPermission.Role.Name)
 		if err != nil {
 			return errutil.Wrap(err, "error while checking if roleAndPermission exists")
@@ -51,9 +51,10 @@ func (s *roleService) Update(ctx context.Context, roleAndPermission *model.RoleA
 	return err
 }
 
-func NewRoleService(db *db.DB) RoleService {
+func NewRoleService(
+	database *db.DB) RoleService {
 	return &roleService{
-		db:      db,
+		db:      database,
 		roleDao: model.NewRoleDao(),
 	}
 }

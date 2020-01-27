@@ -20,14 +20,14 @@ var (
 )
 
 func init() {
-	en := en.New()
-	uni = ut.New(en, en)
+	enTranslator := en.New()
+	uni = ut.New(enTranslator, enTranslator)
 
 	// this is usually know or extracted from http 'Accept-Language' header
 	// also see uni.FindTranslator(...)
 	enTran, ok := uni.GetTranslator("en")
 	if !ok {
-		panic("en translation not found")
+		panic("enTranslator translation not found")
 	}
 	trans = enTran
 

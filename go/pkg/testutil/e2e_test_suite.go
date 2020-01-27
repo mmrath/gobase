@@ -116,7 +116,7 @@ func executeStmts(db *sql.DB, stmts []string) {
 	}
 }
 
-func mustExecStmt(db *sql.DB, stmt string, values ...interface{}) {
+func MustExecStmt(db *sql.DB, stmt string, values ...interface{}) {
 	_, err := db.Exec(stmt, values...)
 	if err != nil {
 		log.Printf("Error executing statement %s, args %v", stmt, values)

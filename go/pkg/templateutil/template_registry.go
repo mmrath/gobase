@@ -4,7 +4,6 @@ import (
 	"html/template"
 	"io"
 	"io/ioutil"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -69,7 +68,7 @@ func findAndParseTemplates(rootDir string, funcMap template.FuncMap) (*template.
 	return root, err
 }
 
-func (t *Registry) RenderHTTP(w http.ResponseWriter, templateName string, data interface{}) error {
+func (t *Registry) RenderHTTP(w io.Writer, templateName string, data interface{}) error {
 	err := t.Render(w, templateName, data)
 	return err
 }

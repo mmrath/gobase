@@ -23,6 +23,8 @@ export GOPATH
 GO_PROJ_BIN := $(GO_PROJ_BASE)/bin
 GOBIN := $(GO_PROJ_BIN)
 
+export PATH := $(GOBIN):$(PATH)
+
 #Helps us keep project specific tool binaries
 
 GO := GOBIN=$(GOBIN) go
@@ -70,7 +72,7 @@ format:
 	@gofmt -s -w ./apps ./pkg ./*.go
 
 .PHONY: generate
-generate:
+generate: tools
 	@echo "Running go generate"
 	@$(GO) generate ./...
 

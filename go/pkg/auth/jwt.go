@@ -110,13 +110,16 @@ func (s *jwtService) Decode(tokenString string) (t *jwt.Token, err error) {
 	return token, nil
 }
 
-func UserIDFromContext(ctx context.Context) int64 {
-	id := ctx.Value(userIDKey).(int64)
-	return id
+func UserIDFromContext(ctx context.Context) (int64, error) {
+	id, ok := ctx.Value(userIDKey).(*int64)
+	if ok && *id != 0 {
+		return *id, errutil.NewUnauthorized("User is not logged")
+	}
+	return *id, nil
 }
 
-func NewAuthContext(ctx context.Context, userId int64) context.Context {
-	ctx = context.WithValue(ctx, userIDKey, userId)
+func NewAuthContext(ctx context.Context, userID int64) context.Context {
+	ctx = context.WithValue(ctx, userIDKey, userID)
 	return ctx
 }
 
@@ -154,20 +157,20 @@ func (s *jwtService) Authenticator(next http.Handler) http.Handler {
 
 		if err != nil {
 			log.Error().Err(err).Send()
-			http.Error(w, http.StatusText(500), 500)
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
 
 		if token == nil || !token.Valid {
 			log.Error().Msg("token is not valid")
-			http.Error(w, http.StatusText(401), 401)
+			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 			return
 		}
 
 		userID, ok := claims["userID"]
 
 		if !ok {
-			http.Error(w, http.StatusText(401), 401)
+			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 			return
 		}
 

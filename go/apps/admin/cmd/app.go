@@ -1,4 +1,4 @@
-package app
+package cmd
 
 import (
 	"context"
@@ -17,20 +17,20 @@ type App struct {
 	httpServer *http.Server
 }
 
-func NewApp(profiles ...string) (*App, error) {
+func NewApp() (*App, error) {
 	cfg := config.Config{}
 	err := config.LoadConfig(&cfg)
 	if err != nil {
 		return nil, err
 	}
 
-	db, err := db.Open(cfg.DB)
+	database, err := db.Open(cfg.DB)
 
 	if err != nil {
 		return nil, err
 	}
 
-	roleService := account.NewRoleService(db)
+	roleService := account.NewRoleService(database)
 	roleHandler := account.NewRoleHandler(roleService)
 
 	httpHandler, err := NewHTTPRouter(cfg.Web, roleHandler)

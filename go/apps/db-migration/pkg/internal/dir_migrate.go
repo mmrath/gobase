@@ -55,7 +55,8 @@ func (f *File) Open(url string) (source.Driver, error) {
 
 	if len(p) == 0 {
 		// default to current directory if no path
-		wd, err := os.Getwd()
+		var wd string
+		wd, err = os.Getwd()
 		if err != nil {
 			return nil, err
 		}
@@ -63,7 +64,8 @@ func (f *File) Open(url string) (source.Driver, error) {
 
 	} else if p[0:1] == "." || p[0:1] != "/" {
 		// make path absolute if relative
-		abs, err := filepath.Abs(p)
+		var abs string
+		abs, err = filepath.Abs(p)
 		if err != nil {
 			return nil, err
 		}
