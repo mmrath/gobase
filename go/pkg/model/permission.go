@@ -8,9 +8,9 @@ import (
 
 type Permission struct {
 	ID          int32  `json:"id,omitempty"`
-	Application string `json:"application,omitempty"`
-	Authority   string `json:"authority,omitempty"`
-	Description string `json:"description,omitempty"`
+	Application string `json:"application,omitempty" sql:"default:null"`
+	Authority   string `json:"authority,omitempty" sql:"default:null"`
+	Description string `json:"description,omitempty" sql:"default:null"`
 }
 
 type PermissionDao interface {

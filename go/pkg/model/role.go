@@ -10,8 +10,8 @@ import (
 type Role struct {
 	AuditDetails
 	ID          int32        `json:"id,omitempty"`
-	Name        string       `json:"name,omitempty" validate:"required"`
-	Description string       `json:"description,omitempty" validate:"required"`
+	Name        string       `json:"name,omitempty" sql:"default:null" validate:"required"`
+	Description string       `json:"description,omitempty" sql:"default:null" validate:"required"`
 	Permissions []Permission `json:"permissions" sql:"-"`
 }
 

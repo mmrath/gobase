@@ -26,7 +26,7 @@ func NewEmailClient(mailAPI string) *TestEmailClient {
 func (c *TestEmailClient) GetLatestEmail(emailID string) *email.Message {
 	headers, err := c.client.ListMailbox(emailID)
 	if err != nil {
-		return nil
+		panic(errutil.Wrap(err, "failed to list mailbox"))
 	}
 	for _, h := range headers {
 		msg, err := h.GetMessage()

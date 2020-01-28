@@ -111,11 +111,12 @@ func (s *jwtService) Decode(tokenString string) (t *jwt.Token, err error) {
 }
 
 func UserIDFromContext(ctx context.Context) (int64, error) {
-	id, ok := ctx.Value(userIDKey).(*int64)
-	if ok && *id != 0 {
-		return *id, errutil.NewUnauthorized("User is not logged")
+	id, ok := ctx.Value(userIDKey).(int64)
+
+	if !ok || id == 0 {
+		return 0, errutil.NewUnauthorized("User is not logged")
 	}
-	return *id, nil
+	return id, nil
 }
 
 func NewAuthContext(ctx context.Context, userID int64) context.Context {
@@ -167,7 +168,7 @@ func (s *jwtService) Authenticator(next http.Handler) http.Handler {
 			return
 		}
 
-		userID, ok := claims["userID"]
+		userID, ok := claims["userId"]
 
 		if !ok {
 			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)

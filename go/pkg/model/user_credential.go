@@ -10,14 +10,14 @@ import (
 
 type UserCredential struct {
 	ID                     int64     `json:"id,omitempty"`
-	PasswordHash           string    `json:"-"`
+	PasswordHash           string    `json:"-" sql:"default:null"`
 	ExpiresAt              time.Time `json:"expiresAt,omitempty"`
 	InvalidAttempts        uint16    `json:"invalidAttempts,omitempty"`
 	Locked                 bool      `json:"locked,omitempty"`
-	ActivationKey          string    `json:"activationKey,omitempty"`
+	ActivationKey          string    `json:"activationKey,omitempty" sql:"default:null"`
 	ActivationKeyExpiresAt time.Time `json:"activationKeyExpiresAt,omitempty"`
 	Activated              bool      `json:"activated,omitempty"`
-	ResetKey               string    `json:"resetKey,omitempty"`
+	ResetKey               string    `json:"resetKey,omitempty" sql:"default:null"`
 	ResetKeyExpiresAt      time.Time `json:"resetKeyExpiresAt,omitempty"`
 	ResetAt                time.Time `json:"resetAt,omitempty"`
 	UpdatedAt              time.Time `json:"updatedAt,omitempty"`

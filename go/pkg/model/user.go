@@ -8,10 +8,10 @@ type User struct {
 	AuditDetails
 
 	ID          int64  `json:"id,omitempty"`
-	FirstName   string `json:"firstName,omitempty"`
-	LastName    string `json:"lastName,omitempty"`
-	Email       string `json:"email,omitempty"`
-	PhoneNumber string `json:"phoneNumber,omitempty"`
+	FirstName   string `json:"firstName,omitempty" sql:"default:null"`
+	LastName    string `json:"lastName,omitempty" sql:"default:null"`
+	Email       string `json:"email,omitempty" sql:"default:null"`
+	PhoneNumber string `json:"phoneNumber,omitempty" sql:"default:null"`
 	Active      bool   `json:"active,omitempty"`
 }
 

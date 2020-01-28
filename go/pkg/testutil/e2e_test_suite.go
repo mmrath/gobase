@@ -34,6 +34,7 @@ func (s *TestSuite) SetTestEnv() {
 
 	if portPrefix == "" {
 		fmt.Println("E2E_TEST_PORT_PREFIX is not set. default to 40")
+		os.Setenv("E2E_TEST_PORT_PREFIX", "40")
 		portPrefix = "40"
 	}
 
@@ -51,7 +52,7 @@ func (s *TestSuite) SetTestEnv() {
 	dbURL := os.Getenv("DB_URL")
 
 	if dbURL == "" {
-		dbURL = fmt.Sprintf("postgres://app_user:password12@localhost:%s32/appdb?sslmode=disable", portPrefix)
+		dbURL = fmt.Sprintf("postgres://app_admin:s3cr3t@localhost:%s32/appdb?sslmode=disable", portPrefix)
 		os.Setenv("DB_URL", dbURL)
 	}
 }

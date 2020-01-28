@@ -277,10 +277,10 @@ func (s *Service) ResetPassword(passwordResetRequest model.ResetPasswordRequest)
 	return err
 }
 
-func (s *Service) Register(signUpRequest model.RegisterAccountRequest) (*model.User, error) {
+func (s *Service) Register(request model.RegisterAccountRequest) (*model.User, error) {
 
-	log.Debug().Interface("email", signUpRequest.Email).Msg("signing up user")
-	err := validate.Struct(signUpRequest)
+	log.Debug().Interface("email", request.Email).Msg("signing up user")
+	err := validate.Struct(request)
 
 	if err != nil {
 		return nil, err
@@ -288,15 +288,15 @@ func (s *Service) Register(signUpRequest model.RegisterAccountRequest) (*model.U
 
 	newUser := model.User{
 		AuditDetails: model.AuditDetails{UpdatedBy: "SIGNUP"},
-		FirstName:    signUpRequest.FirstName,
-		LastName:     signUpRequest.LastName,
-		Email:        strings.ToLower(signUpRequest.Email),
+		FirstName:    request.FirstName,
+		LastName:     request.LastName,
+		Email:        strings.ToLower(request.Email),
 		Active:       true,
 	}
 
 	newUser.UpdatedBy = "SIGNUP"
 
-	passwordHash, err := crypto.HashPassword(signUpRequest.Password)
+	passwordHash, err := crypto.HashPassword(request.Password)
 	if err != nil {
 		return nil, errutil.Wrap(err, "failed to hash password")
 	}
@@ -304,7 +304,7 @@ func (s *Service) Register(signUpRequest model.RegisterAccountRequest) (*model.U
 	activationToken := uuid.New().String()
 	activationTokenHash := fmt.Sprintf("%x", sha256.Sum256([]byte(activationToken)))
 	err = s.db.RunInTx(context.Background(), func(tx *db.Tx) error {
-		err = s.checkForDuplicate(tx, signUpRequest.Email, "email", s.userDao.ExistsByEmail)
+		err = s.checkForDuplicate(tx, request.Email, "email", s.userDao.ExistsByEmail)
 		if err != nil {
 			return err
 		}
