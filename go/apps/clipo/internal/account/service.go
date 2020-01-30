@@ -73,25 +73,26 @@ func activateTx(tx *db.Tx, userCredentialDao model.UserCredentialDao, tokenHash 
 
 func (s *Service) Login(ctx context.Context, login model.LoginRequest) (user model.User, err error) {
 	err = validate.Struct(login)
-
 	if err != nil {
 		return user, errutil.Wrap(err, "failed validation")
 	}
+	err = s.db.RunInTx(ctx, func(tx *db.Tx) error {
+		user, err = s.loginTx(tx, login)
+		return err
+	})
+	return user, err
+}
 
-	var tx *db.Tx
-	if tx, err = s.db.BeginTx(ctx); err != nil {
-		return user, err
-	}
-	defer tx.Close()
-
+func (s *Service) loginTx(tx *db.Tx, login model.LoginRequest) (model.User, error) {
 	invalidCredentialMsg := "invalid email or password"
 
-	user, err = s.userDao.FindByEmail(tx, login.Email)
+	user, err := s.userDao.FindByEmail(tx, login.Email)
+
 	if err != nil {
 		if db.IsNoDataFound(err) {
 			return user, errutil.NewUnauthorized(invalidCredentialMsg)
 		}
-		return user, err
+		return user, errutil.Wrap(err, "failed to find user by email")
 	}
 
 	if !user.Active {
@@ -149,54 +150,52 @@ func (s *Service) Login(ctx context.Context, login model.LoginRequest) (user mod
 func (s *Service) ChangePassword(ctx context.Context, data model.ChangePasswordRequest) error {
 
 	id, err := auth.UserIDFromContext(ctx)
-
 	if err != nil {
 		return err
 	}
-
 	err = s.db.RunInTx(context.Background(), func(tx *db.Tx) error {
-		var uc model.UserCredential
-		uc, err = s.userCredentialDao.Get(tx, id)
-		log.Info().Interface("user_credential", uc).Msg("credential found")
-
-		if err != nil {
-			if db.IsNoDataFound(err) {
-				return errutil.NewBadRequest("password cannot be changed as user does not exist")
-			}
-			return errutil.Wrapf(err, "failed to retrieve user credential for %d", id)
-		}
-		var matched bool
-		matched, err = crypto.CheckPassword(data.CurrentPassword, uc.PasswordHash)
-
-		if err != nil {
-			return errutil.Wrap(err, "failed to validate password")
-		}
-
-		if !matched {
-			if uc.InvalidAttempts >= 3 {
-				err = s.userCredentialDao.IncrementInvalidAttempts(tx, id, true)
-				if err != nil {
-					return errutil.Wrap(err, "failed to lock user")
-				}
-			} else {
-				err = s.userCredentialDao.IncrementInvalidAttempts(tx, id, false)
-				if err != nil {
-					return errutil.Wrap(err, "failed to update invalid attempts")
-				}
-			}
-			return errutil.NewUnauthorized("invalid current password")
-		}
-
-		var newPasswordHash string
-		newPasswordHash, err = crypto.HashPassword(data.NewPassword)
-		if err != nil {
-			return errutil.Wrap(err, "failed to hash password")
-		}
-
-		err = s.userCredentialDao.ChangePassword(tx, uc.ID, newPasswordHash)
-		return err
+		return s.changePasswordTx(tx, id, data)
 	})
+	return err
+}
 
+func (s *Service) changePasswordTx(tx *db.Tx, id int64, data model.ChangePasswordRequest) error {
+	uc, err := s.userCredentialDao.Get(tx, id)
+	if err != nil {
+		if db.IsNoDataFound(err) {
+			return errutil.NewBadRequest("password cannot be changed as user does not exist")
+		}
+		return errutil.Wrapf(err, "failed to retrieve user credential for %d", id)
+	}
+	var matched bool
+	matched, err = crypto.CheckPassword(data.CurrentPassword, uc.PasswordHash)
+
+	if err != nil {
+		return errutil.Wrap(err, "failed to validate password")
+	}
+
+	if !matched {
+		if uc.InvalidAttempts >= 3 {
+			err = s.userCredentialDao.IncrementInvalidAttempts(tx, id, true)
+			if err != nil {
+				return errutil.Wrap(err, "failed to lock user")
+			}
+		} else {
+			err = s.userCredentialDao.IncrementInvalidAttempts(tx, id, false)
+			if err != nil {
+				return errutil.Wrap(err, "failed to update invalid attempts")
+			}
+		}
+		return errutil.NewUnauthorized("invalid current password")
+	}
+
+	var newPasswordHash string
+	newPasswordHash, err = crypto.HashPassword(data.NewPassword)
+	if err != nil {
+		return errutil.Wrap(err, "failed to hash password")
+	}
+
+	err = s.userCredentialDao.ChangePassword(tx, uc.ID, newPasswordHash)
 	return err
 }
 

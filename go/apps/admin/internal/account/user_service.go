@@ -3,11 +3,42 @@ package account
 import (
 	"context"
 
+	"github.com/mmrath/gobase/go/pkg/db"
 	"github.com/mmrath/gobase/go/pkg/model"
 )
 
 type UserService interface {
-	Find(ctx context.Context, id int32) (*model.User, error)
-	Create(ctx context.Context, role *model.User) (err error)
-	Update(ctx context.Context, role *model.User) (err error)
+	FindUserByID(ctx context.Context, id int64) (model.User, error)
+	CreateUser(ctx context.Context, role *model.CreateUserRequest) (model.User, error)
+	UpdateUser(ctx context.Context, role *model.User) error
+}
+
+type userService struct {
+	db      *db.DB
+	userDao model.UserDao
+}
+
+func (u userService) FindUserByID(ctx context.Context, id int64) (model.User, error) {
+	var user model.User
+	err := u.db.RunInTx(ctx, func(tx *db.Tx) error {
+		var err error
+		user, err = u.userDao.Find(tx, id)
+		return err
+	})
+	return user, err
+}
+
+func (u userService) CreateUser(ctx context.Context, user *model.CreateUserRequest) (model.User, error) {
+	panic("implement me")
+}
+
+func (u userService) UpdateUser(ctx context.Context, user *model.User) (err error) {
+	panic("implement me")
+}
+
+func NewUserService(database *db.DB) UserService {
+	return &userService{
+		db:      database,
+		userDao: model.NewUserDao(),
+	}
 }

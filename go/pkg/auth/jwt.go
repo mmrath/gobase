@@ -114,7 +114,7 @@ func UserIDFromContext(ctx context.Context) (int64, error) {
 	id, ok := ctx.Value(userIDKey).(int64)
 
 	if !ok || id == 0 {
-		return 0, errutil.NewUnauthorized("User is not logged")
+		return 0, errutil.NewUnauthorized("user is not logged")
 	}
 	return id, nil
 }

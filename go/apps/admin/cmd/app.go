@@ -17,7 +17,7 @@ type App struct {
 	httpServer *http.Server
 }
 
-func NewApp() (*App, error) {
+func BuildApp() (*App, error) {
 	cfg := config.Config{}
 	err := config.LoadConfig(&cfg)
 	if err != nil {
@@ -30,10 +30,10 @@ func NewApp() (*App, error) {
 		return nil, err
 	}
 
-	roleService := account.NewRoleService(database)
-	roleHandler := account.NewRoleHandler(roleService)
+	roleHandler := account.NewRoleHandler(database)
+	userHandler := account.NewUserHandler(database)
 
-	httpHandler, err := NewHTTPRouter(cfg.Web, roleHandler)
+	httpHandler, err := NewHTTPRouter(cfg.Web, roleHandler, userHandler)
 
 	if err != nil {
 		return nil, err

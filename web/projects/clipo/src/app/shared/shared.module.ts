@@ -24,8 +24,7 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatNativeDateModule} from '@angular/material/core';
 
 import {FontAwesomeSharedModule} from './font-awesome.module';
-import {FieldErrorComponent} from "./field-error/field-error.component";
-import {FieldErrorDirective} from "./field-error/field-error.directive";
+import {FieldErrorDirective} from './field-error/field-error.directive';
 
 const SHARED_MODULES = [
   CommonModule,

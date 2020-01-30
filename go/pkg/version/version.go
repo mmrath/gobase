@@ -20,7 +20,6 @@ var (
 // PrintVersionOrContinue will print git commit and exit with os.Exit(0) if CLI v flag is present
 func PrintVersion() {
 	if Version != "" || GitCommit != "" || BuildTime != "" {
-		fmt.Printf("version: %s (%s) | %s", Version, GitCommit, BuildTime)
 		log.Info().
 			Str("version", Version).
 			Str("GitCommit", GitCommit).

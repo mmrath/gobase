@@ -20,7 +20,7 @@ type Config struct {
 	Username string
 	Password string
 	Name     string
-	SSLMode  string `default:"enabled"`
+	SSLMode  string `default:"require"`
 	Debug    bool   `default:"false" yaml:"debug"`
 }
 

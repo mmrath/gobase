@@ -1,4 +1,3 @@
-// Package api configures an http server for administration and application resources.
 package cmd
 
 import (
@@ -9,22 +8,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rs/zerolog/log"
-
-	"github.com/mmrath/gobase/go/apps/clipo/internal/config"
-
-	"github.com/mmrath/gobase/go/apps/clipo/internal/account"
-	"github.com/mmrath/gobase/go/pkg/auth"
-
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/render"
+	"github.com/rs/zerolog/log"
+
+	"github.com/mmrath/gobase/go/apps/admin/internal/account"
+	"github.com/mmrath/gobase/go/apps/admin/internal/config"
 )
 
-// NewMux configures application resources and routes.
-func NewMux(cfg config.Config, userHandler *account.Handler, jwtService auth.JWTService) (*chi.Mux, error) {
-
+func NewHTTPRouter(webConfig config.WebConfig, rh *account.RoleHandler, uh *account.UserHandler) (http.Handler, error) {
 	r := chi.NewRouter()
 
 	r.Use(middleware.Recoverer)
@@ -35,30 +29,30 @@ func NewMux(cfg config.Config, userHandler *account.Handler, jwtService auth.JWT
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 
 	// use CORS middleware if client is not served by this api, e.g. from other domain or CDN
-	if cfg.Web.CorsEnabled {
+	if webConfig.CorsEnabled {
 		r.Use(corsConfig().Handler)
 	}
 
 	r.Route("/api", func(r chi.Router) {
 		// Protected routes
 		r.Group(func(r chi.Router) {
-			r.Use(jwtService.Verifier())
-			r.Use(jwtService.Authenticator)
 
-			r.Post("/account/change-password", userHandler.ChangePassword())
-			r.Get("/account", userHandler.Account())
+			r.Route("/role", func(r chi.Router) {
+				r.Get("/:id", rh.FindRole())
+				r.Post("/", rh.CreateRole())
+				r.Put("/:id", rh.UpdateRole())
+			})
+
+			r.Route("/account", func(r chi.Router) {
+				r.Get("/:id", uh.FindUser())
+				r.Post("/", uh.CreateUser())
+				r.Put("/:id", uh.UpdateUser())
+			})
 		})
 
 		// Public routes
 		r.Group(func(r chi.Router) {
-			r.Route("/account", func(r chi.Router) {
-				r.Get("/activate", userHandler.Activate())
-				r.Post("/register", userHandler.Register())
-				r.Post("/login", userHandler.Login(jwtService))
-				r.Post("/logout", userHandler.Logout())
-				r.Post("/reset-password/init", userHandler.InitPasswordReset())
-				r.Post("/reset-password/finish", userHandler.ResetPassword())
-			})
+
 		})
 	})
 

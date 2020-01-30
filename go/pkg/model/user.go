@@ -50,7 +50,7 @@ type CreateUserRequest struct {
 	FirstName   string  `json:"firstName,omitempty" validate:"required,aplha"`
 	LastName    string  `json:"lastName,omitempty" validate:"required,alpha"`
 	Email       string  `json:"email,omitempty" validate:"required,email"`
-	PhoneNumber string  `json:"phoneNumber,omitempty" validate:"required"`
+	PhoneNumber string  `json:"phoneNumber,omitempty"`
 	Active      bool    `json:"active,omitempty"`
 	Roles       []int32 `json:"roles,omitempty"`
 }

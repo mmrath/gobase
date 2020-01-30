@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cast"
 	"gopkg.in/go-playground/validator.v9"
 
+	"github.com/mmrath/gobase/go/pkg/db"
 	"github.com/mmrath/gobase/go/pkg/errutil"
 	"github.com/mmrath/gobase/go/pkg/model"
 )
@@ -17,7 +18,8 @@ type RoleHandler struct {
 	roleService RoleService
 }
 
-func NewRoleHandler(roleService RoleService) *RoleHandler {
+func NewRoleHandler(database *db.DB) *RoleHandler {
+	roleService := NewRoleService(database)
 	return &RoleHandler{roleService: roleService}
 }
 
@@ -31,7 +33,7 @@ func (h *RoleHandler) FindRole() http.HandlerFunc {
 			return
 		}
 
-		role, err := h.roleService.Find(r.Context(), cast.ToInt32(id))
+		role, err := h.roleService.FindRoleByID(r.Context(), cast.ToInt32(id))
 
 		if err != nil {
 			errutil.RenderError(w, r, err)
@@ -52,7 +54,7 @@ func (h *RoleHandler) CreateRole() http.HandlerFunc {
 			return
 		}
 
-		err := h.roleService.Create(r.Context(), role)
+		err := h.roleService.CreateRole(r.Context(), role)
 
 		if err != nil {
 			log.Error().Err(err).Msg("error creating role")
@@ -74,7 +76,7 @@ func (h *RoleHandler) UpdateRole() http.HandlerFunc {
 			return
 		}
 
-		err := h.roleService.Update(r.Context(), role)
+		err := h.roleService.UpdateRole(r.Context(), role)
 
 		if err != nil {
 			log.Error().Err(err).Msg("error creating role")
