@@ -1,7 +1,8 @@
 {
+  "app.title.long": "CLIPO",
   "app.menu.about": "About",
   "app.menu.examples": "Examples",
   "app.menu.features": "Features",
-  "app.menu.login": "Sign in",
+  "app.menu.login": "Login",
   "app.menu.logout": "Logout"
 }

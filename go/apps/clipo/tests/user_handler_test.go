@@ -40,7 +40,7 @@ func TestAccountSuite(t *testing.T) {
 }
 
 func (s *AccountTestSuite) TestPing() {
-	resp, err := http.Get(s.AppURL + "/ping")
+	resp, err := http.Get(s.AppURL + "/clipo/ping")
 	require.NoError(s.T(), err)
 	require.Equal(s.T(), 200, resp.StatusCode)
 
@@ -62,7 +62,7 @@ func (s *AccountTestSuite) TestRegisterActivateAndLogin() {
 		"password":  testPassword,
 	}
 	fmt.Printf("registering with data %v\n", registerRequest)
-	he.POST("/api/account/register").
+	he.POST(apiPath("/account/register")).
 		WithJSON(registerRequest).
 		Expect().
 		Status(http.StatusOK)
@@ -72,7 +72,7 @@ func (s *AccountTestSuite) TestRegisterActivateAndLogin() {
 	require.Equal(s.T(), "Activate your account", msg.Subject)
 	require.Equal(s.T(), registerRequest["email"], msg.To[0].Address)
 
-	resp := he.POST("/api/account/login").
+	resp := he.POST(apiPath("/account/login")).
 		WithJSON(model.LoginRequest{Email: testEmail, Password: testPassword}).
 		Expect()
 	resp.Status(http.StatusUnauthorized)
@@ -80,12 +80,12 @@ func (s *AccountTestSuite) TestRegisterActivateAndLogin() {
 
 	re := regexp.MustCompile(`/account/activate\?key=([0-9a-f\-]+)`)
 	key := re.FindStringSubmatch(msg.HTML)[1]
-	he.GET("/api/account/activate").
+	he.GET(apiPath("/account/activate")).
 		WithQuery("key", key).
 		Expect().
 		Status(http.StatusOK)
 
-	resp = he.POST("/api/account/login").
+	resp = he.POST(apiPath("/account/login")).
 		WithJSON(model.LoginRequest{Email: testEmail, Password: testPassword}).
 		Expect()
 	resp.Status(http.StatusOK)
@@ -93,78 +93,78 @@ func (s *AccountTestSuite) TestRegisterActivateAndLogin() {
 	require.NotNil(s.T(), token)
 }
 
-func (s *AccountTestSuite) TestSignUpWithInvalidEmail() {
+func (s *AccountTestSuite) TestRegisterWithInvalidEmail() {
 	he := httpexpect.New(s.T(), s.AppURL)
-	signupRequest := map[string]interface{}{
+	registerRequest := map[string]interface{}{
 		"firstName": gofakeit.FirstName(),
 		"lastName":  gofakeit.LastName(),
 		"email":     "invalid_email",
 		"password":  gofakeit.Password(true, true, true, true, true, 8),
 	}
-	resp := he.POST("/api/account/register").WithJSON(signupRequest).Expect()
+	resp := he.POST(apiPath("/account/register")).WithJSON(registerRequest).Expect()
 	resp.Status(http.StatusBadRequest)
 	resp.JSON().Path("$.fieldErrors[0].field").Equal("email")
 	resp.JSON().Path("$.fieldErrors[0].message").Equal("email must be a valid email address")
 }
 
-func (s *AccountTestSuite) TestSignUpWithDuplicateEmail() {
+func (s *AccountTestSuite) TestRegisterWithDuplicateEmail() {
 	he := httpexpect.New(s.T(), s.AppURL)
-	signupRequest := map[string]interface{}{
+	registerRequest := map[string]interface{}{
 		"firstName": gofakeit.FirstName(),
 		"lastName":  gofakeit.LastName(),
 		"email":     gofakeit.Email(),
 		"password":  gofakeit.Password(true, true, true, true, true, 8),
 	}
-	resp := he.POST("/api/account/register").WithJSON(signupRequest).Expect()
+	resp := he.POST(apiPath("/account/register")).WithJSON(registerRequest).Expect()
 	resp.Status(http.StatusOK)
 
 	// 2nd Request
-	resp = he.POST("/api/account/register").WithJSON(signupRequest).Expect()
+	resp = he.POST(apiPath("/account/register")).WithJSON(registerRequest).Expect()
 	resp.Status(http.StatusBadRequest)
 
 	resp.JSON().Path("$.fieldErrors[0].field").Equal("email")
 	resp.JSON().Path("$.fieldErrors[0].message").Equal("email already registered")
 }
 
-func (s *AccountTestSuite) TestSignUpWithInvalidPassword() {
+func (s *AccountTestSuite) TestRegisterWithInvalidPassword() {
 	he := httpexpect.New(s.T(), s.AppURL)
-	signupRequest := map[string]interface{}{
+	registerRequest := map[string]interface{}{
 		"firstName": "Murali",
 		"lastName":  "Rath",
 		"email":     gofakeit.Email(),
 		"password":  gofakeit.Password(true, true, true, true, false, 5), /// too short
 	}
 	// 2nd Request
-	resp := he.POST("/api/account/register").WithJSON(signupRequest).Expect()
+	resp := he.POST(apiPath("/account/register")).WithJSON(registerRequest).Expect()
 	resp.Status(http.StatusBadRequest)
 
 	resp.JSON().Path("$.fieldErrors[0].field").Equal("password")
 	resp.JSON().Path("$.fieldErrors[0].message").Equal("password must be at least 6 characters in length")
 }
 
-func (s *AccountTestSuite) TestSignUpWithLongPassword() {
+func (s *AccountTestSuite) TestRegisterWithLongPassword() {
 	he := httpexpect.New(s.T(), s.AppURL)
-	signupRequest := map[string]interface{}{
+	registerRequest := map[string]interface{}{
 		"firstName": "Murali",
 		"lastName":  "Rath",
 		"email":     gofakeit.Email(),
 		"password":  gofakeit.Password(true, true, true, true, true, 20),
 	}
 	// 2nd Request
-	resp := he.POST("/api/account/register").WithJSON(signupRequest).Expect()
+	resp := he.POST(apiPath("/account/register")).WithJSON(registerRequest).Expect()
 	resp.Status(http.StatusOK)
 }
 
-func (s *AccountTestSuite) TestSignUpWithTooLongPassword() {
+func (s *AccountTestSuite) TestRegisterWithTooLongPassword() {
 	he := httpexpect.New(s.T(), s.AppURL)
-	signupRequest := map[string]interface{}{
+	registerRequest := map[string]interface{}{
 		"firstName": "Murali",
 		"lastName":  "Rath",
 		"email":     gofakeit.Email(),
 		"password":  gofakeit.Password(true, true, true, true, true, 32),
 	}
 	// 2nd Request
-	resp := he.POST("/api/account/register").WithJSON(signupRequest).Expect()
+	resp := he.POST(apiPath("/account/register")).WithJSON(registerRequest).Expect()
 	resp.Status(http.StatusBadRequest)
 	resp.JSON().Path("$.fieldErrors[0].field").Equal("password")
 	resp.JSON().Path("$.fieldErrors[0].message").Equal("password must be a maximum of 20 characters in length")
@@ -172,7 +172,7 @@ func (s *AccountTestSuite) TestSignUpWithTooLongPassword() {
 
 func (s *AccountTestSuite) TestActivateWithWrongKey() {
 	he := httpexpect.New(s.T(), s.AppURL)
-	resp := he.GET("/api/account/activate").
+	resp := he.GET(apiPath("/account/activate")).
 		WithQuery("key", "wrong-key").
 		Expect().
 		Status(http.StatusBadRequest)
@@ -186,7 +186,7 @@ func (s *AccountTestSuite) TestResetPassword() {
 		"email": testEmail,
 	}
 	s.createUser(testEmail, gofakeit.Person().LastName)
-	resp := he.POST("/api/account/reset-password/init").
+	resp := he.POST(apiPath("/account/reset-password/init")).
 		WithJSON(initResetRequest).Expect()
 	resp.Status(http.StatusOK)
 
@@ -204,12 +204,12 @@ func (s *AccountTestSuite) TestResetPassword() {
 		"newPassword": "Secret123",
 	}
 
-	he.POST("/api/account/reset-password/finish").
+	he.POST(apiPath("/account/reset-password/finish")).
 		WithJSON(resetRequest).
 		Expect().
 		Status(http.StatusOK)
 
-	resp = he.POST("/api/account/login").
+	resp = he.POST(apiPath("/account/login")).
 		WithJSON(model.LoginRequest{Email: testEmail, Password: "Secret123"}).
 		Expect()
 
@@ -220,7 +220,7 @@ func (s *AccountTestSuite) TestWithWrongUsername() {
 	testEmail := gofakeit.Email()
 	he := httpexpect.New(s.T(), s.AppURL)
 
-	resp := he.POST("/api/account/login").
+	resp := he.POST(apiPath("/account/login")).
 		WithJSON(model.LoginRequest{Email: testEmail, Password: "Secret123"}).
 		Expect()
 	resp.Status(http.StatusUnauthorized)
@@ -236,7 +236,7 @@ func (s *AccountTestSuite) TestWithWrongPassword() {
 
 	he := httpexpect.New(s.T(), s.AppURL)
 
-	resp := he.POST("/api/account/login").
+	resp := he.POST(apiPath("/account/login")).
 		WithJSON(model.LoginRequest{Email: testEmail, Password: "incorrectPassword"}).
 		Expect()
 	resp.Status(http.StatusUnauthorized)
@@ -253,7 +253,7 @@ func (s *AccountTestSuite) TestChangePassword() {
 
 	he := httpexpect.New(s.T(), s.AppURL)
 
-	resp := he.POST("/api/account/login").
+	resp := he.POST(apiPath("/account/login")).
 		WithJSON(model.LoginRequest{Email: testEmail, Password: password}).
 		Expect()
 	resp.Status(http.StatusOK)
@@ -263,7 +263,7 @@ func (s *AccountTestSuite) TestChangePassword() {
 	token := resp.Header("Authorization").Match("Bearer (.*)").Raw()[1]
 	require.NotNil(s.T(), token)
 
-	resp = he.POST("/api/account/change-password").
+	resp = he.POST(apiPath("/account/change-password")).
 		WithJSON(model.ChangePasswordRequest{CurrentPassword: password, NewPassword: newPassword}).
 		WithHeader("Authorization", "Bearer "+token).
 		WithCookie("jwt", jwtCookie).
@@ -271,14 +271,14 @@ func (s *AccountTestSuite) TestChangePassword() {
 	resp.Status(http.StatusOK)
 
 	// Try with the old password
-	resp = he.POST("/api/account/login").
+	resp = he.POST(apiPath("/account/login")).
 		WithJSON(model.LoginRequest{Email: testEmail, Password: password}).
 		Expect()
 	resp.Status(http.StatusUnauthorized)
 	resp.JSON().Path("$.errors[0]").Equal("invalid email or password")
 
 	// Try with the new password
-	resp = he.POST("/api/account/login").
+	resp = he.POST(apiPath("/account/login")).
 		WithJSON(model.LoginRequest{Email: testEmail, Password: newPassword}).
 		Expect()
 	resp.Status(http.StatusOK)

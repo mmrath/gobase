@@ -3,7 +3,7 @@ version: "3"
 services:
   clipo-web:
     image: node:lts
-    command: sh -c "yarn && yarn start clipo --proxy-config proxy.conf.js"
+    command: sh -c "yarn && yarn start clipo --proxy-config proxy.conf.js --base-href=/clipo/"
     environment:
       - NODE_ENV=development
       - API_PROXY=http://clipo:9010
@@ -15,7 +15,7 @@ services:
 
   admin-web:
     image: node:lts
-    command: sh -c "yarn && yarn start admin --proxy-config proxy.conf.js"
+    command: sh -c "yarn && yarn start admin --proxy-config proxy.conf.js --base-href=/admin/"
     environment:
       - NODE_ENV=development
     ports:
@@ -60,13 +60,11 @@ services:
   db-migration:
     image: golang:latest
     command: sh -c "go run ./apps/db-migration"
-    env_file:
-      - ./go/apps/db-migration/local.env
     environment:
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_USERNAME=${DB_ADMIN_USERNAME}
+      - DB_PASSWORD=${DB_ADMIN_PASSWORD}
       - DB_NAME=${DB_NAME}
       - DB_SSLMODE=${DB_SSLMODE}
     depends_on:

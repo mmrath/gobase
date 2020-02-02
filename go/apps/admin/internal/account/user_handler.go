@@ -22,66 +22,60 @@ func NewUserHandler(database *db.DB) *UserHandler {
 	return &UserHandler{userService: userService}
 }
 
-func (h *UserHandler) FindUser() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		id := chi.URLParam(r, "id")
+func (h *UserHandler) FindUser(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
 
-		err := validator.New().Var(&id, "required,int32")
+	err := validator.New().Var(&id, "required,int32")
 
-		if err != nil {
-			errutil.RenderError(w, r, err)
-			return
-		}
-		user, err := h.userService.FindUserByID(r.Context(), cast.ToInt64(id))
-
-		if err != nil {
-			errutil.RenderError(w, r, err)
-			return
-		}
-
-		render.Status(r, http.StatusOK)
-		render.JSON(w, r, user)
+	if err != nil {
+		errutil.RenderError(w, r, err)
+		return
 	}
+	user, err := h.userService.FindUserByID(r.Context(), cast.ToInt64(id))
+
+	if err != nil {
+		errutil.RenderError(w, r, err)
+		return
+	}
+
+	render.Status(r, http.StatusOK)
+	render.JSON(w, r, user)
 }
 
-func (h *UserHandler) CreateUser() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		userCreateReq := model.CreateUserRequest{}
+func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
+	userCreateReq := model.CreateUserRequest{}
 
-		if err := render.DecodeJSON(r.Body, &userCreateReq); err != nil {
-			render.JSON(w, r, err)
-			return
-		}
-
-		user, err := h.userService.CreateUser(r.Context(), &userCreateReq)
-
-		if err != nil {
-			errutil.RenderError(w, r, err)
-			return
-		}
-
-		render.Status(r, http.StatusOK)
-		render.JSON(w, r, user)
+	if err := render.DecodeJSON(r.Body, &userCreateReq); err != nil {
+		render.JSON(w, r, err)
+		return
 	}
+
+	user, err := h.userService.CreateUser(r.Context(), &userCreateReq)
+
+	if err != nil {
+		errutil.RenderError(w, r, err)
+		return
+	}
+
+	render.Status(r, http.StatusOK)
+	render.JSON(w, r, user)
 }
 
-func (h *UserHandler) UpdateUser() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		user := model.User{}
+func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	user := model.User{}
 
-		if err := render.DecodeJSON(r.Body, &user); err != nil {
-			render.JSON(w, r, err)
-			return
-		}
-
-		err := h.userService.UpdateUser(r.Context(), &user)
-
-		if err != nil {
-			errutil.RenderError(w, r, err)
-			return
-		}
-
-		render.Status(r, http.StatusOK)
-		render.JSON(w, r, user)
+	if err := render.DecodeJSON(r.Body, &user); err != nil {
+		render.JSON(w, r, err)
+		return
 	}
+
+	err := h.userService.UpdateUser(r.Context(), &user)
+
+	if err != nil {
+		errutil.RenderError(w, r, err)
+		return
+	}
+
+	render.Status(r, http.StatusOK)
+	render.JSON(w, r, user)
 }

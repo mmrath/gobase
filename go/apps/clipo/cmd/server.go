@@ -27,7 +27,7 @@ func NewDB(cfg config.Config) (*db.DB, error) {
 }
 
 func NewNotifier(cfg config.Config, mailer email.Mailer, registry *templateutil.Registry) account.Notifier {
-	return account.NewNotifier(cfg.Web.URL, mailer, registry)
+	return account.NewNotifier(cfg.AppDomainName, mailer, registry)
 }
 
 // NewApp creates and configures an APIServer serving all application routes.

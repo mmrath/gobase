@@ -278,7 +278,7 @@ func (s *Service) ResetPassword(passwordResetRequest model.ResetPasswordRequest)
 
 func (s *Service) Register(request model.RegisterAccountRequest) (*model.User, error) {
 
-	log.Debug().Interface("email", request.Email).Msg("signing up user")
+	log.Debug().Interface("email", request.Email).Msg("registering user account")
 	err := validate.Struct(request)
 
 	if err != nil {
@@ -286,14 +286,12 @@ func (s *Service) Register(request model.RegisterAccountRequest) (*model.User, e
 	}
 
 	newUser := model.User{
-		AuditDetails: model.AuditDetails{UpdatedBy: "SIGNUP"},
+		AuditDetails: model.AuditDetails{UpdatedBy: "Register"},
 		FirstName:    request.FirstName,
 		LastName:     request.LastName,
 		Email:        strings.ToLower(request.Email),
 		Active:       true,
 	}
-
-	newUser.UpdatedBy = "SIGNUP"
 
 	passwordHash, err := crypto.HashPassword(request.Password)
 	if err != nil {

@@ -3,48 +3,25 @@ version: "3"
 services:
   clipo:
     image: golang:latest
-    command:     sh -c "
-      ../scripts/wait-for-it.sh db:5432 -t 10 -- ./build-and-run.sh clipo"
-    env_file:
-      - ./apps/clipo/local.env
+    command: sh -c "./build-and-run.sh clipo"
     environment:
+      - APP_DOMAIN_NAME=${APP_DOMAIN_NAME}
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
       - DB_SSLMODE=${DB_SSLMODE}
-
       - SMTP_HOST=mail
       - SMTP_PORT=2500
       - SMTP_USERNAME=
       - SMTP_PASSWORD=
       - SMTP_TEMPLATE_PATH=./apps/clipo/resources/templates/email
-
     depends_on:
-      - db
       - db-migration
       - mail
     ports:
-      - "${ENV_PORT_PREFIX}10:9010"
-    working_dir: /root/go
-    volumes:
-      - ..:/root:cached
-      - $GOPATH/pkg/mod:/go/pkg/mod
-
-  db-migration:
-    image: golang:latest
-    command: sh -c "../scripts/wait-for-it.sh db:5432 -t 10 -- make build && ./bin/db-migration"
-    environment:
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_USERNAME=${DB_ADMIN_USERNAME}
-      - DB_PASSWORD=${DB_ADMIN_PASSWORD}
-      - DB_NAME=${DB_NAME}
-      - DB_SSLMODE=${DB_SSLMODE}
-      - MIGRATION_DIR=./apps/db-migration/resources/migrations
-    depends_on:
-      - db
+      - "9010:9010"
     working_dir: /root/go
     volumes:
       - ..:/root:cached
@@ -63,13 +40,31 @@ services:
     volumes:
       - ./apps/db-migration/resources/scripts/init:/docker-entrypoint-initdb.d/
 
+  db-migration:
+    image: golang:latest
+    command: sh -c "go run ./apps/db-migration"
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USERNAME=${DB_ADMIN_USERNAME}
+      - DB_PASSWORD=${DB_ADMIN_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_SSLMODE=${DB_SSLMODE}
+      - MIGRATION_DIR=./apps/db-migration/resources/migrations
+    depends_on:
+      - db
+    working_dir: /root/go
+    volumes:
+      - ..:/root:cached
+      - $GOPATH/pkg/mod:/go/pkg/mod
+
   mail:
     image: inbucket/inbucket:latest
     restart: always
     ports:
-      - ${ENV_PORT_PREFIX}11:1100
-      - ${ENV_PORT_PREFIX}12:9000
-      - ${ENV_PORT_PREFIX}13:2500
+      - 1100:1100
+      - 8025:9000
+      - 2500:2500
 
 volumes:
-  go_modules:
+  pg_data:

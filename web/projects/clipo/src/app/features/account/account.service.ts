@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {RegisterAccountRequest} from './model';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {NotificationService} from '../../core/core.module';
 import {catchError, tap} from "rxjs/operators";
 
@@ -19,6 +19,18 @@ export class AccountService {
     const url = '/api/account/register';
     return this.httpClient
     .post(url, data)
+    .pipe(
+      tap(res => console.log(res)),
+      catchError(this.notificationService.handleError)
+    );
+  }
+
+  activate(key: string) {
+    const url = '/api/account/activate';
+    const params = new HttpParams().set('key', key);
+
+    return this.httpClient
+    .get(url, {params})
     .pipe(
       tap(res => console.log(res)),
       catchError(this.notificationService.handleError)

@@ -6,6 +6,7 @@ import {ChangePasswordComponent} from './change-password/change-password.compone
 import {LoginComponent} from './login/login.component';
 import {RegisterComponent} from './register/register.component';
 import {ActivationInstructionComponent} from './activation-instruction/activation-instruction.component';
+import {ActivateComponent} from './activate/activate.component';
 
 const routes: Routes = [
   {
@@ -42,6 +43,11 @@ const routes: Routes = [
         path: 'activation-instruction',
         component: ActivationInstructionComponent,
         data: {title: 'app.account.menu.activation-message'}
+      },
+      {
+        path: 'activate',
+        component: ActivateComponent,
+        data: {title: 'app.account.menu.activate'}
       },
     ]
   }

@@ -33,20 +33,19 @@ func NewHTTPRouter(webConfig config.WebConfig, rh *account.RoleHandler, uh *acco
 		r.Use(corsConfig().Handler)
 	}
 
-	r.Route("/api", func(r chi.Router) {
+	r.Route("/admin/api", func(r chi.Router) {
 		// Protected routes
 		r.Group(func(r chi.Router) {
-
 			r.Route("/role", func(r chi.Router) {
-				r.Get("/:id", rh.FindRole())
-				r.Post("/", rh.CreateRole())
-				r.Put("/:id", rh.UpdateRole())
+				r.Get("/:id", rh.FindRole)
+				r.Post("/", rh.CreateRole)
+				r.Put("/:id", rh.UpdateRole)
 			})
 
 			r.Route("/account", func(r chi.Router) {
-				r.Get("/:id", uh.FindUser())
-				r.Post("/", uh.CreateUser())
-				r.Put("/:id", uh.UpdateUser())
+				r.Get("/:id", uh.FindUser)
+				r.Post("/", uh.CreateUser)
+				r.Put("/:id", uh.UpdateUser)
 			})
 		})
 
@@ -56,7 +55,7 @@ func NewHTTPRouter(webConfig config.WebConfig, rh *account.RoleHandler, uh *acco
 		})
 	})
 
-	r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
+	r.Get("/admin/ping", func(w http.ResponseWriter, r *http.Request) {
 		_, err := w.Write([]byte("pong"))
 		if err != nil {
 			log.Error().Err(err).Msg("failed to reply to ping")
@@ -64,7 +63,7 @@ func NewHTTPRouter(webConfig config.WebConfig, rh *account.RoleHandler, uh *acco
 	})
 
 	client := "./public"
-	r.Get("/*", spaHandler(client))
+	r.Get("/admin/*", spaHandler(client))
 
 	return r, nil
 }

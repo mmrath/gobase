@@ -17,13 +17,13 @@ type Notifier interface {
 	NotifyPasswordResetInit(user model.User, token string) error
 }
 
-func NewNotifier(baseURL string, mailer email.Mailer, registry *templateutil.Registry) Notifier {
-	return &notifier{baseURL: baseURL, sender: mailer, templateRegistry: registry}
+func NewNotifier(appDomainName string, mailer email.Mailer, registry *templateutil.Registry) Notifier {
+	return &notifier{appDomainName: appDomainName, mailer: mailer, templateRegistry: registry}
 }
 
 type notifier struct {
-	sender           email.Mailer
-	baseURL          string
+	mailer           email.Mailer
+	appDomainName    string
 	templateRegistry *templateutil.Registry
 }
 
@@ -47,16 +47,16 @@ func (e *notifier) NotifyPasswordChange(user model.User) error {
 	if err != nil {
 		return errutil.Wrap(err, "failed to build email message")
 	}
-	err = e.sender.Send(msg)
+	err = e.mailer.Send(msg)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (e *notifier) NotifyActivation(user model.User, token string) error {
+func (n *notifier) NotifyActivation(user model.User, token string) error {
 
-	url := fmt.Sprintf("%s/account/activate?key=%s", e.baseURL, token)
+	url := fmt.Sprintf("%s/clipo/account/activate?key=%s", n.appDomainName, token)
 	data := struct {
 		URL  template.URL
 		User model.User
@@ -65,11 +65,11 @@ func (e *notifier) NotifyActivation(user model.User, token string) error {
 		User: user,
 	}
 
-	from := email.NewAddress("test", "test@localhost.com")
+	from := email.NewAddress("info", "info@"+n.appDomainName)
 	to := []email.Address{email.NewAddress(user.GetName(), user.GetEmail())}
 	subject := "Activate your account"
 
-	htmlBody, err := e.templateRegistry.RenderToString("templates/email/auth/account_activation.gohtml", data)
+	htmlBody, err := n.templateRegistry.RenderToString("templates/email/auth/account_activation.gohtml", data)
 
 	if err != nil {
 		return errutil.Wrapf(err, "failed to render email")
@@ -81,7 +81,7 @@ func (e *notifier) NotifyActivation(user model.User, token string) error {
 		return errutil.Wrapf(err, "failed to create email message")
 	}
 
-	err = e.sender.Send(msg)
+	err = n.mailer.Send(msg)
 	if err != nil {
 		return errutil.Wrapf(err, "failed to send email")
 	}
@@ -89,7 +89,7 @@ func (e *notifier) NotifyActivation(user model.User, token string) error {
 }
 
 func (e *notifier) NotifyPasswordResetInit(user model.User, token string) error {
-	url := fmt.Sprintf("%s/account/reset-password?key=%s", e.baseURL, token)
+	url := fmt.Sprintf("%s/account/reset-password?key=%s", e.appDomainName, token)
 	data := struct {
 		URL  template.URL
 		User model.User
@@ -115,7 +115,7 @@ func (e *notifier) NotifyPasswordResetInit(user model.User, token string) error 
 		return err
 	}
 
-	err = e.sender.Send(msg)
+	err = e.mailer.Send(msg)
 	if err != nil {
 		return err
 	}

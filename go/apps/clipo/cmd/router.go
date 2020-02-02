@@ -39,7 +39,7 @@ func NewMux(cfg config.Config, userHandler *account.Handler, jwtService auth.JWT
 		r.Use(corsConfig().Handler)
 	}
 
-	r.Route("/api", func(r chi.Router) {
+	r.Route("/clipo/api", func(r chi.Router) {
 		// Protected routes
 		r.Group(func(r chi.Router) {
 			r.Use(jwtService.Verifier())
@@ -62,7 +62,7 @@ func NewMux(cfg config.Config, userHandler *account.Handler, jwtService auth.JWT
 		})
 	})
 
-	r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
+	r.Get("/clipo/ping", func(w http.ResponseWriter, r *http.Request) {
 		_, err := w.Write([]byte("pong"))
 		if err != nil {
 			log.Error().Err(err).Msg("failed to reply to ping")
@@ -70,7 +70,7 @@ func NewMux(cfg config.Config, userHandler *account.Handler, jwtService auth.JWT
 	})
 
 	client := "./public"
-	r.Get("/*", spaHandler(client))
+	r.Get("/clipo/*", spaHandler(client))
 
 	return r, nil
 }

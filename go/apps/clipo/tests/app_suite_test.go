@@ -80,6 +80,10 @@ func (s *TestSuite) SetupSuite() {
 	s.EmailClient = testutil.NewEmailClient(mailURL)
 }
 
+func apiPath(path string) string {
+	return "/clipo/api" + path
+}
+
 // TearDownSuite teardown at the end of test
 func (s *TestSuite) TearDownSuite() {
 	s.server.Close()

@@ -9,6 +9,7 @@ import {AccountRoutingModule} from './account-routing.module';
 import {LoginComponent} from './login/login.component';
 import {RegisterComponent} from './register/register.component';
 import {ActivationInstructionComponent} from './activation-instruction/activation-instruction.component';
+import { ActivateComponent } from './activate/activate.component';
 
 
 
@@ -21,6 +22,7 @@ import {ActivationInstructionComponent} from './activation-instruction/activatio
     LoginComponent,
     RegisterComponent,
     ActivationInstructionComponent,
+    ActivateComponent,
   ],
   imports: [
     CommonModule,

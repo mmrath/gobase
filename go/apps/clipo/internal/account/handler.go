@@ -101,14 +101,12 @@ func (h *Handler) Activate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		key := r.URL.Query().Get("key")
 		err := h.Service.Activate(key)
-
 		if err != nil {
 			errutil.RenderError(w, r, err)
 			return
 		}
-
 		render.Status(r, http.StatusOK)
-		render.PlainText(w, r, http.StatusText(http.StatusOK))
+		render.JSON(w, r, struct{}{})
 	}
 }
 

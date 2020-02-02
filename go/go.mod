@@ -28,6 +28,8 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/google/wire v0.4.0
 	github.com/gorilla/css v1.0.0 // indirect
+	github.com/gorilla/securecookie v1.1.1
+	github.com/gorilla/sessions v1.2.0
 	github.com/gorilla/websocket v1.4.0 // indirect
 	github.com/hashicorp/errwrap v1.0.0
 	github.com/imkira/go-interpol v1.1.0 // indirect

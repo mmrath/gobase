@@ -38,6 +38,7 @@ func (s *TestSuite) SetTestEnv() {
 		portPrefix = "40"
 	}
 
+	os.Setenv("APP_DOMAIN_NAME", "localhost.example.com")
 	os.Setenv("DB_HOST", "localhost")
 	os.Setenv("DB_PORT", fmt.Sprintf("%s32", portPrefix))
 	os.Setenv("DB_USERNAME", "app_user")

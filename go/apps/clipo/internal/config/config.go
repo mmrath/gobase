@@ -10,17 +10,17 @@ import (
 )
 
 type Config struct {
-	DevMode bool             `envconfig:"" yaml:"devMode"`
-	Web     WebConfig        `yaml:"web"`
-	DB      db.Config        `yaml:"db"`
-	SMTP    email.SMTPConfig `yaml:"smtp"`
-	JWT     auth.JWTConfig   `yaml:"jwt"`
+	DevMode       bool             `yaml:"devMode" split_words:"true"`
+	AppDomainName string           `required:"true" split_words:"true"`
+	Web           WebConfig        `yaml:"web"`
+	DB            db.Config        `yaml:"db"`
+	SMTP          email.SMTPConfig `yaml:"smtp"`
+	JWT           auth.JWTConfig   `yaml:"jwt"`
 }
 
 type WebConfig struct {
-	URL         string `envconfig:"optional" yaml:"url"`
 	Port        string `default:"9010" yaml:"port"`
-	CorsEnabled bool   `default:"false" yaml:"corsEnabled"`
+	CorsEnabled bool   `default:"false" split_words:"true" yaml:"corsEnabled"`
 }
 
 func LoadConfig(cfg *Config) error {
