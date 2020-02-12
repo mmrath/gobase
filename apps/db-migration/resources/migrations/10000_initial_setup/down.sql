@@ -1,0 +1,10 @@
+-- This file should undo anything in `up.sql`
+DROP TABLE IF EXISTS role_permission CASCADE;
+DROP TABLE IF EXISTS user_group_role CASCADE;
+DROP TABLE IF EXISTS user_group_user CASCADE;
+DROP TABLE IF EXISTS user_group CASCADE;
+DROP TABLE IF EXISTS user_role CASCADE;
+DROP TABLE IF EXISTS role CASCADE;
+DROP TABLE IF EXISTS user_credential CASCADE;
+DROP TABLE IF EXISTS permission CASCADE;
+DROP TABLE IF EXISTS user_account CASCADE;

@@ -1,0 +1,100 @@
+version: "3"
+
+services:
+  clipo-web:
+    image: node:lts
+    command: sh -c "yarn && yarn start clipo --proxy-config proxy.conf.js --base-href=/clipo/"
+    environment:
+      - NODE_ENV=development
+      - API_PROXY=http://clipo:9010
+    ports:
+      - "8010:4200"
+    working_dir: /root/web
+    volumes:
+      - ./web:/root/web:cached
+      - $GOPATH/pkg/mod:/go/pkg/mod
+
+  admin-web:
+    image: node:lts
+    command: sh -c "yarn && yarn start admin --proxy-config proxy.conf.js --base-href=/admin/"
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "8020:4200"
+    working_dir: /root/web
+    volumes:
+      - ./web:/root/web:cached
+
+  clipo:
+    image: golang:latest
+    command: sh -c "./scripts/wait-for-it.sh db:5432 -t 10 -- ./build-and-run.sh clipo"
+    env_file:
+      - ./apps/clipo/local.env
+    environment:
+      - APP_DOMAIN_NAME=test.example.com
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USERNAME=${CLIPO_DB_USERNAME}
+      - DB_PASSWORD=${CLIPO_DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_SSLMODE=${DB_SSLMODE}
+
+      - SMTP_HOST=mail
+      - SMTP_PORT=2500
+      - SMTP_USERNAME=
+      - SMTP_PASSWORD=
+      - SMTP_TEMPLATE_PATH=./apps/clipo/resources/templates/email
+    depends_on:
+      - db-migration
+      - mail
+    ports:
+      - "9010:9010"
+    working_dir: /root
+    volumes:
+      - .:/root
+      - $GOPATH/pkg/mod:/go/pkg/mod
+
+  db:
+    image: "postgres:12-alpine"
+    ports:
+      - "54320:5432"
+    environment:
+      - POSTGRES_USER=${DBA_USERNAME}
+      - POSTGRES_PASSWORD=${DBA_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - DATABASE_HOST=${DB_HOST}
+      - CLIPO_DB_PASSWORD=${CLIPO_DB_PASSWORD}
+      - OPPO_DB_PASSWORD=${OPPO_DB_PASSWORD}
+      - MIGRATION_DB_PASSWORD=${MIGRATION_DB_PASSWORD}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./apps/db-migration/resources/scripts/init:/docker-entrypoint-initdb.d/
+
+  db-migration:
+    image: golang:latest
+    command: sh -c "./scripts/wait-for-it.sh db:5432 -t 10 -- go run ./apps/db-migration"
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USERNAME=${MIGRATION_DB_USERNAME}
+      - DB_PASSWORD=${MIGRATION_DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_SSLMODE=${DB_SSLMODE}
+      - MIGRATION_DIR=./apps/db-migration/resources/migrations
+    depends_on:
+      - db
+    working_dir: /root/
+    volumes:
+      - .:/root:cached
+      - $GOPATH/pkg/mod:/go/pkg/mod
+
+  mail:
+    image: inbucket/inbucket:latest
+    restart: always
+    ports:
+      - 1100:1100
+      - 8025:9000
+      - 2500:2500
+
+volumes:
+  pg_data:
