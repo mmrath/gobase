@@ -12,7 +12,7 @@ services:
     working_dir: /root/web
     volumes:
       - ./web:/root/web:cached
-      - $GOPATH/pkg/mod:/go/pkg/mod
+      - go_modules:/go/pkg/mod
 
   admin-web:
     image: node:lts
@@ -52,7 +52,7 @@ services:
     working_dir: /root
     volumes:
       - .:/root
-      - $GOPATH/pkg/mod:/go/pkg/mod
+      - go_modules:/go/pkg/mod
 
   db:
     image: "postgres:12-alpine"
@@ -86,7 +86,7 @@ services:
     working_dir: /root/
     volumes:
       - .:/root:cached
-      - $GOPATH/pkg/mod:/go/pkg/mod
+      - go_modules:/go/pkg/mod
 
   mail:
     image: inbucket/inbucket:latest
@@ -98,3 +98,4 @@ services:
 
 volumes:
   pg_data:
+  go_modules:
