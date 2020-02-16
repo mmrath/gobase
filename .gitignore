@@ -6,6 +6,7 @@ bazel-*
 dist/
 /target/
 /build/
+**/.build/
 /bin/
 **/*.rs.bk
 /.idea/
