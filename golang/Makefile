@@ -80,7 +80,7 @@ generate: tools
 test:
 	@$(GO) test -v ./...
 
-tools: $(GOLANGCILINT)
+tools:
 	@echo Installing tools
 	@$(GO) install github.com/cespare/reflex
 	@$(GO) install github.com/go-bindata/go-bindata/...

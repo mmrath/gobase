@@ -41,9 +41,9 @@ func (s *TestSuite) SetTestEnv() {
 	os.Setenv("APP_DOMAIN_NAME", "localhost.example.com")
 	os.Setenv("DB_HOST", "localhost")
 	os.Setenv("DB_PORT", fmt.Sprintf("%s32", portPrefix))
-	os.Setenv("DB_USERNAME", "app_user")
-	os.Setenv("DB_PASSWORD", "password12")
-	os.Setenv("DB_NAME", "appdb")
+	os.Setenv("DB_USERNAME", "clipo")
+	os.Setenv("DB_PASSWORD", "s3cr3t_1")
+	os.Setenv("DB_NAME", "devdb")
 	os.Setenv("DB_SSLMODE", "disable")
 
 	os.Setenv("SMTP_HOST", "localhost")
@@ -53,7 +53,7 @@ func (s *TestSuite) SetTestEnv() {
 	dbURL := os.Getenv("DB_URL")
 
 	if dbURL == "" {
-		dbURL = fmt.Sprintf("postgres://app_admin:s3cr3t@localhost:%s32/appdb?sslmode=disable", portPrefix)
+		dbURL = fmt.Sprintf("postgres://db_migration:s3cr3t_3@localhost:%s32/devdb?sslmode=disable", portPrefix)
 		os.Setenv("DB_URL", dbURL)
 	}
 }

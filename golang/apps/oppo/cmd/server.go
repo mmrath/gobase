@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/mmrath/gobase/golang/apps/admin/internal/config"
+	"github.com/mmrath/gobase/golang/apps/oppo/internal/config"
 )
 
 func NewHTTPServer(cfg *config.Config, handler http.Handler) *http.Server {

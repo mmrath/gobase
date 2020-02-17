@@ -24,7 +24,9 @@ APP=$1
 echo "Building application ${APP}"
 
 BUILD_TIME=$(date -u '+%Y-%m-%d %H:%M:%S')
-GO_LD_FLAGS="-X github.com/mmrath/gobase/pkg/version.Version=$VERSION -X github.com/mmrath/gobase/pkg/version.GitCommit=$GIT_COMMIT -X 'github.com/mmrath/gobase/pkg/version.BuildTime=$BUILD_TIME'"
+GO_LD_FLAGS="-X github.com/mmrath/gobase/golang/pkg/version.Version=$VERSION -X github
+.com/mmrath/gobase/golang/pkg/version.GitCommit=$GIT_COMMIT -X 'github.com/mmrath/gobase/golang/pkg/version
+.BuildTime=$BUILD_TIME'"
 
 echo "Downloading go modules"
 go mod download

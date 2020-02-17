@@ -41,8 +41,8 @@ func (s *TestSuite) SetupSuite() {
 
 	os.Setenv("DB_HOST", "localhost")
 	os.Setenv("DB_PORT", fmt.Sprintf("%s32", portPrefix))
-	os.Setenv("DB_USERNAME", "app_user")
-	os.Setenv("DB_PASSWORD", "password12")
+	os.Setenv("DB_USERNAME", "clipo")
+	os.Setenv("DB_PASSWORD", "s3cr3t_1")
 	os.Setenv("DB_NAME", "appdb")
 	os.Setenv("DB_SSLMODE", "disable")
 
@@ -53,7 +53,7 @@ func (s *TestSuite) SetupSuite() {
 	dbURL := os.Getenv("DB_URL")
 
 	if dbURL == "" {
-		dbURL = fmt.Sprintf("postgres://app_user:password12@localhost:%s32/appdb?sslmode=disable", portPrefix)
+		dbURL = fmt.Sprintf("postgres://clipo:s3cr3t_1@localhost:%s32/appdb?sslmode=disable", portPrefix)
 	}
 	db, err := sql.Open("postgres", dbURL)
 

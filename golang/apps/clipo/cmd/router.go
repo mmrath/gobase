@@ -3,13 +3,9 @@ package cmd
 
 import (
 	"compress/flate"
+	"github.com/mmrath/gobase/golang/pkg/health"
 	"net/http"
-	"os"
-	"path"
-	"strings"
 	"time"
-
-	"github.com/rs/zerolog/log"
 
 	"github.com/mmrath/gobase/golang/apps/clipo/internal/config"
 
@@ -36,7 +32,7 @@ func NewMux(cfg config.Config, userHandler *account.Handler, jwtService auth.JWT
 
 	// use CORS middleware if client is not served by this api, e.g. from other domain or CDN
 	if cfg.Web.CorsEnabled {
-		r.Use(corsConfig().Handler)
+		r.Use(corsConfig(cfg).Handler)
 	}
 
 	r.Route("/clipo/api", func(r chi.Router) {
@@ -59,28 +55,18 @@ func NewMux(cfg config.Config, userHandler *account.Handler, jwtService auth.JWT
 				r.Post("/reset-password/init", userHandler.InitPasswordReset())
 				r.Post("/reset-password/finish", userHandler.ResetPassword())
 			})
+			r.Get("/ping", health.PingHandlerFunc)
+			r.HandleFunc("/*", http.NotFound)
 		})
+
+
 	})
-
-	r.Get("/clipo/ping", func(w http.ResponseWriter, r *http.Request) {
-		_, err := w.Write([]byte("pong"))
-		if err != nil {
-			log.Error().Err(err).Msg("failed to reply to ping")
-		}
-	})
-
-	client := "./public"
-	r.Get("/clipo/*", spaHandler(client))
-
 	return r, nil
 }
 
-func corsConfig() *cors.Cors {
-	// Basic CORS
-	// for more ideas, see: https://developer.github.com/v3/#cross-origin-resource-sharing
+func corsConfig(cfg config.Config) *cors.Cors {
 	return cors.New(cors.Options{
-		// AllowedOrigins: []string{"https://foo.com"}, // Use this to allow specific origin hosts
-		AllowedOrigins: []string{"*"},
+		AllowedOrigins: []string{cfg.AppDomainName},
 		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
@@ -88,23 +74,4 @@ func corsConfig() *cors.Cors {
 		AllowCredentials: true,
 		MaxAge:           86400, // Maximum value not ignored by any of major browsers
 	})
-}
-
-// spaHandler serves the public Single Page Application.
-func spaHandler(publicDir string) http.HandlerFunc {
-	handler := http.FileServer(http.Dir(publicDir))
-	return func(w http.ResponseWriter, r *http.Request) {
-		indexPage := path.Join(publicDir, "index.html")
-		serviceWorker := path.Join(publicDir, "service-worker.js")
-
-		requestedAsset := path.Join(publicDir, r.URL.Path)
-		if strings.Contains(requestedAsset, "service-worker.js") {
-			requestedAsset = serviceWorker
-		}
-		if _, err := os.Stat(requestedAsset); err != nil {
-			http.ServeFile(w, r, indexPage)
-			return
-		}
-		handler.ServeHTTP(w, r)
-	}
 }

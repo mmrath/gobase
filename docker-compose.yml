@@ -3,7 +3,11 @@ version: "3"
 services:
   clipo-web:
     image: node:lts
-    command: sh -c "yarn && yarn start clipo --proxy-config proxy.conf.js --base-href=/clipo/"
+    command: sh -c "
+      ../build/local-ca/update-ca-in-docker.sh &&
+      yarn &&
+      yarn start clipo --proxy-config proxy.conf.js --base-href=/clipo/
+      "
     environment:
       - NODE_ENV=development
       - API_PROXY=http://clipo:9010
@@ -11,25 +15,30 @@ services:
       - "8010:4200"
     working_dir: /root/web
     volumes:
-      - ./web:/root/web:cached
-      - go_modules:/go/pkg/mod
+      - .:/root:cached
 
   admin-web:
     image: node:lts
-    command: sh -c "yarn && yarn start admin --proxy-config proxy.conf.js --base-href=/admin/"
+    command: sh -c "
+      ../build/local-ca/update-ca-in-docker.sh &&
+      yarn &&
+      yarn start oppo --proxy-config proxy.conf.js --base-href=/oppo/
+      "
     environment:
       - NODE_ENV=development
+      - API_PROXY=http://oppo:9020
     ports:
       - "8020:4200"
     working_dir: /root/web
     volumes:
-      - ./web:/root/web:cached
+      - .:/root:cached
 
   clipo:
     image: golang:latest
-    command: sh -c "./scripts/wait-for-it.sh db:5432 -t 10 -- ./build-and-run.sh clipo"
-    env_file:
-      - ./apps/clipo/local.env
+    command: sh -c "
+      ../build/local-ca/update-ca-in-docker.sh &&
+      ../build/scripts/wait-for-it.sh db:5432 -t 10 -- ./build-and-run.sh clipo
+      "
     environment:
       - APP_DOMAIN_NAME=test.example.com
       - DB_HOST=${DB_HOST}
@@ -49,7 +58,7 @@ services:
       - mail
     ports:
       - "9010:9010"
-    working_dir: /root
+    working_dir: /root/golang
     volumes:
       - .:/root
       - go_modules:/go/pkg/mod
@@ -57,7 +66,7 @@ services:
   db:
     image: "postgres:12-alpine"
     ports:
-      - "54320:5432"
+      - "4032:5432"
     environment:
       - POSTGRES_USER=${DBA_USERNAME}
       - POSTGRES_PASSWORD=${DBA_PASSWORD}
@@ -68,11 +77,15 @@ services:
       - MIGRATION_DB_PASSWORD=${MIGRATION_DB_PASSWORD}
     volumes:
       - pg_data:/var/lib/postgresql/data
-      - ./apps/db-migration/resources/scripts/init:/docker-entrypoint-initdb.d/
+      - ./golang/apps/db-migration/resources/scripts/init:/docker-entrypoint-initdb.d/
+
 
   db-migration:
     image: golang:latest
-    command: sh -c "./scripts/wait-for-it.sh db:5432 -t 10 -- go run ./apps/db-migration"
+    command: sh -c "
+      ../build/local-ca/update-ca-in-docker.sh &&
+      ../build/scripts/wait-for-it.sh db:5432 -t 10 -- go run ./apps/db-migration
+      "
     environment:
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
@@ -83,18 +96,17 @@ services:
       - MIGRATION_DIR=./apps/db-migration/resources/migrations
     depends_on:
       - db
-    working_dir: /root/
+    working_dir: /work/golang
     volumes:
-      - .:/root:cached
+      - .:/work:cached
       - go_modules:/go/pkg/mod
-
   mail:
     image: inbucket/inbucket:latest
     restart: always
     ports:
-      - 1100:1100
-      - 8025:9000
-      - 2500:2500
+      - 4011:1100
+      - 4012:9000
+      - 4013:2500
 
 volumes:
   pg_data:

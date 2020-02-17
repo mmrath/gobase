@@ -8,8 +8,8 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"github.com/mmrath/gobase/golang/apps/admin/internal/account"
-	"github.com/mmrath/gobase/golang/apps/admin/internal/config"
+	"github.com/mmrath/gobase/golang/apps/oppo/internal/account"
+	"github.com/mmrath/gobase/golang/apps/oppo/internal/config"
 	"github.com/mmrath/gobase/golang/pkg/db"
 )
 

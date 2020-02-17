@@ -5,7 +5,6 @@ bazel-testlogs/
 bazel-*
 dist/
 /target/
-/build/
 **/.build/
 /bin/
 **/*.rs.bk

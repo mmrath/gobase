@@ -40,7 +40,7 @@ func TestAccountSuite(t *testing.T) {
 }
 
 func (s *AccountTestSuite) TestPing() {
-	resp, err := http.Get(s.AppURL + "/clipo/ping")
+	resp, err := http.Get(s.AppURL + "/clipo/api/ping")
 	require.NoError(s.T(), err)
 	require.Equal(s.T(), 200, resp.StatusCode)
 

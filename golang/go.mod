@@ -8,7 +8,6 @@ require (
 	github.com/andybalholm/cascadia v1.1.0 // indirect
 	github.com/brianvoe/gofakeit v3.18.0+incompatible
 	github.com/cespare/reflex v0.2.0
-	github.com/creack/pty v1.1.9 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/elgs/gosplitargs v0.0.0-20161028071935-a491c5eeb3c8 // indirect
@@ -41,7 +40,6 @@ require (
 	github.com/jwilder/gojq v0.0.0-20161018055142-c550732d4a52 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/kr/pty v1.1.8 // indirect
 	github.com/lib/pq v1.3.0 // indirect
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.11 // indirect
@@ -63,7 +61,7 @@ require (
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
 	golang.org/x/crypto v0.0.0-20200128174031-69ecbb4d6d5d
 	golang.org/x/net v0.0.0-20200202094626-16171245cfb2 // indirect
-	golang.org/x/sys v0.0.0-20200202164722-d101bd2416d5 // indirect
+	golang.org/x/sys v0.0.0-20200212091648-12a6c2dcc1e4 // indirect
 	google.golang.org/appengine v1.6.1 // indirect
 	google.golang.org/genproto v0.0.0-20190817000702-55e96fffbd48 // indirect
 	google.golang.org/grpc v1.23.0 // indirect
@@ -73,3 +71,5 @@ require (
 	gopkg.in/mail.v2 v2.0.0-20180731213649-a0242b2233b4 // indirect
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
+
+replace github.com/kr/pty => github.com/creack/pty v1.1.9

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"compress/flate"
+	"github.com/mmrath/gobase/golang/pkg/health"
 	"net/http"
 	"os"
 	"path"
@@ -12,10 +13,8 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/render"
-	"github.com/rs/zerolog/log"
-
-	"github.com/mmrath/gobase/golang/apps/admin/internal/account"
-	"github.com/mmrath/gobase/golang/apps/admin/internal/config"
+	"github.com/mmrath/gobase/golang/apps/oppo/internal/account"
+	"github.com/mmrath/gobase/golang/apps/oppo/internal/config"
 )
 
 func NewHTTPRouter(webConfig config.WebConfig, rh *account.RoleHandler, uh *account.UserHandler) (http.Handler, error) {
@@ -33,7 +32,7 @@ func NewHTTPRouter(webConfig config.WebConfig, rh *account.RoleHandler, uh *acco
 		r.Use(corsConfig().Handler)
 	}
 
-	r.Route("/admin/api", func(r chi.Router) {
+	r.Route("/oppo/api", func(r chi.Router) {
 		// Protected routes
 		r.Group(func(r chi.Router) {
 			r.Route("/role", func(r chi.Router) {
@@ -47,23 +46,10 @@ func NewHTTPRouter(webConfig config.WebConfig, rh *account.RoleHandler, uh *acco
 				r.Post("/", uh.CreateUser)
 				r.Put("/:id", uh.UpdateUser)
 			})
-		})
-
-		// Public routes
-		r.Group(func(r chi.Router) {
-
+			r.Get("/ping", health.PingHandlerFunc)
+			r.HandleFunc("/*", http.NotFound)
 		})
 	})
-
-	r.Get("/admin/ping", func(w http.ResponseWriter, r *http.Request) {
-		_, err := w.Write([]byte("pong"))
-		if err != nil {
-			log.Error().Err(err).Msg("failed to reply to ping")
-		}
-	})
-
-	client := "./public"
-	r.Get("/admin/*", spaHandler(client))
 
 	return r, nil
 }
