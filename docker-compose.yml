@@ -16,6 +16,7 @@ services:
     working_dir: /root/web
     volumes:
       - .:/root:cached
+      - /root/web/node_modules
 
   admin-web:
     image: node:lts
@@ -32,6 +33,7 @@ services:
     working_dir: /root/web
     volumes:
       - .:/root:cached
+      - /root/web/node_modules
 
   clipo:
     image: golang:latest
@@ -61,7 +63,7 @@ services:
     working_dir: /root/golang
     volumes:
       - .:/root
-      - go_modules:/go/pkg/mod
+      - /go/pkg/mod
 
   db:
     image: "postgres:12-alpine"
@@ -78,7 +80,6 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
       - ./golang/apps/db-migration/resources/scripts/init:/docker-entrypoint-initdb.d/
-
 
   db-migration:
     image: golang:latest
@@ -99,7 +100,8 @@ services:
     working_dir: /work/golang
     volumes:
       - .:/work:cached
-      - go_modules:/go/pkg/mod
+      - /go/pkg/mod
+
   mail:
     image: inbucket/inbucket:latest
     restart: always

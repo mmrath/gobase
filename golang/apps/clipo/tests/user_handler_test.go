@@ -265,7 +265,6 @@ func (s *AccountTestSuite) TestChangePassword() {
 
 	resp = he.POST(apiPath("/account/change-password")).
 		WithJSON(model.ChangePasswordRequest{CurrentPassword: password, NewPassword: newPassword}).
-		WithHeader("Authorization", "Bearer "+token).
 		WithCookie("jwt", jwtCookie).
 		Expect()
 	resp.Status(http.StatusOK)
@@ -284,6 +283,94 @@ func (s *AccountTestSuite) TestChangePassword() {
 	resp.Status(http.StatusOK)
 	token = resp.Header("Authorization").Match("Bearer (.*)").Raw()[1]
 	require.NotNil(s.T(), token)
+
+}
+
+func (s *AccountTestSuite) TestGetProfileWithoutLoggingIn() {
+	testEmail := gofakeit.Email()
+	password := gofakeit.Password(true, true, true, true, true, 8)
+	s.createUser(testEmail, password)
+	defer s.deleteUser(testEmail)
+
+	he := httpexpect.New(s.T(), s.AppURL)
+
+	resp := he.GET(apiPath("/account/profile")).
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	resp.Text().Match("^Unauthorized\\s*")
+}
+
+func (s *AccountTestSuite) TestGetProfileForLoggedInUser() {
+	testEmail := gofakeit.Email()
+	password := gofakeit.Password(true, true, true, true, true, 8)
+	s.createUser(testEmail, password)
+	defer s.deleteUser(testEmail)
+
+	he := httpexpect.New(s.T(), s.AppURL)
+
+	resp := he.POST(apiPath("/account/login")).
+		WithJSON(model.LoginRequest{Email: testEmail, Password: password}).
+		Expect()
+	resp.Status(http.StatusOK)
+
+	fmt.Printf("Cookies %v", resp.Cookies().Iter())
+	jwtCookie := resp.Cookie("jwt").Value().Raw()
+	token := resp.Header("Authorization").Match("Bearer (.*)").Raw()[1]
+	require.NotNil(s.T(), token)
+
+	resp = he.GET(apiPath("/account/profile")).
+		WithCookie("jwt", jwtCookie).
+		Expect()
+	resp.Status(http.StatusOK)
+
+	resp.JSON().Path("$.firstName").Equal("Test")
+	resp.JSON().Path("$.lastName").Equal("Test")
+	resp.JSON().Path("$.email").Equal(testEmail)
+}
+
+func (s *AccountTestSuite) TestUpdateProfileForLoggedInUser() {
+	testEmail := gofakeit.Email()
+	password := gofakeit.Password(true, true, true, true, true, 8)
+	s.createUser(testEmail, password)
+	defer s.deleteUser(testEmail)
+
+	he := httpexpect.New(s.T(), s.AppURL)
+
+	resp := he.POST(apiPath("/account/login")).
+		WithJSON(model.LoginRequest{Email: testEmail, Password: password}).
+		Expect()
+	resp.Status(http.StatusOK)
+
+	fmt.Printf("Cookies %v", resp.Cookies().Iter())
+	jwtCookie := resp.Cookie("jwt").Value().Raw()
+	token := resp.Header("Authorization").Match("Bearer (.*)").Raw()[1]
+	require.NotNil(s.T(), token)
+
+	newFirstName := gofakeit.FirstName()
+	newLastName := gofakeit.LastName()
+	newEmail := gofakeit.Email()
+
+	resp = he.POST(apiPath("/account/profile")).
+		WithJSON(model.UserProfile{Email: newEmail, FirstName: newFirstName, LastName:newLastName}).
+		WithCookie("jwt", jwtCookie).
+		Expect()
+	resp.Status(http.StatusOK)
+	resp.ContentType("application/json")
+	resp.JSON().Null()
+
+	resp = he.GET(apiPath("/account/profile")).
+		WithCookie("jwt", jwtCookie).
+		Expect()
+	resp.Status(http.StatusOK)
+
+
+	resp.JSON().Path("$.firstName").Equal(newFirstName)
+	resp.JSON().Path("$.lastName").Equal(newLastName)
+
+	// We don't want email to be modified
+	resp.JSON().Path("$.email").Equal(testEmail)
+
 
 }
 

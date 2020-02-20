@@ -43,6 +43,8 @@ func NewMux(cfg config.Config, userHandler *account.Handler, jwtService auth.JWT
 
 			r.Post("/account/change-password", userHandler.ChangePassword())
 			r.Get("/account", userHandler.Account())
+			r.Get("/account/profile", userHandler.GetProfile())
+			r.Post("/account/profile", userHandler.UpdateProfile())
 		})
 
 		// Public routes
@@ -58,7 +60,6 @@ func NewMux(cfg config.Config, userHandler *account.Handler, jwtService auth.JWT
 			r.Get("/ping", health.PingHandlerFunc)
 			r.HandleFunc("/*", http.NotFound)
 		})
-
 
 	})
 	return r, nil

@@ -1,1 +1,3 @@
 local-ca/*.crt
+local-ca/*.pem
+local-ca/*.cer

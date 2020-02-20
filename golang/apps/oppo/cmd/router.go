@@ -4,9 +4,6 @@ import (
 	"compress/flate"
 	"github.com/mmrath/gobase/golang/pkg/health"
 	"net/http"
-	"os"
-	"path"
-	"strings"
 	"time"
 
 	"github.com/go-chi/chi"
@@ -67,23 +64,4 @@ func corsConfig() *cors.Cors {
 		AllowCredentials: true,
 		MaxAge:           86400, // Maximum value not ignored by any of major browsers
 	})
-}
-
-// spaHandler serves the public Single Page Application.
-func spaHandler(publicDir string) http.HandlerFunc {
-	handler := http.FileServer(http.Dir(publicDir))
-	return func(w http.ResponseWriter, r *http.Request) {
-		indexPage := path.Join(publicDir, "index.html")
-		serviceWorker := path.Join(publicDir, "service-worker.js")
-
-		requestedAsset := path.Join(publicDir, r.URL.Path)
-		if strings.Contains(requestedAsset, "service-worker.js") {
-			requestedAsset = serviceWorker
-		}
-		if _, err := os.Stat(requestedAsset); err != nil {
-			http.ServeFile(w, r, indexPage)
-			return
-		}
-		handler.ServeHTTP(w, r)
-	}
 }

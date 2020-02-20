@@ -111,8 +111,11 @@ func (s *jwtService) Decode(tokenString string) (t *jwt.Token, err error) {
 }
 
 func UserIDFromContext(ctx context.Context) (int64, error) {
+	userID := ctx.Value(userIDKey)
+	if userID == nil {
+		return 0, errutil.NewUnauthorized("user is not logged")
+	}
 	id, ok := ctx.Value(userIDKey).(int64)
-
 	if !ok || id == 0 {
 		return 0, errutil.NewUnauthorized("user is not logged")
 	}
@@ -157,8 +160,15 @@ func (s *jwtService) Authenticator(next http.Handler) http.Handler {
 		token, claims, err := jwtauth.FromContext(r.Context())
 
 		if err != nil {
-			log.Error().Err(err).Send()
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			if err == jwtauth.ErrNoTokenFound || err == jwtauth.ErrExpired ||
+				err == jwtauth.ErrUnauthorized || err == jwtauth.ErrAlgoInvalid ||
+				err == jwtauth.ErrIATInvalid || err == jwtauth.ErrNBFInvalid {
+				log.Info().Err(err).Send()
+				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+			} else {
+				log.Error().Err(err).Msg("unexpected error while validating jwt token")
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			}
 			return
 		}
 

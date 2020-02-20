@@ -17,11 +17,11 @@ import (
 var AuthTokenCookieName = "jwt"
 
 type Handler struct {
-	Service *Service
+	service *Service
 }
 
 func NewHandler(userService *Service) *Handler {
-	return &Handler{Service: userService}
+	return &Handler{service: userService}
 }
 
 func (h *Handler) Login(service auth.JWTService) http.HandlerFunc {
@@ -29,10 +29,10 @@ func (h *Handler) Login(service auth.JWTService) http.HandlerFunc {
 
 		data := model.LoginRequest{}
 		if err := render.DecodeJSON(r.Body, &data); err != nil {
-			render.JSON(w, r, err)
+			errutil.RenderError(w, r, err)
 			return
 		}
-		user, err := h.Service.Login(r.Context(), data)
+		user, err := h.service.Login(r.Context(), data)
 
 		if err != nil {
 			errutil.RenderError(w, r, err)
@@ -80,11 +80,11 @@ func (h *Handler) Register() http.HandlerFunc {
 		data := model.RegisterAccountRequest{}
 
 		if err := render.DecodeJSON(r.Body, &data); err != nil {
-			render.JSON(w, r, err)
+			render.JSON(w, r, errutil.Wrap(err, "failed to decode json"))
 			return
 		}
 
-		user, err := h.Service.Register(data)
+		user, err := h.service.Register(data)
 
 		if err != nil {
 			log.Error().Err(err).Msg("error during sign up")
@@ -100,7 +100,7 @@ func (h *Handler) Register() http.HandlerFunc {
 func (h *Handler) Activate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		key := r.URL.Query().Get("key")
-		err := h.Service.Activate(key)
+		err := h.service.Activate(key)
 		if err != nil {
 			errutil.RenderError(w, r, err)
 			return
@@ -112,13 +112,31 @@ func (h *Handler) Activate() http.HandlerFunc {
 
 func (h *Handler) GetProfile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		render.Status(r, http.StatusNotImplemented)
+		u, err := h.service.GetProfile(r.Context())
+		if err != nil {
+			errutil.RenderError(w, r, err)
+			return
+		}
+		render.Status(r, http.StatusOK)
+		render.JSON(w, r, u)
 	}
 }
 
 func (h *Handler) UpdateProfile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		render.Status(r, http.StatusNotImplemented)
+		data := model.UserProfile{}
+
+		if err := render.DecodeJSON(r.Body, &data); err != nil {
+			errutil.RenderError(w, r, err)
+			return
+		}
+
+		if err := h.service.UpdateProfile(r.Context(), data); err != nil {
+			errutil.RenderError(w, r, err)
+			return
+		}
+		render.Status(r, http.StatusOK)
+		render.JSON(w, r, nil)
 	}
 }
 
@@ -134,7 +152,7 @@ func (h *Handler) InitPasswordReset() http.HandlerFunc {
 			return
 		}
 
-		err := h.Service.InitiatePasswordReset(data.Email)
+		err := h.service.InitiatePasswordReset(data.Email)
 
 		if err != nil {
 			log.Error().Err(err).Msg("defaultError initiating password reset")
@@ -156,7 +174,7 @@ func (h *Handler) ResetPassword() http.HandlerFunc {
 			return
 		}
 
-		err := h.Service.ResetPassword(data)
+		err := h.service.ResetPassword(data)
 
 		if err != nil {
 			log.Error().Err(err).Msg("error initiating password reset")
@@ -177,7 +195,7 @@ func (h *Handler) ChangePassword() http.HandlerFunc {
 			return
 		}
 
-		err := h.Service.ChangePassword(r.Context(), data)
+		err := h.service.ChangePassword(r.Context(), data)
 
 		if err != nil {
 			log.Error().Err(err).Msg("error changing password")

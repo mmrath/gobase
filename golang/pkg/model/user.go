@@ -1,18 +1,27 @@
 package model
 
 import (
+	"github.com/google/uuid"
 	"github.com/mmrath/gobase/golang/pkg/db"
 )
 
 type User struct {
 	AuditDetails
 
-	ID          int64  `json:"id,omitempty"`
+	ID          int64     `json:"id,omitempty"`
+	UUID        uuid.UUID `json:"uuid,omitempty" gorm:"type:uuid;"`
+	FirstName   string    `json:"firstName,omitempty" sql:"default:null"`
+	LastName    string    `json:"lastName,omitempty" sql:"default:null"`
+	Email       string    `json:"email,omitempty" sql:"default:null"`
+	PhoneNumber string    `json:"phoneNumber,omitempty" sql:"default:null"`
+	Active      bool      `json:"active,omitempty"`
+}
+
+type UserProfile struct {
 	FirstName   string `json:"firstName,omitempty" sql:"default:null"`
 	LastName    string `json:"lastName,omitempty" sql:"default:null"`
 	Email       string `json:"email,omitempty" sql:"default:null"`
 	PhoneNumber string `json:"phoneNumber,omitempty" sql:"default:null"`
-	Active      bool   `json:"active,omitempty"`
 }
 
 func (User) TableName() string {
@@ -85,6 +94,7 @@ func (dao *userDao) Find(tx *db.Tx, id int64) (User, error) {
 }
 
 func (dao *userDao) Insert(tx *db.Tx, user *User) error {
+	user.UUID = uuid.New()
 	err := tx.Model(user).Create(user).Error
 	return err
 }

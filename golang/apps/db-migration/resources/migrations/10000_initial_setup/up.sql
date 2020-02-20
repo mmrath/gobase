@@ -23,12 +23,14 @@ $$
     LANGUAGE plpgsql;
 
 
+
 CREATE TABLE user_account
 (
     id           BIGINT GENERATED ALWAYS AS IDENTITY,
     updated_at   TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_by   TEXT                     NOT NULL,
     version      INTEGER                  NOT NULL DEFAULT 1,
+    uuid         UUID                     NOT NULL UNIQUE default gen_random_uuid(),
     first_name   TEXT                     NOT NULL,
     last_name    TEXT                     NOT NULL,
     email        TEXT                     NOT NULL,

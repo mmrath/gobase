@@ -148,7 +148,6 @@ func (s *Service) loginTx(tx *db.Tx, login model.LoginRequest) (model.User, erro
 }
 
 func (s *Service) ChangePassword(ctx context.Context, data model.ChangePasswordRequest) error {
-
 	id, err := auth.UserIDFromContext(ctx)
 	if err != nil {
 		return err
@@ -339,22 +338,44 @@ func (s *Service) Register(request model.RegisterAccountRequest) (*model.User, e
 	return &newUser, nil
 }
 
-func (s *Service) GetProfile(ctx context.Context) (model.User, error) {
+func (s *Service) GetProfile(ctx context.Context) (model.UserProfile, error) {
 	id, err := auth.UserIDFromContext(ctx)
 
-	var user model.User
+	var userProfile model.UserProfile
 	if err != nil {
-		return user, err
+		return userProfile, err
 	}
 	err = s.db.RunInTx(context.Background(), func(tx *db.Tx) error {
-		user, err = s.userDao.Find(tx, id)
-		return err
+		user, err := s.userDao.Find(tx, id)
+		if err != nil {
+			return err
+		}
+		userProfile.FirstName = user.FirstName
+		userProfile.LastName = user.LastName
+		userProfile.Email = user.Email
+		return nil
 	})
-	return user, err
+	return userProfile, err
 }
 
-func (s *Service) UpdateProfile(user *model.User) error {
-	return nil
+func (s *Service) UpdateProfile(ctx context.Context, profile model.UserProfile) error {
+	id, err := auth.UserIDFromContext(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	err = s.db.RunInTx(context.Background(), func(tx *db.Tx) error {
+		user, err := s.userDao.Find(tx, id)
+		if err != nil {
+			return err
+		}
+		user.FirstName = profile.FirstName
+		user.LastName = profile.LastName
+		err = s.userDao.Update(tx, &user)
+		return err
+	})
+	return err
 }
 
 func (s *Service) checkForDuplicate(tx *db.Tx, input string, by string, fn func(*db.Tx, string) (bool, error)) error {

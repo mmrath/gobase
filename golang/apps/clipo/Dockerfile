@@ -35,5 +35,5 @@ RUN go build \
 
 FROM scratch
 COPY --from=builder /go/bin/"$APP" /app/"$APP"
-ENTRYPOINT ["/app/clipo"]
+ENTRYPOINT ["/app/${APP}"]
 
